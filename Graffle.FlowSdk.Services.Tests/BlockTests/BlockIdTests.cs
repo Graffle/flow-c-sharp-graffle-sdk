@@ -9,7 +9,7 @@ using Graffle.FlowSdk.Services.Nodes;
 namespace Graffle.FlowSdk.Services.Tests.BlockTests
 {
     [TestClass]
-    //[Ignore]
+    [Ignore]
     public class BlockIdTests
     {
         private IGraffleClient flowClient { get; }
