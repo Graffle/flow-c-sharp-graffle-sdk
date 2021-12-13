@@ -1,6 +1,6 @@
 using System;
 using Graffle.FlowSdk;
-using Graffle.FlowSdk.Nodes;
+using Graffle.FlowSdk.Services.Nodes;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

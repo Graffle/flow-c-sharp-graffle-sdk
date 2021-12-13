@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Graffle.FlowSdk.Cryptography;
 using Graffle.FlowSdk.Services.Models;
 using Graffle.FlowSdk.Types;
-using Graffle.FlowSdk.Nodes;
+using Graffle.FlowSdk.Services.Nodes;
 using Graffle.FlowSdk.Services.Transactions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text;
@@ -64,6 +64,5 @@ namespace Graffle.FlowSdk.Services.Tests.AccountTests
             //Assert.AreEqual(false, true, "Test failed waiting for emulator block to seal.");
             Assert.AreEqual(true, true);
         }
-
     }
 }

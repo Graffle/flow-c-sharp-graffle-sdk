@@ -43,7 +43,6 @@ namespace Graffle.FlowSdk.Services.Models {
             return flowTransaction;
         }
         
-        
         public static FlowTransaction AddEnvelopeSignature(FlowTransaction flowTransaction, FlowAddress address, uint keyId, IMessageSigner signer)
         {
             var canonicalAuthorizationEnvelope = Rlp.EncodedCanonicalAuthorizationEnvelope(flowTransaction);

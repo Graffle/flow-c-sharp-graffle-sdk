@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Graffle.FlowSdk.Nodes;
+using Graffle.FlowSdk.Services.Nodes;
 using Graffle.FlowSdk.Types;
 using Google.Protobuf;
 using Grpc.Core;
@@ -15,7 +15,6 @@ namespace Graffle.FlowSdk
         public Spork CurrentSpork { get; private set; }
         public Spork FirstSpork => CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet17.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet1.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
         public Spork LatestSpork => CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
-
 
         private FlowClient flowClient { get; }
 
@@ -114,6 +113,5 @@ namespace Graffle.FlowSdk
         public async Task<Flow.Entities.Account> GetAccountFromConfigAsync(string name, string filePath = null) {
             return await flowClient.GetAccountFromConfigAsync(name, filePath);
         }
-
     }
 }

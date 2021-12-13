@@ -3,22 +3,10 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using Graffle.FlowSdk.Types;
 using Graffle.FlowSdk;
+using Graffle.FlowSdk.Services;
 
 namespace System.Text.Json
 {
-    public static class StringExtensions
-    {
-        public static string ToCamelCase(this string s)
-        {
-            if (s.Count() == 1)
-                return s.ToLowerInvariant();
-            if (char.IsLower(s[0]))
-                return s;
-            var result = char.ToLowerInvariant(s[0]) + s.Substring(1);
-            return result;
-        }
-    }
-
     public class GraffleCompositeType : FlowValueType
     {
         public GraffleCompositeType()
@@ -33,7 +21,6 @@ namespace System.Text.Json
         public string Id { get; set; }
 
         public Dictionary<string, dynamic> Data { get; set; }
-
 
         public override string AsJsonCadenceDataFormat()
         {
@@ -62,7 +49,6 @@ namespace System.Text.Json
 
     public class GraffleCompositeTypeConverter : JsonConverter<GraffleCompositeType>
     {
-
         /// <summary>
         /// This function will recursively break down primitive and complex objects into a Graffle Composite Type Object.
         /// </summary>
@@ -148,8 +134,6 @@ namespace System.Text.Json
         {
             throw new NotImplementedException();
         }
-
-
     }
 
     public class FlowValueTypeConverter : JsonConverter<Graffle.FlowSdk.Types.FlowValueType>
@@ -194,7 +178,6 @@ namespace System.Text.Json
                     {
                         compositeType.Data[item.Values.First().ToCamelCase()] = ((dynamic)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item.Values.Last())).Data;
                     }
-
                 }
 
                 return compositeType;

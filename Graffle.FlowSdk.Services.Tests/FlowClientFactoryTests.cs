@@ -1,11 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using Graffle.FlowSdk.Nodes;
+using Graffle.FlowSdk.Services.Nodes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Graffle.FlowSdk.Services.Tests
 {
-
     [TestClass]
     public class FlowClientFactoryTests
     {
@@ -17,7 +16,6 @@ namespace Graffle.FlowSdk.Services.Tests
             var flowClient = flowClientFactory.CreateFlowClient(spork);
             Assert.AreEqual(MainNetSporks.MainNet.Name, flowClient.CurrentSpork.Name);
         }
-
 
          [TestMethod]
         public void CreateMultipleClient()
@@ -35,5 +33,4 @@ namespace Graffle.FlowSdk.Services.Tests
             Assert.AreEqual(flowClient3, flowClient2);
         }
     }
-
 }

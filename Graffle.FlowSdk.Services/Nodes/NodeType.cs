@@ -1,5 +1,4 @@
-
-namespace Graffle.FlowSdk.Nodes
+namespace Graffle.FlowSdk.Services.Nodes
 {
     public enum NodeType
     {

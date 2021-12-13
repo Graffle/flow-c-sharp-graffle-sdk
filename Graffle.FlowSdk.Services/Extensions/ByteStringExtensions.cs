@@ -1,7 +1,7 @@
 using System;
 using Google.Protobuf;
 
-namespace Graffle.FlowSdk.Extensions
+namespace Graffle.FlowSdk.Services
 {
     public static class ByteStringExtensions
     {

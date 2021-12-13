@@ -23,11 +23,11 @@ namespace Graffle.FlowSdk.Services {
                 foreach (var argument in flowTransaction.Arguments){
                     tx.Arguments.Add(argument.DataAsJson().StringToByteString());
                 }
-            }                
-            
+            }
+
             foreach(var authorizer in flowTransaction.Authorizers)
                 tx.Authorizers.Add(authorizer.Value);
-            
+
             foreach(var payloadSignature in flowTransaction.PayloadSignatures)
                 tx.PayloadSignatures.Add(payloadSignature.FromFlowSignature());
 
@@ -35,7 +35,7 @@ namespace Graffle.FlowSdk.Services {
                 tx.EnvelopeSignatures.Add(envelopeSignature.FromFlowSignature());
 
             return tx;
-        }        
+        }
 
         public static Flow.Entities.Transaction.Types.ProposalKey FromFlowProposalKey(this FlowProposalKey flowProposalKey)
         {
@@ -56,7 +56,7 @@ namespace Graffle.FlowSdk.Services {
                 Signature_ = flowSignature.Signature.ByteArrayToByteString()
             };
         }
-        
+
         public static FlowTransactionResponse ToFlowSendTransactionResponse(this Flow.Access.SendTransactionResponse sendTransactionResponse)
         {
             return new FlowTransactionResponse

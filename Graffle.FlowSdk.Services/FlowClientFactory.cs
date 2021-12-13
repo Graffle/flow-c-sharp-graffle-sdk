@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Concurrent;
-using Graffle.FlowSdk.Nodes;
+using Graffle.FlowSdk.Services.Nodes;
 
 namespace Graffle.FlowSdk
 {
@@ -30,7 +30,6 @@ namespace Graffle.FlowSdk
                 default:
                     throw new NotSupportedException($"Node Type: {nodeType} is not yet supported.");
             }
-
         }
 
         /// <summary>

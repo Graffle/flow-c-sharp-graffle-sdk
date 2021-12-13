@@ -4,7 +4,7 @@ using Graffle.FlowSdk.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text;
 using System.Text.Json;
-using Graffle.FlowSdk.Nodes;
+using Graffle.FlowSdk.Services.Nodes;
 
 namespace Graffle.FlowSdk.Services.Tests.BlockTests
 {
@@ -59,6 +59,5 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
             Assert.AreEqual(result.Data, "Hello World");
             Assert.AreEqual(result.Type, "String");
         }
-
     }
 }
