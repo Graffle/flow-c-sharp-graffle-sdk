@@ -11,7 +11,7 @@ using Graffle.FlowSdk.Services.Models;
 
 namespace Graffle.FlowSdk
 {
-    public sealed class GraffleClient {
+    public sealed class GraffleClient : IGraffleClient {
         public Spork CurrentSpork { get; private set; }
         public Spork FirstSpork => CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet17.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet1.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
         public Spork LatestSpork => CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));

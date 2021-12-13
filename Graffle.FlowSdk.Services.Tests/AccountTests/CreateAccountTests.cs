@@ -13,10 +13,10 @@ using System.Text.Json;
 namespace Graffle.FlowSdk.Services.Tests.AccountTests
 {
     [TestClass]
-    [Ignore]
+    //[Ignore]
     public class CreateAccountTests
     {
-        private GraffleClient flowClient { get; }
+        private IGraffleClient flowClient { get; }
 
         public CreateAccountTests(){
             var factory = new FlowClientFactory(NodeType.Emulator);

@@ -6,7 +6,7 @@ namespace Graffle.FlowSdk
 {
     public sealed class FlowClientFactory
     {
-        private ConcurrentDictionary<string, GraffleClient> ChannelCache = new ConcurrentDictionary<string, GraffleClient>();
+        private ConcurrentDictionary<string, IGraffleClient> ChannelCache = new ConcurrentDictionary<string, IGraffleClient>();
         private readonly NodeType nodeType;
 
         public FlowClientFactory(NodeType nodeType)
@@ -36,7 +36,7 @@ namespace Graffle.FlowSdk
         /// This creates a client from the latest Spork
         /// </summary>
         /// <returns></returns>
-        public GraffleClient CreateFlowClient()
+        public IGraffleClient CreateFlowClient()
         {
             Spork spork = null;
             switch (nodeType)
@@ -61,7 +61,7 @@ namespace Graffle.FlowSdk
         /// </summary>
         /// <param name="spork"></param>
         /// <returns></returns>
-        public GraffleClient CreateFlowClient(Spork spork)
+        public IGraffleClient CreateFlowClient(Spork spork)
         {
             return GenerateFlowClient(spork);
         }
@@ -71,7 +71,7 @@ namespace Graffle.FlowSdk
         /// </summary>
         /// <param name="sporkName"></param>
         /// <returns></returns>
-        public GraffleClient CreateFlowClient(string sporkName)
+        public IGraffleClient CreateFlowClient(string sporkName)
         {
             var spork = Sporks.GetSporkByName(sporkName);
             return GenerateFlowClient(spork);
@@ -82,7 +82,7 @@ namespace Graffle.FlowSdk
         /// </summary>
         /// <param name="blockHeight"></param>
         /// <returns></returns>
-        public GraffleClient CreateFlowClient(ulong blockHeight)
+        public IGraffleClient CreateFlowClient(ulong blockHeight)
         {
             Spork spork = null;
             switch (nodeType)
@@ -107,7 +107,7 @@ namespace Graffle.FlowSdk
         /// </summary>
         /// <param name="spork"></param>
         /// <returns></returns>
-        private GraffleClient GenerateFlowClient(Spork spork)
+        private IGraffleClient GenerateFlowClient(Spork spork)
         {
             //Check to see if the channel already exists
             var graffleClientFound = ChannelCache.TryGetValue(spork.Name, out var graffleClient);
