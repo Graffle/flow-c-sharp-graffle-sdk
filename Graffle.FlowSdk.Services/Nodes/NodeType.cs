@@ -6,5 +6,4 @@ namespace Graffle.FlowSdk.Services.Nodes
         MainNet = 1,
         Emulator = 2,
     }
-
 }
