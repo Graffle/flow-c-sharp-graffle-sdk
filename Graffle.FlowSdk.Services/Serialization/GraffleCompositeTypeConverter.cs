@@ -7,7 +7,6 @@ using Graffle.FlowSdk.Services;
 
 namespace System.Text.Json
 {
-
     public class GraffleCompositeTypeConverter : JsonConverter<GraffleCompositeType>
     {
         /// <summary>
