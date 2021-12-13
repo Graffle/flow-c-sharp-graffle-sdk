@@ -1,0 +1,11 @@
+
+namespace Graffle.FlowSdk.Nodes
+{
+    public enum NodeType
+    {
+        TestNet = 0,
+        MainNet = 1,
+        Emulator = 2,
+    }
+
+}
