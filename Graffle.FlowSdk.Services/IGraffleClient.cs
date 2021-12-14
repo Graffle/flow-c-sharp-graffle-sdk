@@ -1,0 +1,44 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Graffle.FlowSdk.Services.Nodes;
+using Graffle.FlowSdk.Types;
+using Google.Protobuf;
+using Grpc.Core;
+using Graffle.FlowSdk.Services.Models;
+
+namespace Graffle.FlowSdk
+{
+    public interface IGraffleClient {
+        Spork CurrentSpork { get; }
+        
+        Spork FirstSpork { get; }
+        
+        Spork LatestSpork { get; }
+        
+        Task PingAsync();
+
+        Task<FlowBlock> GetLatestBlockAsync(bool isSealed = true, CallOptions options = new CallOptions());
+
+        Task<List<FlowEvent>> GetEventsForHeightRangeAsync(string eventType, ulong startHeight, ulong endHeight, CallOptions options = new CallOptions());
+
+        Task<Flow.Access.ExecuteScriptResponse> ExecuteScriptAtBlockHeightAsync(ulong blockHeight, byte[] cadenceScript, IEnumerable<FlowValueType> args, CallOptions options = new CallOptions());
+
+        Task<Flow.Access.ExecuteScriptResponse> ExecuteScriptAtBlockIdAsync(ByteString blockId, byte[] cadenceScript, IEnumerable<FlowValueType> args, CallOptions options = new CallOptions());
+
+        Task<FlowBlock> GetBlockByHeightAsync(ulong blockHeight, CallOptions options = new CallOptions());
+
+        Task<Flow.Access.TransactionResponse> GetTransactionAsync(ByteString transactionId);
+
+        Task<Flow.Access.AccountResponse> GetAccountAsync(string address, ulong blockHeight);
+
+        Task<FlowCollection> GetCollectionById(ByteString collectionId);
+
+        Task<Flow.Access.TransactionResultResponse> GetTransactionResult(ByteString transactionId);
+
+        Task<FlowTransactionResponse> SendTransactionAsync(FlowTransaction flowTransaction, CallOptions options = new CallOptions());
+        
+        Task<Flow.Access.TransactionResultResponse> WaitForSealAsync(FlowTransactionResponse transactionResponse, int delayMs = 1000, int timeoutMS = 30000);
+
+        Task<Flow.Entities.Account> GetAccountFromConfigAsync(string name, string filePath = null);
+    }
+}
