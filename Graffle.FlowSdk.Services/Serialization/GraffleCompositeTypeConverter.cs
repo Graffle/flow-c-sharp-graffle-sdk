@@ -50,6 +50,12 @@ namespace System.Text.Json
                     //Place the complex type in its correct position
                     compositeType.Data[item.Values.First().ToCamelCase()] = complexCompositeType.Data;
                 }
+                else if (rootType.GetString() == "Dictionary")
+                {
+                    var myDictionary = (DictionaryType)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last());
+                    var myObject = myDictionary.ConvertToObject();
+                    compositeType.Data[item.Values.First().ToCamelCase()] = myObject;
+                }
                 else
                 {
                     //We are working with a primitive Cadence type so we can use our SDK to convert it into the value we need.
