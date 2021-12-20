@@ -51,7 +51,7 @@ namespace Graffle.FlowSdk.Services {
         {
             return new Flow.Entities.Transaction.Types.Signature
             {
-                Address = flowSignature.Address,
+                Address = flowSignature.Address.Value,
                 KeyId = flowSignature.KeyId,
                 Signature_ = flowSignature.Signature.ByteArrayToByteString()
             };

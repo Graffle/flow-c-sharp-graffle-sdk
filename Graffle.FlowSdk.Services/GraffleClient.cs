@@ -11,14 +11,16 @@ using Graffle.FlowSdk.Services.Models;
 
 namespace Graffle.FlowSdk
 {
-    public sealed class GraffleClient : IGraffleClient {
+    public sealed class GraffleClient : IGraffleClient
+    {
         public Spork CurrentSpork { get; private set; }
         public Spork FirstSpork => CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet17.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet1.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
         public Spork LatestSpork => CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
 
         private FlowClient flowClient { get; }
 
-        public GraffleClient(Spork spork){
+        public GraffleClient(Spork spork)
+        {
             this.flowClient = FlowClient.Create(spork.Node);
             this.CurrentSpork = spork;
         }
@@ -53,9 +55,9 @@ namespace Graffle.FlowSdk
             return new FlowBlock((await flowClient.GetBlockByHeightAsync(blockHeight, options)).Block);
         }
 
-        public async Task<Flow.Access.TransactionResponse> GetTransactionAsync(ByteString transactionId)
+        public async Task<FlowTransaction> GetTransactionAsync(ByteString transactionId)
         {
-            return await flowClient.GetTransactionAsync(transactionId);
+            return new FlowTransaction(await flowClient.GetTransactionAsync(transactionId));
         }
 
         public async Task<Flow.Access.AccountResponse> GetAccountAsync(string address, ulong blockHeight)
@@ -68,12 +70,12 @@ namespace Graffle.FlowSdk
             return new FlowCollection((await flowClient.GetCollectionById(collectionId)).Collection);
         }
 
-        public async Task<Flow.Access.TransactionResultResponse> GetTransactionResult(ByteString transactionId)
+        public async Task<FlowTransactionResult> GetTransactionResult(ByteString transactionId)
         {
-            return await flowClient.GetTransactionResult(transactionId);
+            return new FlowTransactionResult(await flowClient.GetTransactionResult(transactionId));
         }
 
-         public async Task<FlowTransactionResponse> SendTransactionAsync(FlowTransaction flowTransaction, CallOptions options = new CallOptions())
+        public async Task<FlowTransactionResponse> SendTransactionAsync(FlowTransaction flowTransaction, CallOptions options = new CallOptions())
         {
             try
             {
@@ -92,8 +94,8 @@ namespace Graffle.FlowSdk
                 throw new Exception("SendTransaction request failed.", exception);
             }
         }
-        
-        public async Task<Flow.Access.TransactionResultResponse> WaitForSealAsync(FlowTransactionResponse transactionResponse, int delayMs = 1000, int timeoutMS = 30000)
+
+        public async Task<FlowTransactionResult> WaitForSealAsync(FlowTransactionResponse transactionResponse, int delayMs = 1000, int timeoutMS = 30000)
         {
             var startTime = DateTime.UtcNow;
             while (true)
@@ -110,8 +112,18 @@ namespace Graffle.FlowSdk
             }
         }
 
-        public async Task<Flow.Entities.Account> GetAccountFromConfigAsync(string name, string filePath = null) {
+        public async Task<Flow.Entities.Account> GetAccountFromConfigAsync(string name, string filePath = null)
+        {
             return await flowClient.GetAccountFromConfigAsync(name, filePath);
+        }
+
+        public async Task<FlowFullTransaction> GetCompleteTransactionAsync(ByteString transactionId)
+        {
+            //TODO: Add retry;
+            var transactionResultTask = GetTransactionResult(transactionId);
+            var transactionTask = GetTransactionAsync(transactionId);
+            var result = new FlowFullTransaction(await transactionResultTask, await transactionTask);
+            return result;
         }
     }
 }

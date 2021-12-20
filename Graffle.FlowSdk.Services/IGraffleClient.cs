@@ -27,17 +27,18 @@ namespace Graffle.FlowSdk
 
         Task<FlowBlock> GetBlockByHeightAsync(ulong blockHeight, CallOptions options = new CallOptions());
 
-        Task<Flow.Access.TransactionResponse> GetTransactionAsync(ByteString transactionId);
+        Task<FlowTransaction> GetTransactionAsync(ByteString transactionId);
 
         Task<Flow.Access.AccountResponse> GetAccountAsync(string address, ulong blockHeight);
 
         Task<FlowCollection> GetCollectionById(ByteString collectionId);
 
-        Task<Flow.Access.TransactionResultResponse> GetTransactionResult(ByteString transactionId);
+        Task<FlowTransactionResult> GetTransactionResult(ByteString transactionId);
+        Task<FlowFullTransaction> GetCompleteTransactionAsync(ByteString transactionId);
 
         Task<FlowTransactionResponse> SendTransactionAsync(FlowTransaction flowTransaction, CallOptions options = new CallOptions());
         
-        Task<Flow.Access.TransactionResultResponse> WaitForSealAsync(FlowTransactionResponse transactionResponse, int delayMs = 1000, int timeoutMS = 30000);
+        Task<FlowTransactionResult> WaitForSealAsync(FlowTransactionResponse transactionResponse, int delayMs = 1000, int timeoutMS = 30000);
 
         Task<Flow.Entities.Account> GetAccountFromConfigAsync(string name, string filePath = null);
     }
