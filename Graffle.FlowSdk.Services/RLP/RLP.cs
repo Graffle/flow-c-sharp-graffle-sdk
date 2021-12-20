@@ -34,7 +34,7 @@ namespace Graffle.FlowSdk.Services.RecursiveLengthPrefix
 
             var payloadElements = new List<byte[]>
             {
-                RLP.EncodeElement(flowTransaction.Script.ToBytesForRLPEncoding()),
+                RLP.EncodeElement(flowTransaction.Script.RawScript.ToBytesForRLPEncoding()),
                 RLP.EncodeList(argArray.ToArray()),
                 RLP.EncodeElement(Helpers.Pad(flowTransaction.ReferenceBlockId.ToByteArray(), 32)),
                 RLP.EncodeElement(ConvertorForRLPEncodingExtensions.ToBytesFromNumber(BitConverter.GetBytes(flowTransaction.GasLimit))),

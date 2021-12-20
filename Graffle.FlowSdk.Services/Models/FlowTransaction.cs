@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using Google.Protobuf;
 using Graffle.FlowSdk.Types;
 
-namespace Graffle.FlowSdk.Services.Models {
-    public sealed class FlowTransaction {    
+namespace Graffle.FlowSdk.Services.Models
+{
+    public sealed class FlowTransaction
+    {
         public FlowTransaction()
         {
             Arguments = new List<FlowValueType>();
@@ -13,9 +15,9 @@ namespace Graffle.FlowSdk.Services.Models {
             PayloadSignatures = new List<FlowSignature>();
             EnvelopeSignatures = new List<FlowSignature>();
             GasLimit = 9999;
-        }    
+        }
 
-        public string Script { get; set; }
+        public FlowScript Script { get; set; }
         public IList<FlowValueType> Arguments { get; set; }
         public ByteString ReferenceBlockId { get; set; }
         public ulong GasLimit { get; set; }
@@ -42,7 +44,7 @@ namespace Graffle.FlowSdk.Services.Models {
 
             return flowTransaction;
         }
-        
+
         public static FlowTransaction AddEnvelopeSignature(FlowTransaction flowTransaction, FlowAddress address, uint keyId, IMessageSigner signer)
         {
             var canonicalAuthorizationEnvelope = Rlp.EncodedCanonicalAuthorizationEnvelope(flowTransaction);

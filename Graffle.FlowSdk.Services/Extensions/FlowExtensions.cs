@@ -11,7 +11,7 @@ namespace Graffle.FlowSdk.Services {
         {
             var tx = new Flow.Entities.Transaction
             {
-                Script = flowTransaction.Script.StringToByteString(),
+                Script = flowTransaction.Script.RawScript.StringToByteString(),
                 Payer = flowTransaction.Payer.Value,
                 GasLimit = flowTransaction.GasLimit,
                 ReferenceBlockId = flowTransaction.ReferenceBlockId,
