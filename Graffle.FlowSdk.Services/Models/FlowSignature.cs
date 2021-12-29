@@ -20,6 +20,6 @@ namespace Graffle.FlowSdk.Services.Models
         public uint KeyId { get; set; }
         public byte[] Signature { get; set; }
 
-        public string SignatureHex{get;}
+        public string SignatureHex { get; }
     }
 }

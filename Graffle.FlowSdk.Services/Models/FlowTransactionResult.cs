@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Flow.Entities;
 
 namespace Graffle.FlowSdk.Services.Models
 {
-
     public interface IFlowTransactionResult
     {
         string BlockId { get; }
@@ -36,18 +33,13 @@ namespace Graffle.FlowSdk.Services.Models
             {
                 Events.Add(new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId, options));
             }
-
-
         }
 
         public string BlockId { get; }
         public string ErrorMessage { get; }
-
         public TransactionStatus Status { get; }
-
         public string StatusDescription { get; }
         public uint StatusCode { get; }
-
         public IList<FlowTransactionResponseEvent> Events { get; } = new List<FlowTransactionResponseEvent>();
     }
 }

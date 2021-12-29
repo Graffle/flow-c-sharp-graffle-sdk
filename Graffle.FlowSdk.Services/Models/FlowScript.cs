@@ -12,6 +12,5 @@ namespace Graffle.FlowSdk.Services.Models
 
         //TODO: This needs to remove variables and standardize them
         public string ScriptHash { get; }
-
     }
 }
