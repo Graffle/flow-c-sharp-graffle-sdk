@@ -14,8 +14,8 @@ namespace Graffle.FlowSdk.Services.Models
         {
             FlowTransactionResult = flowTransactionResult;
             FlowTransaction = flowTransaction;
-
         }
+
         public IFlowTransactionResult FlowTransactionResult { get; }
         public IFlowTransaction FlowTransaction { get; }
     }

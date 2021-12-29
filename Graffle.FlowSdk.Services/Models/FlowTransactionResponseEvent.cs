@@ -21,8 +21,6 @@ namespace Graffle.FlowSdk.Services.Models
             this.BlockIdHash = blockId.ToHash();
         }
 
-
-
         public ByteString TransactionId { get; }
         public string TransactionIdHash { get; }
         public string Payload { get; }
