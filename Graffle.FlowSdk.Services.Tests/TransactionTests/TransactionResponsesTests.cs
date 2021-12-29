@@ -16,8 +16,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
     [Ignore]
     public class TransactionResponsesTests
     {
-
-
         public TransactionResponsesTests()
         {
         }
@@ -37,7 +35,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var transactionResult = await flowClient.GetTransactionResult(transactionId);
             var transaction = await flowClient.GetTransactionAsync(transactionId);
             var complete = await flowClient.GetCompleteTransactionAsync(transactionId);
-             var result = string.Empty;
+            var result = string.Empty;
         }
     }
 }

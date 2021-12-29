@@ -24,7 +24,6 @@ namespace Graffle.FlowSdk.Services.Models
 
     public sealed class FlowTransaction : IFlowTransaction
     {
-
         public FlowTransaction(Flow.Access.TransactionResponse transaction)
         {
             Script = new FlowScript(transaction.Transaction.Script.ToString(System.Text.Encoding.UTF8));
