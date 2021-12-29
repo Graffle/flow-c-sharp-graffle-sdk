@@ -10,7 +10,10 @@ using Graffle.FlowSdk.Services.Models;
 
 namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 {
+    //Quick internal test.
+    //TODO: Update to real automated tests.
     [TestClass]
+    [Ignore]
     public class TransactionResponsesTests
     {
 
