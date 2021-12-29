@@ -24,7 +24,7 @@ namespace Graffle.FlowSdk.Services.Models
     }
 
     //TODO: Fix this and pull it out somewhere proper.
-    public static class Test
+    public static class ScriptHasher
     {
 
         internal static byte[] GetHash(this string inputString)
