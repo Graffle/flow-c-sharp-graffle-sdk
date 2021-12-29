@@ -1,8 +1,9 @@
 using Google.Protobuf;
 
-namespace Graffle.FlowSdk.Services.Models {
+namespace Graffle.FlowSdk.Services.Models
+{
     public class FlowTransactionResponse
     {
-        public ByteString Id { get; set; }        
+        public ByteString Id { get; set; }
     }
 }

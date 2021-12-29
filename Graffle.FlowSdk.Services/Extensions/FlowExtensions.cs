@@ -11,7 +11,7 @@ namespace Graffle.FlowSdk.Services {
         {
             var tx = new Flow.Entities.Transaction
             {
-                Script = flowTransaction.Script.StringToByteString(),
+                Script = flowTransaction.Script.RawScript.StringToByteString(),
                 Payer = flowTransaction.Payer.Value,
                 GasLimit = flowTransaction.GasLimit,
                 ReferenceBlockId = flowTransaction.ReferenceBlockId,
@@ -51,7 +51,7 @@ namespace Graffle.FlowSdk.Services {
         {
             return new Flow.Entities.Transaction.Types.Signature
             {
-                Address = flowSignature.Address,
+                Address = flowSignature.Address.Value,
                 KeyId = flowSignature.KeyId,
                 Signature_ = flowSignature.Signature.ByteArrayToByteString()
             };

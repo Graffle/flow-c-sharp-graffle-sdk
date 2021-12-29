@@ -34,7 +34,7 @@ namespace Graffle.FlowSdk.Services.RecursiveLengthPrefix
 
             var payloadElements = new List<byte[]>
             {
-                RLP.EncodeElement(flowTransaction.Script.ToBytesForRLPEncoding()),
+                RLP.EncodeElement(flowTransaction.Script.RawScript.ToBytesForRLPEncoding()),
                 RLP.EncodeList(argArray.ToArray()),
                 RLP.EncodeElement(Helpers.Pad(flowTransaction.ReferenceBlockId.ToByteArray(), 32)),
                 RLP.EncodeElement(ConvertorForRLPEncodingExtensions.ToBytesFromNumber(BitConverter.GetBytes(flowTransaction.GasLimit))),
@@ -54,13 +54,13 @@ namespace Graffle.FlowSdk.Services.RecursiveLengthPrefix
             for (var i = 0; i < signatures.Length; i++)
             {
                 var index = i;
-                if (flowTransaction.SignerList.ContainsKey(signatures[i].Address))
+                if (flowTransaction.SignerList.ContainsKey(signatures[i].Address.Value))
                 {
-                    index = flowTransaction.SignerList[signatures[i].Address];
+                    index = flowTransaction.SignerList[signatures[i].Address.Value];
                 }
                 else
                 {
-                    flowTransaction.SignerList.Add(signatures[i].Address, i);
+                    flowTransaction.SignerList.Add(signatures[i].Address.Value, i);
                 }
 
                 var signatureEncoded = EncodedSignature(signatures[i], index);
