@@ -29,7 +29,7 @@ namespace Graffle.FlowSdk
 
         Task<FlowTransaction> GetTransactionAsync(ByteString transactionId);
 
-        Task<Flow.Access.AccountResponse> GetAccountAsync(string address, ulong blockHeight);
+        Task<FlowAccount> GetAccountAsync(string address, ulong blockHeight);
 
         Task<FlowCollection> GetCollectionById(ByteString collectionId);
 

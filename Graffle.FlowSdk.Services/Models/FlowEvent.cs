@@ -10,16 +10,13 @@ namespace Graffle.FlowSdk.Services.Models
 {
     public sealed class FlowEvent {
         public FlowEvent(Flow.Entities.Event @event, ulong blockHeight, ByteString blockId, DateTimeOffset blockTimestamp, JsonSerializerOptions options) {
-            this.TransactionId = @event.TransactionId;
-            this.TransactionIdHash = @event.TransactionId.ToHash();
+            this.TransactionId = @event.TransactionId.ToHash();
             this.Payload = @event.Payload.ToString(Encoding.Default);
             this.EventComposite = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
             this.TransactionIndex = @event.TransactionIndex;
             this.BlockHeight = blockHeight;
-            this.BlockId = blockId;
-            this.BlockIdHash = blockId.ToHash();
+            this.BlockId = blockId.ToHash();
             this.BlockTimestamp = blockTimestamp;
-            this.RawEvent = @event;
         }
 
         public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults) {
@@ -45,15 +42,12 @@ namespace Graffle.FlowSdk.Services.Models
             return eventsList;
         }
 
-        public ByteString TransactionId { get; }
-        public string TransactionIdHash { get; }
+        public string TransactionId { get; }
         public string Payload { get; }
         public GraffleCompositeType EventComposite { get; }
         public uint TransactionIndex { get; }    
         public ulong BlockHeight { get; }
-        public ByteString BlockId { get; }
-        public string BlockIdHash { get; }
+        public string BlockId { get; }
         public DateTimeOffset BlockTimestamp { get; }
-        public Flow.Entities.Event RawEvent { get; }
     }
 }

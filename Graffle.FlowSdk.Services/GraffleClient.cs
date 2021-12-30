@@ -60,9 +60,9 @@ namespace Graffle.FlowSdk
             return new FlowTransaction(await flowClient.GetTransactionAsync(transactionId));
         }
 
-        public async Task<Flow.Access.AccountResponse> GetAccountAsync(string address, ulong blockHeight)
+        public async Task<FlowAccount> GetAccountAsync(string address, ulong blockHeight)
         {
-            return await flowClient.GetAccountAsync(address, blockHeight);
+            return new FlowAccount(await flowClient.GetAccountAsync(address, blockHeight));
         }
 
         public async Task<FlowCollection> GetCollectionById(ByteString collectionId)

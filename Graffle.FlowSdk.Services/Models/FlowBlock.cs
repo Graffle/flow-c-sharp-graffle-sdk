@@ -1,25 +1,26 @@
 using System;
-using Google.Protobuf;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Graffle.FlowSdk.Services.Models
 {
     public sealed class FlowBlock {
         public FlowBlock(Flow.Entities.Block block) {
             this.Height = block.Height;
-            this.Id = block.Id;
-            this.IdHash = block.Id.ToHash();
-            this.ParentId = block.ParentId;
-            this.ParentIdHash = block.ParentId.ToHash();
+            this.Id = block.Id.ToHash();
+            this.ParentId = block.ParentId.ToHash();
             this.Timestamp = block.Timestamp.ToDateTimeOffset();
-            this.RawBlock = block;
+            this.CollectionGuarantees = block.CollectionGuarantees.Select(x => new FlowCollectionGuarantee(x));
+            this.Signatures = block.Signatures.Select(x => x.ToHash());
+            this.BlockSeals = block.BlockSeals.Select(x => new FlowBlockSeal(x));
         }
 
         public ulong Height { get; }
-        public ByteString ParentId { get; }
-        public string ParentIdHash { get; }
-        public ByteString Id { get; }
-        public string IdHash { get; }
+        public string ParentId { get; }
+        public string Id { get; }
         public DateTimeOffset Timestamp { get; }
-        public Flow.Entities.Block RawBlock { get; }
+        public IEnumerable<FlowCollectionGuarantee> CollectionGuarantees { get; }
+        public IEnumerable<string> Signatures { get; }
+        public IEnumerable<FlowBlockSeal> BlockSeals { get; }
     }
 }

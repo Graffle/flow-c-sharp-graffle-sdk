@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Google.Protobuf;
 
 namespace Graffle.FlowSdk.Services
 {
@@ -32,6 +33,15 @@ namespace Graffle.FlowSdk.Services
                 sb.Append(b.ToString("X2"));
 
             return sb.ToString();
+        }
+
+        public static ByteString HashToByteString(this string str){
+            var upper = str.ToUpperInvariant();
+            var splitStr = Enumerable
+                .Range(0, upper.Length/2)
+                .Select(i => upper.Substring(i*2, 2)).ToList();
+            var bytes = splitStr.Select(b => Convert.ToByte(b, 16)).ToArray();
+            return ByteString.CopyFrom(bytes);
         }
     }
 }

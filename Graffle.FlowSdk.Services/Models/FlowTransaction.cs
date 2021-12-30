@@ -11,15 +11,14 @@ namespace Graffle.FlowSdk.Services.Models
     {
         FlowScript Script { get; set; }
         IList<FlowValueType> Arguments { get; set; }
-        ByteString ReferenceBlockId { get; set; }
-        string ReferenceBlockIdHash { get; }
+        string ReferenceBlockId { get; set; }
         ulong GasLimit { get; set; }
         FlowAddress Payer { get; set; }
         FlowProposalKey ProposalKey { get; set; }
         IList<FlowAddress> Authorizers { get; set; }
         IList<FlowSignature> PayloadSignatures { get; set; }
         IList<FlowSignature> EnvelopeSignatures { get; set; }
-        Dictionary<ByteString, int> SignerList { get; set; }
+        Dictionary<string, int> SignerList { get; set; }
     }
 
     public sealed class FlowTransaction : IFlowTransaction
@@ -31,7 +30,7 @@ namespace Graffle.FlowSdk.Services.Models
             //TODO: Make sure this works. Missing Args
             var thing = transaction.Transaction.Arguments.Select(s => s.ToString(System.Text.Encoding.UTF8));
 
-            ReferenceBlockId = transaction.Transaction.ReferenceBlockId;
+            ReferenceBlockId = transaction.Transaction.ReferenceBlockId.ToHash();
             GasLimit = transaction.Transaction.GasLimit;
             Payer = new FlowAddress(transaction.Transaction.Payer);
             ProposalKey = new FlowProposalKey(transaction.Transaction.ProposalKey);
@@ -43,7 +42,7 @@ namespace Graffle.FlowSdk.Services.Models
             signatureList.AddRange(EnvelopeSignatures);
             foreach (var item in signatureList)
             {
-                SignerList.TryAdd(item.Address.Value, signatureList.IndexOf(item));
+                SignerList.TryAdd(item.Address.Value.ToHash(), signatureList.IndexOf(item));
             }
         }
         public FlowTransaction()
@@ -57,15 +56,14 @@ namespace Graffle.FlowSdk.Services.Models
 
         public FlowScript Script { get; set; }
         public IList<FlowValueType> Arguments { get; set; }
-        public ByteString ReferenceBlockId { get; set; }
-        public string ReferenceBlockIdHash => ReferenceBlockId.ToString(System.Text.Encoding.UTF8);
+        public string ReferenceBlockId { get; set; }
         public ulong GasLimit { get; set; }
         public FlowAddress Payer { get; set; }
         public FlowProposalKey ProposalKey { get; set; }
         public IList<FlowAddress> Authorizers { get; set; }
         public IList<FlowSignature> PayloadSignatures { get; set; }
         public IList<FlowSignature> EnvelopeSignatures { get; set; }
-        public Dictionary<ByteString, int> SignerList { get; set; } = new Dictionary<ByteString, int>();
+        public Dictionary<string, int> SignerList { get; set; } = new Dictionary<string, int>();
 
         public static FlowTransaction AddPayloadSignature(FlowTransaction flowTransaction, FlowAddress address, uint keyId, IMessageSigner signer)
         {

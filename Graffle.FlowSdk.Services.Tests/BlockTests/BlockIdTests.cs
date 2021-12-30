@@ -32,7 +32,7 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
             
             var scriptBytes = Encoding.ASCII.GetBytes(helloWorldScript);
             
-            var scriptResponse = await flowClient.ExecuteScriptAtBlockIdAsync(latestBlockResponse.Id, scriptBytes, new List<FlowValueType>());
+            var scriptResponse = await flowClient.ExecuteScriptAtBlockIdAsync(latestBlockResponse.Id.HashToByteString(), scriptBytes, new List<FlowValueType>());
             var metaDataJson = Encoding.Default.GetString(scriptResponse.Value.ToByteArray());
             var result = StringType.FromJson(metaDataJson);
 
