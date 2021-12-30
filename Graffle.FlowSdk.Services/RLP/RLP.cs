@@ -36,7 +36,7 @@ namespace Graffle.FlowSdk.Services.RecursiveLengthPrefix
             {
                 RLP.EncodeElement(flowTransaction.Script.RawScript.ToBytesForRLPEncoding()),
                 RLP.EncodeList(argArray.ToArray()),
-                RLP.EncodeElement(Helpers.Pad(flowTransaction.ReferenceBlockId.ToByteArray(), 32)),
+                RLP.EncodeElement(Helpers.Pad(flowTransaction.ReferenceBlockId.HashToByteString().ToByteArray(), 32)),
                 RLP.EncodeElement(ConvertorForRLPEncodingExtensions.ToBytesFromNumber(BitConverter.GetBytes(flowTransaction.GasLimit))),
                 RLP.EncodeElement(Helpers.Pad(flowTransaction.ProposalKey.Address.Value.ToByteArray(), 8)),
                 RLP.EncodeElement(ConvertorForRLPEncodingExtensions.ToBytesFromNumber(BitConverter.GetBytes(flowTransaction.ProposalKey.KeyId))),
@@ -54,13 +54,13 @@ namespace Graffle.FlowSdk.Services.RecursiveLengthPrefix
             for (var i = 0; i < signatures.Length; i++)
             {
                 var index = i;
-                if (flowTransaction.SignerList.ContainsKey(signatures[i].Address.Value))
+                if (flowTransaction.SignerList.ContainsKey(signatures[i].Address.Value.ToHash()))
                 {
-                    index = flowTransaction.SignerList[signatures[i].Address.Value];
+                    index = flowTransaction.SignerList[signatures[i].Address.Value.ToHash()];
                 }
                 else
                 {
-                    flowTransaction.SignerList.Add(signatures[i].Address.Value, i);
+                    flowTransaction.SignerList.Add(signatures[i].Address.Value.ToHash(), i);
                 }
 
                 var signatureEncoded = EncodedSignature(signatures[i], index);

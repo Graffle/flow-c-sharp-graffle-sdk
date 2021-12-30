@@ -28,13 +28,12 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var latestBlockResponse = await flowClient.GetLatestBlockAsync(true);
 
             var block = await flowClient.GetBlockByHeightAsync(21762224);
-            var collectionId = block.RawBlock.CollectionGuarantees.FirstOrDefault().CollectionId;
-            var collection = await flowClient.GetCollectionById(collectionId);
+            var collectionId = block.CollectionGuarantees.FirstOrDefault().CollectionId;
+            var collection = await flowClient.GetCollectionById(collectionId.HashToByteString());
             var transactionId = collection.TransactionIds.FirstOrDefault();
-            var thing = transactionId.ByteStringToHex();
-            var transactionResult = await flowClient.GetTransactionResult(transactionId);
-            var transaction = await flowClient.GetTransactionAsync(transactionId);
-            var complete = await flowClient.GetCompleteTransactionAsync(transactionId);
+            var transactionResult = await flowClient.GetTransactionResult(transactionId.HashToByteString());
+            var transaction = await flowClient.GetTransactionAsync(transactionId.HashToByteString());
+            var complete = await flowClient.GetCompleteTransactionAsync(transactionId.HashToByteString());
             var result = string.Empty;
         }
     }

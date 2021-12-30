@@ -25,10 +25,10 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
             var latestBlockResponse = await this.flowClient.GetLatestBlockAsync(true);
             Assert.IsNotNull(latestBlockResponse);
             Assert.IsNotNull(latestBlockResponse.Id);
-            Assert.AreNotEqual(latestBlockResponse.Id.ToBase64(), "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+            Assert.AreNotEqual(latestBlockResponse.Id.HashToByteString().ToBase64(), "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
             Assert.IsNotNull(latestBlockResponse.Timestamp);
-            Assert.IsNotNull(latestBlockResponse.RawBlock.CollectionGuarantees);
-            Assert.IsNotNull(latestBlockResponse.RawBlock.Signatures);
+            Assert.IsNotNull(latestBlockResponse.CollectionGuarantees);
+            Assert.IsNotNull(latestBlockResponse.Signatures);
         }
 
         [TestMethod]
@@ -36,10 +36,10 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
             var latestBlockResponse = await this.flowClient.GetBlockByHeightAsync(0);
             Assert.IsNotNull(latestBlockResponse);
             Assert.IsNotNull(latestBlockResponse.Id);
-            Assert.AreNotEqual(latestBlockResponse.Id.ToBase64(), "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+            Assert.AreNotEqual(latestBlockResponse.Id.HashToByteString().ToBase64(), "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
             Assert.IsNotNull(latestBlockResponse.Timestamp);
-            Assert.IsNotNull(latestBlockResponse.RawBlock.CollectionGuarantees);
-            Assert.IsNotNull(latestBlockResponse.RawBlock.Signatures);
+            Assert.IsNotNull(latestBlockResponse.CollectionGuarantees);
+            Assert.IsNotNull(latestBlockResponse.Signatures);
         }
 
         [TestMethod]
