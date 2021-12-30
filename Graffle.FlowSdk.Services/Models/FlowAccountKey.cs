@@ -16,10 +16,10 @@ namespace Graffle.FlowSdk.Services.Models {
             SequenceNumber = accountKey.SequenceNumber;
             Revoked = accountKey.Revoked;
         }
-        
+
         public uint Index { get; set; }
         public string PublicKey { get; set; }
-        public SignatureAlgorithm SignatureAlgorithm { get; set;}
+        public SignatureAlgorithm SignatureAlgorithm { get; set; }
         public HashAlgorithm HashAlgorithm { get; set; }
         public uint Weight { get; set; }
         public uint SequenceNumber { get; set; }

@@ -16,7 +16,7 @@ namespace Graffle.FlowSdk.Services.Models {
 
         public string BlockId { get; private set; }
         public string ExecutionReceiptId { get; private set; }
-        public IEnumerable<string> ExecutionReceiptSignatures { get; private set;}
-        public IEnumerable<string> ResultApprovalSignatures { get; private set;}
+        public IEnumerable<string> ExecutionReceiptSignatures { get; private set; }
+        public IEnumerable<string> ResultApprovalSignatures { get; private set; }
     }
 }
