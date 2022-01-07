@@ -23,26 +23,17 @@ namespace Graffle.FlowSdk.Services.RecursiveLengthPrefix
 
         public static byte[] EncodedCanonicalPayload(FlowTransaction flowTransaction)
         {
-            var argArray = new List<byte[]>();
-            foreach (var argument in flowTransaction.Arguments) {
-                argArray.Add(RLP.EncodeElement(argument.AsJsonCadenceDataFormat().ToBytesForRLPEncoding()));
-            }
-
-            var authArray = new List<byte[]>();
-            foreach (var authorizer in flowTransaction.Authorizers)
-                authArray.Add(RLP.EncodeElement(Helpers.Pad(authorizer.Value.ToByteArray(), 8)));
-
             var payloadElements = new List<byte[]>
             {
                 RLP.EncodeElement(flowTransaction.Script.RawScript.ToBytesForRLPEncoding()),
-                RLP.EncodeList(argArray.ToArray()),
-                RLP.EncodeElement(Helpers.Pad(flowTransaction.ReferenceBlockId.HashToByteString().ToByteArray(), 32)),
+                RLP.EncodeList(flowTransaction.Arguments.Select(argument => RLP.EncodeElement(argument.AsJsonCadenceDataFormat().ToBytesForRLPEncoding())).ToArray()),
+                RLP.EncodeElement(Helpers.Pad(flowTransaction.ReferenceBlockId.HexToByteString().ToByteArray(), 32)),
                 RLP.EncodeElement(ConvertorForRLPEncodingExtensions.ToBytesFromNumber(BitConverter.GetBytes(flowTransaction.GasLimit))),
                 RLP.EncodeElement(Helpers.Pad(flowTransaction.ProposalKey.Address.Value.ToByteArray(), 8)),
                 RLP.EncodeElement(ConvertorForRLPEncodingExtensions.ToBytesFromNumber(BitConverter.GetBytes(flowTransaction.ProposalKey.KeyId))),
                 RLP.EncodeElement(ConvertorForRLPEncodingExtensions.ToBytesFromNumber(BitConverter.GetBytes(flowTransaction.ProposalKey.SequenceNumber))),
                 RLP.EncodeElement(Helpers.Pad(flowTransaction.Payer.Value.ToByteArray(), 8)),
-                RLP.EncodeList(authArray.ToArray())
+                RLP.EncodeList(flowTransaction.Authorizers.Select(authorizer => RLP.EncodeElement(Helpers.Pad(authorizer.Value.ToByteArray(), 8))).ToArray())
             };
 
             return RLP.EncodeList(payloadElements.ToArray());

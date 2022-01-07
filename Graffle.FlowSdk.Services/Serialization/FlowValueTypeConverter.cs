@@ -59,6 +59,11 @@ namespace System.Text.Json
                 var result = (ArrayType)FlowValueType.CreateFromCadence("Array", rootElement.ToString());
                 return result;
             }
+            else if (rootType.GetString() == "Dictionary"){
+                var rootElement = rss.RootElement.ToString();
+                var result = (DictionaryType)FlowValueType.CreateFromCadence("Dictionary", rootElement.ToString());
+                return result;
+            }
             else
             {
                 var rootValue = root.FirstOrDefault(z => z.Key == "value").Value.ToString();

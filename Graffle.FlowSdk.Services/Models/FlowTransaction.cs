@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Google.Protobuf;
 using Graffle.FlowSdk.Types;
 using System.Linq;
+using System.Text.Json;
+using System;
 
 namespace Graffle.FlowSdk.Services.Models
 {
@@ -23,13 +25,21 @@ namespace Graffle.FlowSdk.Services.Models
 
     public sealed class FlowTransaction : IFlowTransaction
     {
+        private JsonSerializerOptions options;
+
         public FlowTransaction(Flow.Access.TransactionResponse transaction)
         {
             Script = new FlowScript(transaction.Transaction.Script.ToString(System.Text.Encoding.UTF8));
-
-            //TODO: Make sure this works. Missing Args
-            var thing = transaction.Transaction.Arguments.Select(s => s.ToString(System.Text.Encoding.UTF8));
-
+            
+            this.options = new JsonSerializerOptions();
+            this.options.Converters.Add(new FlowCompositeTypeConverter());
+            this.options.Converters.Add(new GraffleCompositeTypeConverter());
+            this.options.Converters.Add(new FlowValueTypeConverter());
+            
+            Arguments = transaction.Transaction.Arguments.Select(s => 
+                System.Text.Json.JsonSerializer.Deserialize<FlowValueType>(
+                s.ToString(System.Text.Encoding.UTF8), options)).ToList();
+            
             ReferenceBlockId = transaction.Transaction.ReferenceBlockId.ToHash();
             GasLimit = transaction.Transaction.GasLimit;
             Payer = new FlowAddress(transaction.Transaction.Payer);

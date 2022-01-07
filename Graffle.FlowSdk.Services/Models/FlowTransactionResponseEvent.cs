@@ -17,6 +17,7 @@ namespace Graffle.FlowSdk.Services.Models
             this.EventComposite = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
             this.TransactionIndex = @event.TransactionIndex;
             this.BlockId = blockId.ToHash();
+            this.Type = @event.Type;
         }
 
         public string TransactionId { get; }
@@ -24,5 +25,6 @@ namespace Graffle.FlowSdk.Services.Models
         public GraffleCompositeType EventComposite { get; }
         public uint TransactionIndex { get; }
         public string BlockId { get; }
+        public string Type { get; }
     }
 }
