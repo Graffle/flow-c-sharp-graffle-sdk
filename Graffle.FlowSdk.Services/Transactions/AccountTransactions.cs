@@ -10,19 +10,19 @@ namespace Graffle.FlowSdk.Services.Transactions
     public static class AccountTransactions
     {
         private static readonly string CreateAccountTemplate = @"
-            transaction(publicKeys: [String], contracts: { String: String})
-            {
-                prepare(signer: AuthAccount)
-                {
-                    let authAccount = AuthAccount(payer: signer)
-                    for key in publicKeys {
-                            authAccount.addPublicKey(key.decodeHex())
-                    }
-                    for contract in contracts.keys {
-                        authAccount.contracts.add(name: contract, code: contracts[contract]!.decodeHex())
-                    }
-                }
-            }";
+transaction(publicKeys: [String], contracts: { String: String})
+{
+	prepare(signer: AuthAccount)
+	{
+		let acct = AuthAccount(payer: signer)
+		for key in publicKeys {
+				acct.addPublicKey(key.decodeHex())
+		}
+		for contract in contracts.keys {
+			acct.contracts.add(name: contract, code: contracts[contract]!.decodeHex())
+		}
+	}
+}";
 
         public static FlowTransaction CreateAccount(
             IEnumerable<Flow.Entities.AccountKey> flowAccountKeys,

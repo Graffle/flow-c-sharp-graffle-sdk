@@ -22,7 +22,7 @@ namespace Graffle.FlowSdk.Services {
             if (flowTransaction.Arguments != null && flowTransaction.Arguments.Any())
             {
                 foreach (var argument in flowTransaction.Arguments){
-                    tx.Arguments.Add(argument.DataAsJson().StringToByteString());
+                    tx.Arguments.Add(argument.AsJsonCadenceDataFormat().StringToByteString());
                 }
             }
 
