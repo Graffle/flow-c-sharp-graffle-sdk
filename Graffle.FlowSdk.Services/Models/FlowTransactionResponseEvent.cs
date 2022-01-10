@@ -19,8 +19,8 @@ namespace Graffle.FlowSdk.Services.Models
             this.BlockId = blockId.ToHash();
             this.Type = @event.Type;
             this.EventIndex = @event.EventIndex;
-
         }
+        
         public string TransactionId { get; }
         public string Payload { get; }
         public GraffleCompositeType EventComposite { get; }
