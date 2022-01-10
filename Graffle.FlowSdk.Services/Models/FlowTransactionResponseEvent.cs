@@ -18,6 +18,8 @@ namespace Graffle.FlowSdk.Services.Models
             this.TransactionIndex = @event.TransactionIndex;
             this.BlockId = blockId.ToHash();
             this.Type = @event.Type;
+            this.EventIndex = @event.EventIndex;
+
         }
 
         public string TransactionId { get; }
@@ -26,5 +28,7 @@ namespace Graffle.FlowSdk.Services.Models
         public uint TransactionIndex { get; }
         public string BlockId { get; }
         public string Type { get; }
+
+        public uint EventIndex{get;}
     }
 }
