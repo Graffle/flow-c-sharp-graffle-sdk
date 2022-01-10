@@ -29,6 +29,6 @@ namespace Graffle.FlowSdk.Services.Models
         public string BlockId { get; }
         public string Type { get; }
 
-        public uint EventIndex{get;}
+        public uint EventIndex { get; }
     }
 }
