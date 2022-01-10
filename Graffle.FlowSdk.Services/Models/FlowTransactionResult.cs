@@ -14,7 +14,7 @@ namespace Graffle.FlowSdk.Services.Models
         uint StatusCode { get; }
         IList<FlowTransactionResponseEvent> Events { get; }
     }
-    
+
     public class FlowTransactionResult : IFlowTransactionResult
     {
         public FlowTransactionResult(Flow.Access.TransactionResultResponse flowTransactionResponse)
