@@ -30,16 +30,20 @@ namespace Graffle.FlowSdk.Services.Models
         public FlowTransaction(Flow.Access.TransactionResponse transaction)
         {
             Script = new FlowScript(transaction.Transaction.Script.ToString(System.Text.Encoding.UTF8));
-            
+
             this.options = new JsonSerializerOptions();
             this.options.Converters.Add(new FlowCompositeTypeConverter());
             this.options.Converters.Add(new GraffleCompositeTypeConverter());
             this.options.Converters.Add(new FlowValueTypeConverter());
-            
-            Arguments = transaction.Transaction.Arguments.Select(s => 
-                System.Text.Json.JsonSerializer.Deserialize<FlowValueType>(
-                s.ToString(System.Text.Encoding.UTF8), options)).ToList();
-            
+
+            if (transaction.Transaction.Arguments != null && transaction.Transaction.Arguments.Any())
+            {
+                Arguments = transaction.Transaction.Arguments.Select(s =>
+                                FlowValueType.CreateFromCadence(s.ToString(System.Text.Encoding.UTF8)))
+                                .ToList();
+            }
+
+
             ReferenceBlockId = transaction.Transaction.ReferenceBlockId.ToHash();
             GasLimit = transaction.Transaction.GasLimit;
             Payer = new FlowAddress(transaction.Transaction.Payer);
