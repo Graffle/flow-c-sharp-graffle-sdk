@@ -43,7 +43,6 @@ namespace Graffle.FlowSdk.Services.Models
                                 .ToList();
             }
 
-
             ReferenceBlockId = transaction.Transaction.ReferenceBlockId.ToHash();
             GasLimit = transaction.Transaction.GasLimit;
             Payer = new FlowAddress(transaction.Transaction.Payer);
