@@ -8,10 +8,11 @@ namespace Graffle.FlowSdk.Services.Models
         public FlowCollectionGuarantee(Flow.Entities.CollectionGuarantee collectionGuarantee)
         {
             this.CollectionId = collectionGuarantee.CollectionId.ToHash();
-            this.Signatures = collectionGuarantee.Signatures.Select(s => s.ToHash());
+            if(collectionGuarantee.Signatures != null && collectionGuarantee.Signatures.Any())
+                this.Signatures = collectionGuarantee.Signatures.Select(s => s.ToHash());
         }
         public string CollectionId { get; }
 
-        public IEnumerable<string> Signatures { get; }
+        public IEnumerable<string> Signatures { get; } = Enumerable.Empty<string>();
     }
 }
