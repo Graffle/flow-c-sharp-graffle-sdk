@@ -1,12 +1,8 @@
-using System;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using Graffle.FlowSdk.Services;
 using Graffle.FlowSdk.Services.Models;
-using Graffle.FlowSdk.Types;
 
-namespace Graffle.FlowSdk.Services {
+namespace Graffle.FlowSdk.Services
+{
     public static class FlowExtensions {
         public static Flow.Entities.Transaction FromFlowTransaction(this FlowTransaction flowTransaction)
         {

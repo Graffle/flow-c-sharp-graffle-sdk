@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Google.Protobuf;
 using Google.Protobuf.Collections;
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Graffle.FlowSdk.Services.Models
 {
@@ -17,6 +18,18 @@ namespace Graffle.FlowSdk.Services.Models
             this.BlockHeight = blockHeight;
             this.BlockId = blockId.ToHash();
             this.BlockTimestamp = blockTimestamp;
+        }
+
+        [JsonConstructor]
+        public FlowEvent(string transactionId, string payload, GraffleCompositeType eventComposite, uint transactionIndex, ulong blockHeight, string blockId, DateTimeOffset blockTimestamp)
+        {
+            TransactionId = transactionId;
+            Payload = payload;
+            EventComposite = eventComposite;
+            TransactionIndex = transactionIndex;
+            BlockHeight = blockHeight;
+            BlockId = blockId;
+            BlockTimestamp = blockTimestamp;
         }
 
         public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults) {
@@ -42,12 +55,25 @@ namespace Graffle.FlowSdk.Services.Models
             return eventsList;
         }
 
+        [JsonProperty("TransactionId")]
         public string TransactionId { get; }
+
+        [JsonProperty("payload")]
         public string Payload { get; }
+
+        [JsonProperty("eventComposite")]
         public GraffleCompositeType EventComposite { get; }
-        public uint TransactionIndex { get; }    
+
+        [JsonProperty("transactionIndex")]
+        public uint TransactionIndex { get; }
+
+        [JsonProperty("blockHeight")]
         public ulong BlockHeight { get; }
+
+        [JsonProperty("blockId")]
         public string BlockId { get; }
+
+        [JsonProperty("blockTimestamp")]
         public DateTimeOffset BlockTimestamp { get; }
     }
 }

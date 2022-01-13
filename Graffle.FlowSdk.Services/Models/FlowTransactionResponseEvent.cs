@@ -1,10 +1,7 @@
-using System;
 using System.Text;
-using System.Linq;
-using System.Collections.Generic;
 using Google.Protobuf;
-using Google.Protobuf.Collections;
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Graffle.FlowSdk.Services.Models
 {
@@ -21,13 +18,37 @@ namespace Graffle.FlowSdk.Services.Models
             this.EventIndex = @event.EventIndex;
         }
 
+        [JsonConstructor]
+        public FlowTransactionResponseEvent(string transactionId, string payload, GraffleCompositeType eventComposite, uint transactionIndex, string blockId, string type, uint eventIndex)
+        {
+            TransactionId = transactionId;
+            Payload = payload;
+            EventComposite = eventComposite;
+            TransactionIndex = transactionIndex;
+            BlockId = blockId;
+            Type = type;
+            EventIndex = eventIndex;
+        }
+
+        [JsonProperty("transactionId")]
         public string TransactionId { get; }
+
+        [JsonProperty("payload")]
         public string Payload { get; }
+
+        [JsonProperty("eventComposite")]
         public GraffleCompositeType EventComposite { get; }
+
+        [JsonProperty("transactionIndex")]
         public uint TransactionIndex { get; }
+
+        [JsonProperty("blockId")]
         public string BlockId { get; }
+
+        [JsonProperty("type")]
         public string Type { get; }
 
+        [JsonProperty("eventIndex")]
         public uint EventIndex { get; }
     }
 }
