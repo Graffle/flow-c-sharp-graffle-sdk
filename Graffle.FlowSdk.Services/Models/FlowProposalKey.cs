@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Graffle.FlowSdk.Services.Models
 {
     public class FlowProposalKey
@@ -13,8 +15,21 @@ namespace Graffle.FlowSdk.Services.Models
             SequenceNumber = flowPropsalKey.SequenceNumber;
         }
 
+        [JsonConstructor]
+        public FlowProposalKey(FlowAddress address, uint keyId, ulong sequenceNumber)
+        {
+            Address = address;
+            KeyId = keyId;
+            SequenceNumber = sequenceNumber;
+        }
+
+        [JsonProperty("address")]
         public FlowAddress Address { get; set; }
+
+        [JsonProperty("keyId")]
         public uint KeyId { get; set; }
+
+        [JsonProperty("sequenceNumber")]
         public ulong SequenceNumber { get; set; }
     }
 }

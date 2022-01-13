@@ -1,22 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Flow.Entities;
-using Google.Protobuf;
-using Graffle.FlowSdk.Types;
+using Newtonsoft.Json;
 
 namespace Graffle.FlowSdk.Services.Models
 {
     public class FlowFullTransaction
     {
+        [JsonConstructor]
         public FlowFullTransaction(IFlowTransactionResult flowTransactionResult, IFlowTransaction flowTransaction)
         {
             FlowTransactionResult = flowTransactionResult;
             FlowTransaction = flowTransaction;
         }
 
+        [JsonProperty("flowTransactionResult")]
         public IFlowTransactionResult FlowTransactionResult { get; }
+
+        [JsonProperty("flowTransaction")]
         public IFlowTransaction FlowTransaction { get; }
     }
 }

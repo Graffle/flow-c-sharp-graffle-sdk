@@ -6,6 +6,7 @@ using Graffle.FlowSdk.Types;
 using System.Linq;
 using System.Text.Json;
 using System;
+using Newtonsoft.Json;
 
 namespace Graffle.FlowSdk.Services.Models
 {
@@ -67,15 +68,49 @@ namespace Graffle.FlowSdk.Services.Models
             GasLimit = 9999;
         }
 
+        [JsonConstructor]
+        public FlowTransaction(FlowScript script, IList<FlowValueType> arguments, string referenceBlockId, ulong gasLimit, FlowAddress payer, FlowProposalKey proposalKey, IList<FlowAddress> authorizers, IList<FlowSignature> payloadSignatures, IList<FlowSignature> envelopeSignatures, Dictionary<string, int> signerList)
+        {
+            Script = script;
+            Arguments = arguments;
+            ReferenceBlockId = referenceBlockId;
+            GasLimit = gasLimit;
+            Payer = payer;
+            ProposalKey = proposalKey;
+            Authorizers = authorizers;
+            PayloadSignatures = payloadSignatures;
+            EnvelopeSignatures = envelopeSignatures;
+            SignerList = signerList;
+        }
+
+        [JsonProperty("script")]
         public FlowScript Script { get; set; }
+
+        [JsonProperty("arguments")]
         public IList<FlowValueType> Arguments { get; set; }
+
+        [JsonProperty("referenceBlockId")]
         public string ReferenceBlockId { get; set; }
+
+        [JsonProperty("gasLimit")]
         public ulong GasLimit { get; set; }
+
+        [JsonProperty("payer")]
         public FlowAddress Payer { get; set; }
+
+        [JsonProperty("proposalKey")]
         public FlowProposalKey ProposalKey { get; set; }
+
+        [JsonProperty("authorizers")]
         public IList<FlowAddress> Authorizers { get; set; }
+
+        [JsonProperty("payloadSignatures")]
         public IList<FlowSignature> PayloadSignatures { get; set; }
+
+        [JsonProperty("envelopeSignatures")]
         public IList<FlowSignature> EnvelopeSignatures { get; set; }
+
+        [JsonProperty("signerList")]
         public Dictionary<string, int> SignerList { get; set; } = new Dictionary<string, int>();
 
         public static FlowTransaction AddPayloadSignature(FlowTransaction flowTransaction, FlowAddress address, uint keyId, IMessageSigner signer)
