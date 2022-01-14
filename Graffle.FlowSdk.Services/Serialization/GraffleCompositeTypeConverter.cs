@@ -36,40 +36,45 @@ namespace System.Text.Json
 
                 //We get the type out first so we know what type of cadence object we are working with.
                 var rootType = root.FirstOrDefault(z => z.Key == "type").Value;
+
                 //Check to see if we have a complex type like a Struct. If we do then we need to parse a little further and recursively call this function.
                 // If not we have either an option or a primitive type.
-                if (rootType.GetString() == "Struct")
+                switch (rootType.GetString())
                 {
-                    //Break down like we have before to prep the complex object for a recursive call
-                    var complexParsedJson = JsonDocument.Parse(item.Values.Last());
-                    var complexRoot = complexParsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
-                    var complexRootValue = complexRoot.FirstOrDefault(z => z.Key == "value").Value.EnumerateObject().ToDictionary(z => z.Name, z => z.Value);
-                    var complexFields = complexRootValue.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
-                    var complexCompositeType = DeserializeFlowCadence(complexRootValue.FirstOrDefault().Value.ToString(), complexRoot.FirstOrDefault().Value.ToString(), complexFields);
+                    case "Struct":
+                    case "Resource":
+                    case "Event":
+                    case "Contract":
+                    case "Enum":
+                        //Break down like we have before to prep the complex object for a recursive call
+                        var complexParsedJson = JsonDocument.Parse(item.Values.Last());
+                        var complexRoot = complexParsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
+                        var complexRootValue = complexRoot.FirstOrDefault(z => z.Key == "value").Value.EnumerateObject().ToDictionary(z => z.Name, z => z.Value);
+                        var complexFields = complexRootValue.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
+                        var complexCompositeType = DeserializeFlowCadence(complexRootValue.FirstOrDefault().Value.ToString(), complexRoot.FirstOrDefault().Value.ToString(), complexFields);
 
-                    //Place the complex type in its correct position
-                    compositeType.Data[item.Values.First().ToCamelCase()] = complexCompositeType.Data;
-                }
-                else if (rootType.GetString() == "Dictionary")
-                {
-                    var myDictionary = (DictionaryType)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last());
-                    var myObject = myDictionary.ConvertToObject();
-                    compositeType.Data[item.Values.First().ToCamelCase()] = myObject;
-                }
-                else
-                {
-                    //We are working with a primitive Cadence type so we can use our SDK to convert it into the value we need.
-                    var myValue = ((dynamic)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last())).Data;
+                        //Place the complex type in its correct position
+                        compositeType.Data[item.Values.First().ToCamelCase()] = complexCompositeType.Data;
+                        break;
+                    case "Dictionary":
+                        var myDictionary = (DictionaryType)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last());
+                        var myObject = myDictionary.ConvertToObject();
+                        compositeType.Data[item.Values.First().ToCamelCase()] = myObject;
+                        break;
+                    default:
+                        //We are working with a primitive Cadence type so we can use our SDK to convert it into the value we need.
+                        var myValue = ((dynamic)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last())).Data;
 
-                    //If we see the type is optional then we need to open the value type below it to assign either null or the value inside to the property
-                    if (rootType.GetString() == "Optional")
-                    {
-                        if (myValue != null)
-                            myValue = ((dynamic)FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data)).Data;
-                    }
+                        //If we see the type is optional then we need to open the value type below it to assign either null or the value inside to the property
+                        if (rootType.GetString() == "Optional")
+                        {
+                            if (myValue != null)
+                                myValue = ((dynamic)FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data)).Data;
+                        }
 
-                    //Pace the value in our result composite object
-                    compositeType.Data[item.Values.First().ToCamelCase()] = myValue;
+                        //Pace the value in our result composite object
+                        compositeType.Data[item.Values.First().ToCamelCase()] = myValue;
+                        break;
                 }
             }
             return compositeType;
