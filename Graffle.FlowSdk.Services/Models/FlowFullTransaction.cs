@@ -5,16 +5,16 @@ namespace Graffle.FlowSdk.Services.Models
     public class FlowFullTransaction
     {
         [JsonConstructor]
-        public FlowFullTransaction(IFlowTransactionResult flowTransactionResult, IFlowTransaction flowTransaction)
+        public FlowFullTransaction(FlowTransactionResult flowTransactionResult, FlowTransaction flowTransaction)
         {
             FlowTransactionResult = flowTransactionResult;
             FlowTransaction = flowTransaction;
         }
 
         [JsonProperty("flowTransactionResult")]
-        public IFlowTransactionResult FlowTransactionResult { get; }
+        public FlowTransactionResult FlowTransactionResult { get; }
 
         [JsonProperty("flowTransaction")]
-        public IFlowTransaction FlowTransaction { get; }
+        public FlowTransaction FlowTransaction { get; }
     }
 }
