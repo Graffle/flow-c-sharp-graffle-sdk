@@ -61,6 +61,26 @@ namespace System.Text.Json
                         var myObject = myDictionary.ConvertToObject();
                         compositeType.Data[item.Values.First().ToCamelCase()] = myObject;
                         break;
+                    case "Array":
+                        var arrayJson = JsonDocument.Parse(item.Values.Last());
+                        var arrayRoot = arrayJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
+                        var arrayFields = root.FirstOrDefault(z => z.Key == "value").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
+                        var result = new ArrayType(new List<FlowValueType>());
+                        foreach (var arrayField in arrayFields)
+                        {
+                            var arrayFieldRoot = JsonDocument.Parse(arrayField.Values.Last());
+                            var arrayFieldRootElements = arrayFieldRoot.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
+                            if (arrayFieldRootElements.ContainsKey("fields"))
+                            {
+                                var arrayItemId = arrayFieldRootElements.FirstOrDefault(z => z.Key == "id").Value.ToString();
+                                var arrayItemType = arrayField.FirstOrDefault().Value.ToString();
+                                var singleComplexFields = arrayFieldRootElements.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
+                                var newItem = DeserializeFlowCadence(arrayItemId, arrayItemType, singleComplexFields);
+                                result.Data.Add(newItem);
+                            }
+                        }
+                        compositeType.Data[item.Values.First().ToCamelCase()] = result;
+                        break;
                     default:
                         //We are working with a primitive Cadence type so we can use our SDK to convert it into the value we need.
                         var myValue = ((dynamic)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last())).Data;
