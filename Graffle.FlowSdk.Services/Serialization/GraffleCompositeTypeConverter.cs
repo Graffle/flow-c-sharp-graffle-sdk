@@ -69,15 +69,30 @@ namespace System.Text.Json
                         foreach (var arrayField in arrayFields)
                         {
                             var arrayFieldRoot = JsonDocument.Parse(arrayField.Values.Last());
-                            var arrayFieldRootElements = arrayFieldRoot.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
-                            if (arrayFieldRootElements.ContainsKey("fields"))
+                            var arrayFieldRootType = arrayFieldRoot.RootElement.ValueKind;
+                            if (arrayFieldRootType != JsonValueKind.Object)
                             {
-                                var arrayItemId = arrayFieldRootElements.FirstOrDefault(z => z.Key == "id").Value.ToString();
-                                var arrayItemType = arrayField.FirstOrDefault().Value.ToString();
-                                var singleComplexFields = arrayFieldRootElements.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
-                                var newItem = DeserializeFlowCadence(arrayItemId, arrayItemType, singleComplexFields);
-                                result.Data.Add(newItem);
+                                // This is a hack to put back together primitives in an array.
+                                var x = arrayField.Values.First();
+                                var y = arrayField.Values.Last();
+                                var z = $"{{\"type\":\"{x}\",\"value\":\"{y}\"}}";
+                                var primitiveValue = FlowValueType.CreateFromCadence(z);
+                                result.Data.Add(primitiveValue);
                             }
+                            else
+                            {
+                                // dealing with a recursive complex type
+                                var arrayFieldRootElements = arrayFieldRoot.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
+                                if (arrayFieldRootElements.ContainsKey("fields"))
+                                {
+                                    var arrayItemId = arrayFieldRootElements.FirstOrDefault(z => z.Key == "id").Value.ToString();
+                                    var arrayItemType = arrayField.FirstOrDefault().Value.ToString();
+                                    var singleComplexFields = arrayFieldRootElements.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
+                                    var newItem = DeserializeFlowCadence(arrayItemId, arrayItemType, singleComplexFields);
+                                    result.Data.Add(newItem);
+                                }
+                            }
+
                         }
                         compositeType.Data[item.Values.First().ToCamelCase()] = result;
                         break;
