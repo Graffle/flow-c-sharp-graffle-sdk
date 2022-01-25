@@ -92,7 +92,6 @@ namespace System.Text.Json
                                     result.Data.Add(newItem);
                                 }
                             }
-
                         }
                         compositeType.Data[item.Values.First().ToCamelCase()] = result;
                         break;
