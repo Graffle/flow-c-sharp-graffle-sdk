@@ -65,7 +65,7 @@ namespace System.Text.Json
                         var arrayJson = JsonDocument.Parse(item.Values.Last());
                         var arrayRoot = arrayJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
                         var arrayFields = root.FirstOrDefault(z => z.Key == "value").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
-                        var result = new ArrayType(new List<FlowValueType>());
+                        var result = new List<object>();
                         foreach (var arrayField in arrayFields)
                         {
                             var arrayFieldRoot = JsonDocument.Parse(arrayField.Values.Last());
@@ -76,8 +76,9 @@ namespace System.Text.Json
                                 var x = arrayField.Values.First();
                                 var y = arrayField.Values.Last();
                                 var z = $"{{\"type\":\"{x}\",\"value\":\"{y}\"}}";
-                                var primitiveValue = FlowValueType.CreateFromCadence(z);
-                                result.Data.Add(primitiveValue);
+                                dynamic primitiveValue = FlowValueType.CreateFromCadence(z);
+                                var data = primitiveValue.Data;
+                                result.Add(data);
                             }
                             else
                             {
@@ -89,7 +90,12 @@ namespace System.Text.Json
                                     var arrayItemType = arrayField.FirstOrDefault().Value.ToString();
                                     var singleComplexFields = arrayFieldRootElements.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
                                     var newItem = DeserializeFlowCadence(arrayItemId, arrayItemType, singleComplexFields);
-                                    result.Data.Add(newItem);
+                                    result.Add(newItem);
+                                }
+                                else if (arrayFieldRootElements.ContainsKey("staticType"))
+                                {
+                                    var arrayItemId = arrayFieldRootElements.FirstOrDefault(z => z.Key == "staticType").Value.ToString();
+                                    result.Add(arrayItemId);
                                 }
                             }
                         }
