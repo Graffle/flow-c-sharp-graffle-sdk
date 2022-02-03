@@ -122,9 +122,9 @@ namespace Graffle.FlowSdk
             //TODO: Add retry;
             var transactionResultTask = GetTransactionResult(transactionId);
             var transactionTask = GetTransactionAsync(transactionId);
-            var result1 = await transactionResultTask;
-            var result2 = await transactionTask;
-            var result = new FlowFullTransaction(result1, result2);
+            var transactionResult = await transactionResultTask;
+            var transaction = await transactionTask;
+            var result = new FlowFullTransaction(transactionResult, transaction);
             return result;
         }
     }
