@@ -28,7 +28,7 @@ namespace Graffle.FlowSdk.Services.Models
     {
         private JsonSerializerOptions options;
 
-        public FlowTransaction(Flow.Access.TransactionResponse transaction)
+        public FlowTransaction(Flow.Access.TransactionResponse transaction, bool includeArguments = true)
         {
             Script = new FlowScript(transaction.Transaction.Script.ToString(System.Text.Encoding.UTF8));
 
@@ -37,7 +37,7 @@ namespace Graffle.FlowSdk.Services.Models
             this.options.Converters.Add(new GraffleCompositeTypeConverter());
             this.options.Converters.Add(new FlowValueTypeConverter());
 
-            if (transaction.Transaction.Arguments != null && transaction.Transaction.Arguments.Any())
+            if (transaction.Transaction.Arguments != null && transaction.Transaction.Arguments.Any() && includeArguments)
             {
                 Arguments = transaction.Transaction.Arguments.Select(s =>
                                 FlowValueType.CreateFromCadence(s.ToString(System.Text.Encoding.UTF8)))
@@ -86,6 +86,8 @@ namespace Graffle.FlowSdk.Services.Models
         [JsonProperty("script")]
         public FlowScript Script { get; set; }
 
+        //TODO: this is being ignored due to some issues with comples arguments to Flowtype. Will Fix Later
+        [JsonIgnore]
         [JsonProperty("arguments")]
         public IList<FlowValueType> Arguments { get; set; }
 

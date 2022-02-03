@@ -57,7 +57,7 @@ namespace Graffle.FlowSdk
 
         public async Task<FlowTransaction> GetTransactionAsync(ByteString transactionId)
         {
-            return new FlowTransaction(await flowClient.GetTransactionAsync(transactionId));
+            return new FlowTransaction(await flowClient.GetTransactionAsync(transactionId), false);
         }
 
         public async Task<FlowAccount> GetAccountAsync(string address, ulong blockHeight)
@@ -122,7 +122,9 @@ namespace Graffle.FlowSdk
             //TODO: Add retry;
             var transactionResultTask = GetTransactionResult(transactionId);
             var transactionTask = GetTransactionAsync(transactionId);
-            var result = new FlowFullTransaction(await transactionResultTask, await transactionTask);
+            var result1 = await transactionResultTask;
+            var result2 = await transactionTask;
+            var result = new FlowFullTransaction(result1, result2);
             return result;
         }
     }
