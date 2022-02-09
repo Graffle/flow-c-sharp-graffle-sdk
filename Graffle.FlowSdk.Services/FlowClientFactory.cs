@@ -1,12 +1,14 @@
 using System;
-using System.Collections.Concurrent;
 using Graffle.FlowSdk.Services.Nodes;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Graffle.FlowSdk
 {
     public sealed class FlowClientFactory
     {
-        private ConcurrentDictionary<string, IGraffleClient> ChannelCache = new ConcurrentDictionary<string, IGraffleClient>();
+        private MemoryCache channelCache = new MemoryCache(new MemoryCacheOptions());
+        private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
+                                                       .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
         private readonly NodeType nodeType;
 
         public FlowClientFactory(NodeType nodeType)
@@ -110,22 +112,14 @@ namespace Graffle.FlowSdk
         private IGraffleClient GenerateFlowClient(Spork spork)
         {
             //Check to see if the channel already exists
-            var graffleClientFound = ChannelCache.TryGetValue(spork.Name, out var graffleClient);
+            var graffleClientFound = channelCache.TryGetValue(spork.Name, out GraffleClient graffleClient);
             if (!graffleClientFound)
             {
                 graffleClient = new GraffleClient(spork);
-                ChannelCache.TryAdd(spork.Name, graffleClient);
+                channelCache.Set(spork.Name, graffleClient,cacheEntryOptions);
             }
 
             return graffleClient;
-        }
-
-        /// <summary>
-        /// Clears the channel cache
-        /// </summary>
-        public void ResetChannelCache()
-        {
-            ChannelCache.Clear();
         }
     }
 }
