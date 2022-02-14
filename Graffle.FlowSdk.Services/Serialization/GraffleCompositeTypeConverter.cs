@@ -68,9 +68,8 @@ namespace System.Text.Json
                         var result = new List<object>();
                         foreach (var arrayField in arrayFields)
                         {
-                            var arrayFieldRoot = JsonDocument.Parse(arrayField.Values.Last());
-                            var arrayFieldRootType = arrayFieldRoot.RootElement.ValueKind;
-                            if (arrayFieldRootType != JsonValueKind.Object)
+                            var type = arrayField.Values.First();
+                            if (FlowValueType.IsPrimitiveType(type))
                             {
                                 // This is a hack to put back together primitives in an array.
                                 var x = arrayField.Values.First();
@@ -83,6 +82,7 @@ namespace System.Text.Json
                             else
                             {
                                 // dealing with a recursive complex type
+                                var arrayFieldRoot = JsonDocument.Parse(arrayField.Values.Last());
                                 var arrayFieldRootElements = arrayFieldRoot.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
                                 if (arrayFieldRootElements.ContainsKey("fields"))
                                 {
