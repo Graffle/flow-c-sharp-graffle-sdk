@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Graffle.FlowSdk.Types;
 
-namespace Graffle.FlowSdk.Services 
+namespace Graffle.FlowSdk.Services
 {
     public static class DictionaryTypeExtension
     {
@@ -10,7 +10,7 @@ namespace Graffle.FlowSdk.Services
             var result = new Dictionary<dynamic, dynamic>();
             foreach (var item in x.Data)
             {
-                string propertyName = ((dynamic)item.Key).Data;
+                string propertyName = ((dynamic)item.Key).Data.ToString(); //Data here is not guaranteed to be a string
                 var cleanedName = propertyName.ToCamelCase();
                 result[cleanedName] = ((dynamic)item.Value).Data;
             }
