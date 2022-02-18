@@ -6,7 +6,6 @@ using System.Text.Json;
 
 namespace Graffle.FlowSdk.Services.Tests.SerializationTests
 {
-
     [TestClass]
     public class GraffleCompositeTypeConverterTests
     {
