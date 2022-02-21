@@ -169,6 +169,7 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             var data = composite.Data;
 
             Assert.AreEqual(1, data.Keys.Count);
+            Assert.AreEqual("structId", composite.Id);
 
             var item = data.First();
             Assert.AreEqual("arrayField", item.Key);
@@ -183,6 +184,84 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
 
             Assert.IsInstanceOfType(arr[1], typeof(Int64));
             Assert.AreEqual((Int64)1234567, arr[1]);
+        }
+
+        [TestMethod]
+        public void Read_ComplexType_ContainsDictionary_ReturnsFlowValueType()
+        {
+            /*
+            {
+                "type":"Struct",
+                "value": {
+                    "id":"structId",
+                    "fields": [
+                        {
+                            "name":"dictionaryField",
+                            "value": {
+                                "type":"Dictionary",
+                                "value": [
+                                    {
+                                        "key": {
+                                            "type":"Int",
+                                            "value":"123"
+                                        },
+                                        "value":{
+                                            "type":"String",
+                                            "value":"heyyyy"
+                                        }
+                                    },
+                                    {
+                                        "key": {
+                                            "type":"Address",
+                                            "value":"0x4"
+                                        },
+                                        "value":{
+                                            "type":"Int32",
+                                            "value":"-15"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+            */
+            string json = @"{""type"":""Struct"",""value"":{""id"":""structId"",""fields"":[{""name"":""dictionaryField"",""value"":{""type"":""Dictionary"",""value"":[{""key"":{""type"":""Int"",""value"":""123""},""value"":{""type"":""String"",""value"":""heyyyy""}},{""key"":{""type"":""Address"",""value"":""0x4""},""value"":{""type"":""Int32"",""value"":""-15""}}]}}]}}";
+            var reader = CreateJsonReader(json);
+
+            var converter = new FlowValueTypeConverter();
+            var result = converter.Read(ref reader, null, null);
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(GraffleCompositeType));
+
+            var composite = result as GraffleCompositeType;
+            Assert.AreEqual("structId", composite.Id);
+
+            var data = composite.Data;
+            Assert.AreEqual(1, data.Keys.Count);
+
+            //get the dictionary
+            var item = data.First();
+            Assert.AreEqual("dictionaryField", item.Key);
+            Assert.IsInstanceOfType(item.Value, typeof(Dictionary<object, object>));
+
+            var dict = item.Value as Dictionary<object, object>;
+
+            //validate dictionary values
+            Assert.AreEqual(2, dict.Keys.Count);
+
+            var first = dict.First();
+            Assert.IsInstanceOfType(first.Key, typeof(string)); //these always come out as strings
+            Assert.AreEqual("123", first.Key);
+            Assert.IsInstanceOfType(first.Value, typeof(string));
+            Assert.AreEqual("heyyyy", first.Value);
+
+            var second = dict.Skip(1).First();
+            Assert.IsInstanceOfType(second.Key, typeof(string));
+            Assert.AreEqual("0x4", second.Key);
+            Assert.IsInstanceOfType(second.Value, typeof(int));
+            Assert.AreEqual(-15, second.Value);
         }
 
         private Utf8JsonReader CreateJsonReader(string json) => new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
