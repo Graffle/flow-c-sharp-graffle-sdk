@@ -113,6 +113,76 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             Assert.IsInstanceOfType(result, typeof(GraffleCompositeType));
 
             var composite = result as GraffleCompositeType;
+            var data = composite.Data;
+            Assert.AreEqual(2, data.Keys.Count);
+
+            //validate data
+            var first = data.First();
+            Assert.AreEqual("intField", first.Key);
+            Assert.IsInstanceOfType(first.Value, typeof(Int16));
+            Assert.AreEqual((Int16)123, first.Value);
+
+            var second = data.Skip(1).First();
+            Assert.AreEqual("stringField", second.Key);
+            Assert.IsInstanceOfType(second.Value, typeof(string));
+            Assert.AreEqual("hello", second.Value);
+        }
+
+        [TestMethod]
+        public void Read_ComplexType_ContainsArray_ReturnsFlowValueType()
+        {
+            /*
+            {
+                "type":"Struct",
+                "value": {
+                    "id":"structId",
+                    "fields": [
+                        {
+                            "name":"arrayField",
+                            "value": {
+                                "type":"Array",
+                                "value": [
+                                    {
+                                        "type":"String",
+                                        "value":"stringValue"
+                                    },
+                                    {
+                                        "type":"Int64",
+                                        "value":"1234567"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+            */
+            var json = @"{""type"":""Struct"",""value"":{""id"":""structId"",""fields"":[{""name"":""arrayField"",""value"":{""type"":""Array"",""value"":[{""type"":""String"",""value"":""stringValue""},{""type"":""Int64"",""value"":""1234567""}]}}]}}";
+            var reader = CreateJsonReader(json);
+
+            var converter = new FlowValueTypeConverter();
+            var result = converter.Read(ref reader, null, null);
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(GraffleCompositeType));
+
+            var composite = result as GraffleCompositeType;
+            var data = composite.Data;
+
+            Assert.AreEqual(1, data.Keys.Count);
+
+            var item = data.First();
+            Assert.AreEqual("arrayField", item.Key);
+            Assert.IsInstanceOfType(item.Value, typeof(List<object>));
+
+            var arr = item.Value as List<object>;
+            Assert.AreEqual(2, arr.Count);
+
+            //validate array values
+            Assert.IsInstanceOfType(arr[0], typeof(string));
+            Assert.AreEqual("stringValue", arr[0]);
+
+            Assert.IsInstanceOfType(arr[1], typeof(Int64));
+            Assert.AreEqual((Int64)1234567, arr[1]);
         }
 
         private Utf8JsonReader CreateJsonReader(string json) => new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
