@@ -6,8 +6,8 @@ namespace Graffle.FlowSdk
 {
     public class FlowClientSearchService
     {
-        private readonly FlowClientFactory flowClientFactory;
-        public FlowClientSearchService(FlowClientFactory flowClientFactory)
+        private readonly IFlowClientFactory flowClientFactory;
+        public FlowClientSearchService(IFlowClientFactory flowClientFactory)
         {
             this.flowClientFactory = flowClientFactory;
         }
