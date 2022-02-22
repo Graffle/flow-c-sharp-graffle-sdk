@@ -92,16 +92,16 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
             //verify each item
             var first = structToTest.Fields[0];
-            Assert.AreEqual("metadataValue", first.name);
-            var firstValue = first.value;
+            Assert.AreEqual("metadataValue", first.Name);
+            var firstValue = first.Value;
             Assert.IsNotNull(firstValue);
             Assert.IsInstanceOfType(firstValue, typeof(StringType));
             var tmp = firstValue as StringType;
             Assert.AreEqual("", tmp.Data);
 
             var second = structToTest.Fields[1];
-            Assert.AreEqual("mutable", second.name);
-            var secondValue = second.value;
+            Assert.AreEqual("mutable", second.Name);
+            var secondValue = second.Value;
             Assert.IsNotNull(secondValue);
             Assert.IsInstanceOfType(secondValue, typeof(BoolType));
             var tmp2 = secondValue as BoolType;
@@ -173,10 +173,10 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
             //the last field is an Optional field containing a Struct
             var optionalStructField = flowStruct.Fields.Last();
-            Assert.AreEqual("componentDetail", optionalStructField.name);
+            Assert.AreEqual("componentDetail", optionalStructField.Name);
 
             //verify it's OptionalType
-            var optionalStructFieldValue = optionalStructField.value;
+            var optionalStructFieldValue = optionalStructField.Value;
             Assert.IsInstanceOfType(optionalStructFieldValue, typeof(OptionalType));
 
             //verify the OptionalType contains a Struct Type
