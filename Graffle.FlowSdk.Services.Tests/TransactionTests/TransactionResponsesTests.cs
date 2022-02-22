@@ -92,16 +92,16 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
             //verify each item
             var first = structToTest.Fields[0];
-            Assert.AreEqual("metadataValue", first.name);
-            var firstValue = first.value;
+            Assert.AreEqual("metadataValue", first.Name);
+            var firstValue = first.Value;
             Assert.IsNotNull(firstValue);
             Assert.IsInstanceOfType(firstValue, typeof(StringType));
             var tmp = firstValue as StringType;
             Assert.AreEqual("", tmp.Data);
 
             var second = structToTest.Fields[1];
-            Assert.AreEqual("mutable", second.name);
-            var secondValue = second.value;
+            Assert.AreEqual("mutable", second.Name);
+            var secondValue = second.Value;
             Assert.IsNotNull(secondValue);
             Assert.IsInstanceOfType(secondValue, typeof(BoolType));
             var tmp2 = secondValue as BoolType;
@@ -146,6 +146,48 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
             //this inner dictionary has string keys so not going to do much verification here
             Assert.AreEqual(3, valueDict.Data.Keys.Count);
+        }
+
+        [TestMethod]
+        public async Task Transaction_StructContainsOptionalStruct()
+        {
+            var res = await GetTransaction(60816404, "4c6e308af1982760a269c2e44a62dfbea77b62fc36bbacf5e35142ae235dc743");
+            var events = res.Events;
+            var ev = events.FirstOrDefault(ev => ev.Type == "A.76b2527585e45db4.SoulMadeMarketplace.SoulMadeForSale");
+            var payload = ev.Payload;
+            var parsedJson = JsonDocument.Parse(payload);
+            var valueRoot = parsedJson.RootElement.GetProperty("value");
+            var fieldsRoot = valueRoot.GetProperty("fields");
+            var myField = fieldsRoot.EnumerateArray().Skip(3).FirstOrDefault();
+            var structType = myField.GetProperty("value");
+            var json = structType.GetRawText();
+
+            var parsed = FlowValueType.CreateFromCadence(json);
+            Assert.IsInstanceOfType(parsed, typeof(StructType));
+            var flowStruct = parsed as StructType;
+
+            //top level struct
+            //validate fields and id
+            Assert.AreEqual("A.76b2527585e45db4.SoulMadeMarketplace.SoulMadeSaleData", flowStruct.Id);
+            Assert.AreEqual(5, flowStruct.Fields.Count);
+
+            //the last field is an Optional field containing a Struct
+            var optionalStructField = flowStruct.Fields.Last();
+            Assert.AreEqual("componentDetail", optionalStructField.Name);
+
+            //verify it's OptionalType
+            var optionalStructFieldValue = optionalStructField.Value;
+            Assert.IsInstanceOfType(optionalStructFieldValue, typeof(OptionalType));
+
+            //verify the OptionalType contains a Struct Type
+            var optional = optionalStructFieldValue as OptionalType;
+            Assert.IsNotNull(optional.Data);
+            Assert.IsInstanceOfType(optional.Data, typeof(StructType));
+
+            //validate inner struct
+            var innerStruct = optional.Data as StructType;
+            Assert.AreEqual("A.76b2527585e45db4.SoulMadeComponent.ComponentDetail", innerStruct.Id);
+            Assert.AreEqual(10, innerStruct.Fields.Count);
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)

@@ -1,10 +1,10 @@
-using System;
 using Graffle.FlowSdk.Services.Nodes;
 using Microsoft.Extensions.Caching.Memory;
+using System;
 
 namespace Graffle.FlowSdk
 {
-    public sealed class FlowClientFactory
+    public sealed class FlowClientFactory : IFlowClientFactory
     {
         private MemoryCache channelCache = new MemoryCache(new MemoryCacheOptions());
         private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -116,7 +116,7 @@ namespace Graffle.FlowSdk
             if (!graffleClientFound)
             {
                 graffleClient = new GraffleClient(spork);
-                channelCache.Set(spork.Name, graffleClient,cacheEntryOptions);
+                channelCache.Set(spork.Name, graffleClient, cacheEntryOptions);
             }
 
             return graffleClient;
