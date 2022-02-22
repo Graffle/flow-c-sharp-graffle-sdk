@@ -109,7 +109,17 @@ namespace System.Text.Json
                         if (rootType.GetString() == "Optional")
                         {
                             if (myValue != null)
-                                myValue = ((dynamic)FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data)).Data;
+                            {
+                                var innerObject = FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data);
+                                if (innerObject is StructType flowStruct) //optional struct
+                                {
+                                    myValue = flowStruct.ConvertToObject();
+                                }
+                                else //primitive
+                                {
+                                    myValue = ((dynamic)innerObject).Data;
+                                }
+                            }
                         }
 
                         //Pace the value in our result composite object
