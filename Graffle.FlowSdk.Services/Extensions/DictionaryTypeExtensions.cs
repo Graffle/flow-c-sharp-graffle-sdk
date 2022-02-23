@@ -19,16 +19,8 @@ namespace Graffle.FlowSdk.Services
                 dynamic data;
                 if (FlowValueType.IsCompositeType(value.Type)) //nested composite type: struct, event, resource, etc
                 {
-                    var flowComposite = value as CompositeType;
-                    var graffleComposite = new GraffleCompositeType(value.Type);
-                    graffleComposite.Id = flowComposite.Id;
-                    graffleComposite.Data = flowComposite.Fields.ToDictionary(f => f.Name, f =>
-                    {
-                        //todo: this is a massive hack that exists elsewhere in this sdk
-                        //FlowValueType base class should have a way to expose this property
-                        return ((dynamic)f.Value).Data;
-                    });
-                    data = graffleComposite;
+                    var composite = value as CompositeType;
+                    data = composite.FieldsAsDictionary();
                 }
                 else //primitive
                 {

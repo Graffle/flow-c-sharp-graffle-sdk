@@ -315,12 +315,9 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             Assert.AreEqual(8, dict.Count);
 
             //lets check out a single struct in here
-            var flowStruct = dict["itemVideo"];
-            Assert.IsInstanceOfType(flowStruct, typeof(GraffleCompositeType));
-            var composite = flowStruct as GraffleCompositeType;
-            Assert.AreEqual("A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata", composite.Id);
-            Assert.AreEqual("Struct", composite.Type);
-            Assert.AreEqual(2, composite.Data.Count);
+            var fields = dict["itemVideo"];
+            Assert.IsInstanceOfType(fields, typeof(Dictionary<string, object>));
+            Assert.AreEqual(2, fields.Count);
         }
 
         [TestMethod]

@@ -109,11 +109,12 @@ namespace System.Text.Json
                             {
                                 //get the inner object from the optional type
                                 FlowValueType innerObject = FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data);
-                                if (FlowValueType.IsCompositeType(innerObject.Type)) //nested composite type, we need to recursively parse this
+                                if (FlowValueType.IsCompositeType(innerObject.Type))
                                 {
+                                    //nested composite type
+                                    //add its fields to the dictionary
                                     var composite = innerObject as CompositeType;
-                                    var structFields = GetComplexFields(composite.AsJsonCadenceDataFormat(), out _, out _);
-                                    myValue = DeserializeFlowCadence(composite.Id, composite.Type, structFields);
+                                    myValue = composite.FieldsAsDictionary();
                                 }
                                 else //primitive, just add it to the dictionary
                                 {
