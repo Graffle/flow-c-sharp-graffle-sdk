@@ -106,6 +106,21 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.IsInstanceOfType(secondValue, typeof(BoolType));
             var tmp2 = secondValue as BoolType;
             Assert.AreEqual(true, tmp2.Data);
+
+            //let's do some verification on the grafflecomposite
+            var graffleComposite = eventWithArray.EventComposite;
+
+            //pull out the dictionary full of structs
+            var dict = graffleComposite.Data["metadatas"];
+            Assert.AreEqual(8, dict.Count);
+
+            //lets check out a single struct in here
+            var flowStruct = dict["itemVideo"];
+            Assert.IsInstanceOfType(flowStruct, typeof(GraffleCompositeType));
+            var composite = flowStruct as GraffleCompositeType;
+            Assert.AreEqual("A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata", composite.Id);
+            Assert.AreEqual("Struct", composite.Type);
+            Assert.AreEqual(2, composite.Data.Count);
         }
 
         [TestMethod]
@@ -188,6 +203,23 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var innerStruct = optional.Data as CompositeType;
             Assert.AreEqual("A.76b2527585e45db4.SoulMadeComponent.ComponentDetail", innerStruct.Id);
             Assert.AreEqual(10, innerStruct.Fields.Count);
+
+
+            //let's validate the grafflecomposite
+            var graffleComposite = ev.EventComposite;
+            var data = graffleComposite.Data;
+            Assert.IsNotNull(data);
+            Assert.AreEqual(4, data.Count);
+
+            //pull out the field with a nested struct
+            var nestedStruct = data["saleData"]["componentDetail"];
+            Assert.IsNotNull(nestedStruct);
+            Assert.IsInstanceOfType(nestedStruct, typeof(GraffleCompositeType));
+
+            var tmp = nestedStruct as GraffleCompositeType;
+            Assert.AreEqual("Struct", tmp.Type);
+            Assert.AreEqual("A.76b2527585e45db4.SoulMadeComponent.ComponentDetail", tmp.Id);
+            Assert.AreEqual(10, tmp.Data.Count); //10 fields in the nested struct
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
