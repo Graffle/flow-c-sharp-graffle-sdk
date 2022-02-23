@@ -105,16 +105,17 @@ namespace System.Text.Json
                         //If we see the type is optional then we need to open the value type below it to assign either null or the value inside to the property
                         if (rootType.GetString() == "Optional")
                         {
-                            if (myValue != null)
+                            if (myValue != null) //optional value is non-null
                             {
+                                //get the inner object from the optional type
                                 FlowValueType innerObject = FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data);
-                                if (FlowValueType.IsCompositeType(innerObject.Type)) //nested composite type
+                                if (FlowValueType.IsCompositeType(innerObject.Type)) //nested composite type, we need to recursively parse this
                                 {
                                     var composite = innerObject as CompositeType;
                                     var structFields = GetComplexFields(composite.AsJsonCadenceDataFormat(), out _, out _);
                                     myValue = DeserializeFlowCadence(composite.Id, composite.Type, structFields);
                                 }
-                                else //primitive
+                                else //primitive, just add it to the dictionary
                                 {
                                     myValue = ((dynamic)innerObject).Data;
                                 }
