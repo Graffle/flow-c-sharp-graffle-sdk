@@ -264,6 +264,13 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             Assert.AreEqual(-15, second.Value);
         }
 
+        [TestMethod]
+        public void Write_ThrowsNotImplementedException()
+        {
+            var converter = new FlowValueTypeConverter();
+            Assert.ThrowsException<NotImplementedException>(() => converter.Write(null, null, null));
+        }
+
         private Utf8JsonReader CreateJsonReader(string json) => new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
     }
 }

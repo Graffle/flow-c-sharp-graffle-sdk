@@ -1,9 +1,8 @@
+using Graffle.FlowSdk.Services;
+using Graffle.FlowSdk.Types;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using Graffle.FlowSdk.Types;
-using Graffle.FlowSdk;
-using Graffle.FlowSdk.Services;
 
 namespace System.Text.Json
 {
@@ -108,8 +107,22 @@ namespace System.Text.Json
                         //If we see the type is optional then we need to open the value type below it to assign either null or the value inside to the property
                         if (rootType.GetString() == "Optional")
                         {
-                            if (myValue != null)
-                                myValue = ((dynamic)FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data)).Data;
+                            if (myValue != null) //optional value is non-null
+                            {
+                                //get the inner object from the optional type
+                                FlowValueType innerObject = FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data);
+                                if (FlowValueType.IsCompositeType(innerObject.Type))
+                                {
+                                    //nested composite type
+                                    //add its fields to the dictionary
+                                    var composite = innerObject as CompositeType;
+                                    myValue = composite.FieldsAsDictionary();
+                                }
+                                else //primitive, just add it to the dictionary
+                                {
+                                    myValue = ((dynamic)innerObject).Data;
+                                }
+                            }
                         }
 
                         //Pace the value in our result composite object

@@ -2,6 +2,7 @@ using Graffle.FlowSdk.Services.Models;
 using Graffle.FlowSdk.Services.Nodes;
 using Graffle.FlowSdk.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -84,9 +85,9 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
             Assert.IsNotNull(itemToTest);
             Assert.IsNotNull(itemToTest.Value);
-            Assert.IsInstanceOfType(itemToTest.Value, typeof(StructType));
+            Assert.IsInstanceOfType(itemToTest.Value, typeof(CompositeType));
 
-            var structToTest = itemToTest.Value as StructType;
+            var structToTest = itemToTest.Value as CompositeType;
             Assert.AreEqual("A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata", structToTest.Id);
             Assert.AreEqual(2, structToTest.Fields.Count);
 
@@ -106,6 +107,18 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.IsInstanceOfType(secondValue, typeof(BoolType));
             var tmp2 = secondValue as BoolType;
             Assert.AreEqual(true, tmp2.Data);
+
+            //let's do some verification on the grafflecomposite
+            var graffleComposite = eventWithArray.EventComposite;
+
+            //pull out the dictionary full of structs
+            var dict = graffleComposite.Data["metadatas"];
+            Assert.AreEqual(8, dict.Count);
+
+            //lets check out a single struct in here
+            var fields = dict["itemVideo"];
+            Assert.IsInstanceOfType(fields, typeof(Dictionary<string, object>));
+            Assert.AreEqual(2, fields.Count);
         }
 
         [TestMethod]
@@ -159,12 +172,12 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var valueRoot = parsedJson.RootElement.GetProperty("value");
             var fieldsRoot = valueRoot.GetProperty("fields");
             var myField = fieldsRoot.EnumerateArray().Skip(3).FirstOrDefault();
-            var structType = myField.GetProperty("value");
-            var json = structType.GetRawText();
+            var composite = myField.GetProperty("value");
+            var json = composite.GetRawText();
 
             var parsed = FlowValueType.CreateFromCadence(json);
-            Assert.IsInstanceOfType(parsed, typeof(StructType));
-            var flowStruct = parsed as StructType;
+            Assert.IsInstanceOfType(parsed, typeof(CompositeType));
+            var flowStruct = parsed as CompositeType;
 
             //top level struct
             //validate fields and id
@@ -182,12 +195,33 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             //verify the OptionalType contains a Struct Type
             var optional = optionalStructFieldValue as OptionalType;
             Assert.IsNotNull(optional.Data);
-            Assert.IsInstanceOfType(optional.Data, typeof(StructType));
+            Assert.IsInstanceOfType(optional.Data, typeof(CompositeType));
 
             //validate inner struct
-            var innerStruct = optional.Data as StructType;
+            var innerStruct = optional.Data as CompositeType;
             Assert.AreEqual("A.76b2527585e45db4.SoulMadeComponent.ComponentDetail", innerStruct.Id);
             Assert.AreEqual(10, innerStruct.Fields.Count);
+
+            //let's validate the grafflecomposite
+            var graffleComposite = ev.EventComposite;
+            var data = graffleComposite.Data;
+            Assert.IsNotNull(data);
+            Assert.AreEqual(4, data.Count);
+
+            //pull out the field with a nested struct
+            var nestedFields = data["saleData"]["componentDetail"];
+            Assert.IsNotNull(nestedFields);
+            Assert.IsInstanceOfType(nestedFields, typeof(Dictionary<string, object>));
+            Assert.AreEqual(10, nestedFields.Count); //10 fields in the nested struct
+        }
+
+        [TestMethod]
+        public async Task t()
+        {
+            var res = await GetTransaction(58869074, "e013f514bf38c8eebb2aa01a7e9d6d1b09f2b4ebff18e7e94013e6e01fc95889");
+            var events = res.Events;
+            var ev = events.FirstOrDefault(ev => ev.Type == "A.05a26c163795266b.BallerzSimz.SimCompleted");
+            var composite = ev.EventComposite;
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
