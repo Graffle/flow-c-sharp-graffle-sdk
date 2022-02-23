@@ -294,6 +294,13 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             Assert.AreEqual("hello", structFields[second]);
         }
 
+        [TestMethod]
+        public void Write_ThrowsNotImplementedException()
+        {
+            var converter = new GraffleCompositeTypeConverter();
+            Assert.ThrowsException<NotImplementedException>(() => converter.Write(null, null, null));
+        }
+
         private Dictionary<string, string> CreateField(string name, string cadenceJson)
         {
             return new Dictionary<string, string>()
