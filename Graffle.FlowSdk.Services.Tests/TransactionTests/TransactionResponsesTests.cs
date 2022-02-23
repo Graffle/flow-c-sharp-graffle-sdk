@@ -204,7 +204,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual("A.76b2527585e45db4.SoulMadeComponent.ComponentDetail", innerStruct.Id);
             Assert.AreEqual(10, innerStruct.Fields.Count);
 
-
             //let's validate the grafflecomposite
             var graffleComposite = ev.EventComposite;
             var data = graffleComposite.Data;
