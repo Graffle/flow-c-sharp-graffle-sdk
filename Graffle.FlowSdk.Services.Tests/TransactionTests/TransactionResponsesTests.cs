@@ -84,9 +84,9 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
             Assert.IsNotNull(itemToTest);
             Assert.IsNotNull(itemToTest.Value);
-            Assert.IsInstanceOfType(itemToTest.Value, typeof(StructType));
+            Assert.IsInstanceOfType(itemToTest.Value, typeof(CompositeType));
 
-            var structToTest = itemToTest.Value as StructType;
+            var structToTest = itemToTest.Value as CompositeType;
             Assert.AreEqual("A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata", structToTest.Id);
             Assert.AreEqual(2, structToTest.Fields.Count);
 
@@ -159,12 +159,12 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var valueRoot = parsedJson.RootElement.GetProperty("value");
             var fieldsRoot = valueRoot.GetProperty("fields");
             var myField = fieldsRoot.EnumerateArray().Skip(3).FirstOrDefault();
-            var structType = myField.GetProperty("value");
-            var json = structType.GetRawText();
+            var composite = myField.GetProperty("value");
+            var json = composite.GetRawText();
 
             var parsed = FlowValueType.CreateFromCadence(json);
-            Assert.IsInstanceOfType(parsed, typeof(StructType));
-            var flowStruct = parsed as StructType;
+            Assert.IsInstanceOfType(parsed, typeof(CompositeType));
+            var flowStruct = parsed as CompositeType;
 
             //top level struct
             //validate fields and id
@@ -182,10 +182,10 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             //verify the OptionalType contains a Struct Type
             var optional = optionalStructFieldValue as OptionalType;
             Assert.IsNotNull(optional.Data);
-            Assert.IsInstanceOfType(optional.Data, typeof(StructType));
+            Assert.IsInstanceOfType(optional.Data, typeof(CompositeType));
 
             //validate inner struct
-            var innerStruct = optional.Data as StructType;
+            var innerStruct = optional.Data as CompositeType;
             Assert.AreEqual("A.76b2527585e45db4.SoulMadeComponent.ComponentDetail", innerStruct.Id);
             Assert.AreEqual(10, innerStruct.Fields.Count);
         }

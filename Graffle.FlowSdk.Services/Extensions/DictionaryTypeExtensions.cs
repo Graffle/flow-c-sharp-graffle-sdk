@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Graffle.FlowSdk.Types;
+using System.Text.Json;
+using System.Linq;
 
 namespace Graffle.FlowSdk.Services
 {
@@ -14,11 +16,19 @@ namespace Graffle.FlowSdk.Services
                 var cleanedName = propertyName.ToCamelCase();
 
                 var value = item.Value;
-
                 dynamic data;
-                if (value is StructType flowStruct) //nested struct
+                if (FlowValueType.IsCompositeType(value.Type)) //nested composite type: struct, event, resource, etc
                 {
-                    data = flowStruct.ConvertToObject();
+                    var flowComposite = value as CompositeType;
+                    var graffleComposite = new GraffleCompositeType(value.Type);
+                    graffleComposite.Id = flowComposite.Id;
+                    graffleComposite.Data = flowComposite.Fields.ToDictionary(f => f.Name, f =>
+                    {
+                        //todo: this is a massive hack that exists elsewhere in this sdk
+                        //FlowValueType base class should have a way to expose this property
+                        return ((dynamic)f.Value).Data;
+                    });
+                    data = graffleComposite;
                 }
                 else //primitive
                 {

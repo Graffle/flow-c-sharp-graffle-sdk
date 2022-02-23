@@ -2,6 +2,7 @@ using Graffle.FlowSdk.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace Graffle.FlowSdk.Services.Tests.ExtensionTests
 {
@@ -51,19 +52,19 @@ namespace Graffle.FlowSdk.Services.Tests.ExtensionTests
         }
 
         [TestMethod]
-        public void ConvertToObject_StructValue_ReturnsDictionary()
+        public void ConvertToObject_CompositeValue_ReturnsDictionaryWithGraffleCompositeType()
         {
             var intField = new IntType(123);
             var stringField = new StringType("hello world");
-            var structFields = new List<StructField>()
+            var structFields = new List<CompositeField>()
             {
-                new StructField("intField", intField),
-                new StructField("stringField", stringField)
+                new CompositeField("intField", intField),
+                new CompositeField("stringField", stringField)
             };
-            var structData = new StructData("structId", structFields);
+            var structData = new CompositeData("structId", structFields);
 
             var key = new StringType("keykeykeykeykey");
-            var value = new StructType(structData);
+            var value = new CompositeType("Struct", structData);
 
             var dict = new DictionaryType(new Dictionary<FlowValueType, FlowValueType>() { { key, value } });
 
@@ -78,18 +79,21 @@ namespace Graffle.FlowSdk.Services.Tests.ExtensionTests
             Assert.IsInstanceOfType(kvp.Key, typeof(string));
             Assert.AreEqual(key.Data.ToCamelCase(), kvp.Key);
 
-            Assert.IsInstanceOfType(kvp.Value, typeof(Dictionary<string, dynamic>));
+            Assert.IsInstanceOfType(kvp.Value, typeof(GraffleCompositeType));
 
-            var structDict = kvp.Value as Dictionary<string, dynamic>;
-            Assert.AreEqual(2, structDict.Count);
+            var composite = kvp.Value as GraffleCompositeType;
+            Assert.AreEqual("Struct", composite.Type);
+            Assert.AreEqual("structId", composite.Id);
+            var data = composite.Data;
+            Assert.AreEqual(2, data.Count);
 
             //verify struct data
-            var first = structDict.First();
+            var first = data.First();
             Assert.AreEqual(structFields[0].Name.ToCamelCase(), first.Key);
             Assert.IsInstanceOfType(first.Value, typeof(int));
             Assert.AreEqual(intField.Data, first.Value);
 
-            var second = structDict.Skip(1).First();
+            var second = data.Skip(1).First();
             Assert.AreEqual(structFields[1].Name.ToCamelCase(), second.Key);
             Assert.IsInstanceOfType(second.Value, typeof(string));
             Assert.AreEqual(stringField.Data, second.Value);

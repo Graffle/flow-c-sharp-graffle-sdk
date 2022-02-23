@@ -47,11 +47,8 @@ namespace System.Text.Json
                     case "Contract":
                     case "Enum":
                         //Break down like we have before to prep the complex object for a recursive call
-                        var complexParsedJson = JsonDocument.Parse(item.Values.Last());
-                        var complexRoot = complexParsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
-                        var complexRootValue = complexRoot.FirstOrDefault(z => z.Key == "value").Value.EnumerateObject().ToDictionary(z => z.Name, z => z.Value);
-                        var complexFields = complexRootValue.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
-                        var complexCompositeType = DeserializeFlowCadence(complexRootValue.FirstOrDefault().Value.ToString(), complexRoot.FirstOrDefault().Value.ToString(), complexFields);
+                        var complexFields = GetComplexFields(item.Values.Last(), out string complexId, out string complexType);
+                        var complexCompositeType = DeserializeFlowCadence(complexId, complexType, complexFields);
 
                         //Place the complex type in its correct position
                         compositeType.Data[item.Values.First().ToCamelCase()] = complexCompositeType.Data;
@@ -110,10 +107,12 @@ namespace System.Text.Json
                         {
                             if (myValue != null)
                             {
-                                var innerObject = FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data);
-                                if (innerObject is StructType flowStruct) //optional struct
+                                FlowValueType innerObject = FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data);
+                                if (FlowValueType.IsCompositeType(innerObject.Type)) //nested composite type
                                 {
-                                    myValue = flowStruct.ConvertToObject();
+                                    var composite = innerObject as CompositeType;
+                                    var structFields = GetComplexFields(composite.AsJsonCadenceDataFormat(), out _, out _);
+                                    myValue = DeserializeFlowCadence(composite.Id, composite.Type, structFields);
                                 }
                                 else //primitive
                                 {
@@ -154,6 +153,18 @@ namespace System.Text.Json
         public override void Write(Utf8JsonWriter writer, GraffleCompositeType value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
+        }
+
+        private IEnumerable<Dictionary<string, string>> GetComplexFields(string json, out string id, out string type)
+        {
+            var complexParsedJson = JsonDocument.Parse(json);
+            var complexRoot = complexParsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
+            var complexRootValue = complexRoot.FirstOrDefault(z => z.Key == "value").Value.EnumerateObject().ToDictionary(z => z.Name, z => z.Value);
+            var complexFields = complexRootValue.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
+
+            type = complexRoot.FirstOrDefault().Value.ToString();
+            id = complexRootValue.FirstOrDefault().Value.ToString();
+            return complexFields;
         }
     }
 }
