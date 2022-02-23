@@ -1,9 +1,8 @@
+using Graffle.FlowSdk.Services;
+using Graffle.FlowSdk.Types;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using Graffle.FlowSdk.Types;
-using Graffle.FlowSdk;
-using Graffle.FlowSdk.Services;
 
 namespace System.Text.Json
 {
@@ -47,8 +46,11 @@ namespace System.Text.Json
                     case "Contract":
                     case "Enum":
                         //Break down like we have before to prep the complex object for a recursive call
-                        var complexFields = GetComplexFields(item.Values.Last(), out string complexId, out string complexType);
-                        var complexCompositeType = DeserializeFlowCadence(complexId, complexType, complexFields);
+                        var complexParsedJson = JsonDocument.Parse(item.Values.Last());
+                        var complexRoot = complexParsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
+                        var complexRootValue = complexRoot.FirstOrDefault(z => z.Key == "value").Value.EnumerateObject().ToDictionary(z => z.Name, z => z.Value);
+                        var complexFields = complexRootValue.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
+                        var complexCompositeType = DeserializeFlowCadence(complexRootValue.FirstOrDefault().Value.ToString(), complexRoot.FirstOrDefault().Value.ToString(), complexFields);
 
                         //Place the complex type in its correct position
                         compositeType.Data[item.Values.First().ToCamelCase()] = complexCompositeType.Data;
@@ -155,18 +157,6 @@ namespace System.Text.Json
         public override void Write(Utf8JsonWriter writer, GraffleCompositeType value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
-        }
-
-        private IEnumerable<Dictionary<string, string>> GetComplexFields(string json, out string id, out string type)
-        {
-            var complexParsedJson = JsonDocument.Parse(json);
-            var complexRoot = complexParsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
-            var complexRootValue = complexRoot.FirstOrDefault(z => z.Key == "value").Value.EnumerateObject().ToDictionary(z => z.Name, z => z.Value);
-            var complexFields = complexRootValue.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
-
-            type = complexRoot.FirstOrDefault().Value.ToString();
-            id = complexRootValue.FirstOrDefault().Value.ToString();
-            return complexFields;
         }
     }
 }
