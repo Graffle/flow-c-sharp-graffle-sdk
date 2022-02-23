@@ -295,6 +295,35 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
         }
 
         [TestMethod]
+        public void Read_ReturnsGraffleCompositeType()
+        {
+            var json = @"{""type"":""Event"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.ItemDataCreated"",""fields"":[{""name"":""itemDataID"",""value"":{""type"":""UInt32"",""value"":""152""}},{""name"":""coCreator"",""value"":{""type"":""Address"",""value"":""0x125d80d43ddbdb9a""}},{""name"":""metadatas"",""value"":{""type"":""Dictionary"",""value"":[{""key"":{""type"":""String"",""value"":""itemVideo""},""value"":{""type"":""Struct"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata"",""fields"":[{""name"":""metadataValue"",""value"":{""type"":""String"",""value"":""https://leela.mypinata.cloud/ipfs/QmeirDvh3TrDgtDdfvyjQXF87DusXksymtzmA4RABBVreo/LOOP.mp4""}},{""name"":""mutable"",""value"":{""type"":""Bool"",""value"":true}}]}}},{""key"":{""type"":""String"",""value"":""secondaryColor""},""value"":{""type"":""Struct"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata"",""fields"":[{""name"":""metadataValue"",""value"":{""type"":""String"",""value"":""545454""}},{""name"":""mutable"",""value"":{""type"":""Bool"",""value"":false}}]}}},{""key"":{""type"":""String"",""value"":""primaryColor""},""value"":{""type"":""Struct"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata"",""fields"":[{""name"":""metadataValue"",""value"":{""type"":""String"",""value"":""FF803E""}},{""name"":""mutable"",""value"":{""type"":""Bool"",""value"":false}}]}}},{""key"":{""type"":""String"",""value"":""itemImage4""},""value"":{""type"":""Struct"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata"",""fields"":[{""name"":""metadataValue"",""value"":{""type"":""String"",""value"":""""}},{""name"":""mutable"",""value"":{""type"":""Bool"",""value"":true}}]}}},{""key"":{""type"":""String"",""value"":""itemImage3""},""value"":{""type"":""Struct"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata"",""fields"":[{""name"":""metadataValue"",""value"":{""type"":""String"",""value"":""""}},{""name"":""mutable"",""value"":{""type"":""Bool"",""value"":true}}]}}},{""key"":{""type"":""String"",""value"":""itemImage2""},""value"":{""type"":""Struct"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata"",""fields"":[{""name"":""metadataValue"",""value"":{""type"":""String"",""value"":""""}},{""name"":""mutable"",""value"":{""type"":""Bool"",""value"":true}}]}}},{""key"":{""type"":""String"",""value"":""season""},""value"":{""type"":""Struct"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata"",""fields"":[{""name"":""metadataValue"",""value"":{""type"":""String"",""value"":""1""}},{""name"":""mutable"",""value"":{""type"":""Bool"",""value"":false}}]}}},{""key"":{""type"":""String"",""value"":""itemImage""},""value"":{""type"":""Struct"",""value"":{""id"":""A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata"",""fields"":[{""name"":""metadataValue"",""value"":{""type"":""String"",""value"":""https://leela.mypinata.cloud/ipfs/QmeirDvh3TrDgtDdfvyjQXF87DusXksymtzmA4RABBVreo/LOOP_poster.png""}},{""name"":""mutable"",""value"":{""type"":""Bool"",""value"":true}}]}}}]}}]}}";
+            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+            var reader = new Utf8JsonReader(bytes);
+            var converter = new GraffleCompositeTypeConverter();
+            var result = converter.Read(ref reader, null, null);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Event", result.Type);
+            Assert.AreEqual("A.2a37a78609bba037.TheFabricantS1ItemNFT.ItemDataCreated", result.Id);
+
+            var data = result.Data;
+            Assert.IsNotNull(data);
+
+            //test some of the data
+            var dict = data["metadatas"];
+            Assert.AreEqual(8, dict.Count);
+
+            //lets check out a single struct in here
+            var flowStruct = dict["itemVideo"];
+            Assert.IsInstanceOfType(flowStruct, typeof(GraffleCompositeType));
+            var composite = flowStruct as GraffleCompositeType;
+            Assert.AreEqual("A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata", composite.Id);
+            Assert.AreEqual("Struct", composite.Type);
+            Assert.AreEqual(2, composite.Data.Count);
+        }
+
+        [TestMethod]
         public void Write_ThrowsNotImplementedException()
         {
             var converter = new GraffleCompositeTypeConverter();
