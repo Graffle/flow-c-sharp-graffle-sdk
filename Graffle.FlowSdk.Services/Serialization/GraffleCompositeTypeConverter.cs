@@ -84,6 +84,7 @@ namespace System.Text.Json
                                 }
                                 else
                                 {
+                                    //value here is a json object instead of a primitive value
                                     z = $"{{\"type\":\"{x}\",\"value\":{y}}}";
                                 }
 
