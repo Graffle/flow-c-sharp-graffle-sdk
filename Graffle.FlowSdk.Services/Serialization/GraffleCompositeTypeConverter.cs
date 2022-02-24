@@ -68,12 +68,26 @@ namespace System.Text.Json
                         foreach (var arrayField in arrayFields)
                         {
                             var type = arrayField.Values.First();
-                            if (FlowValueType.IsPrimitiveType(type))
+                            bool isPrimitive = FlowValueType.IsPrimitiveType(type);
+                            if (FlowValueType.IsPrimitiveType(type)
+                                || type == "Path"
+                                || type == "Capability"
+                                || type == "Type")
                             {
                                 // This is a hack to put back together primitives in an array.
                                 var x = arrayField.Values.First();
                                 var y = arrayField.Values.Last();
-                                var z = $"{{\"type\":\"{x}\",\"value\":\"{y}\"}}";
+                                string z;
+                                if (isPrimitive)
+                                {
+                                    z = $"{{\"type\":\"{x}\",\"value\":\"{y}\"}}";
+                                }
+                                else
+                                {
+                                    //value here is a json object instead of a primitive value
+                                    z = $"{{\"type\":\"{x}\",\"value\":{y}}}";
+                                }
+
                                 dynamic primitiveValue = FlowValueType.CreateFromCadence(z);
                                 var data = primitiveValue.Data;
                                 result.Add(data);
@@ -83,19 +97,15 @@ namespace System.Text.Json
                                 // dealing with a recursive complex type
                                 var arrayFieldRoot = JsonDocument.Parse(arrayField.Values.Last());
                                 var arrayFieldRootElements = arrayFieldRoot.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
-                                if (arrayFieldRootElements.ContainsKey("fields"))
-                                {
-                                    var arrayItemId = arrayFieldRootElements.FirstOrDefault(z => z.Key == "id").Value.ToString();
-                                    var arrayItemType = arrayField.FirstOrDefault().Value.ToString();
-                                    var singleComplexFields = arrayFieldRootElements.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
-                                    var newItem = DeserializeFlowCadence(arrayItemId, arrayItemType, singleComplexFields);
-                                    result.Add(newItem);
-                                }
-                                else if (arrayFieldRootElements.ContainsKey("staticType"))
-                                {
-                                    var arrayItemId = arrayFieldRootElements.FirstOrDefault(z => z.Key == "staticType").Value.ToString();
-                                    result.Add(arrayItemId);
-                                }
+
+                                //composite type ie struct, resource, event, etc
+                                var arrayItemId = arrayFieldRootElements.FirstOrDefault(z => z.Key == "id").Value.ToString();
+                                var arrayItemType = arrayField.FirstOrDefault().Value.ToString();
+                                var singleComplexFields = arrayFieldRootElements.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
+                                var newItem = DeserializeFlowCadence(arrayItemId, arrayItemType, singleComplexFields);
+
+                                //only add the composite type's data to the array
+                                result.Add(newItem.Data);
                             }
                         }
                         compositeType.Data[item.Values.First().ToCamelCase()] = result;

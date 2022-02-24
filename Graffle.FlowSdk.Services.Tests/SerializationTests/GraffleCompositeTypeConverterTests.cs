@@ -207,26 +207,19 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             //verify array values
             Assert.AreEqual(2, value.Count);
             Assert.AreEqual((uint)12345, value[0]);
-            Assert.IsInstanceOfType(value[1], typeof(GraffleCompositeType));
-
-            //verify struct
-            var composite = value[1] as GraffleCompositeType;
-            Assert.AreEqual("structId", composite.Id);
-            Assert.AreEqual("Struct", composite.Type);
+            Assert.IsInstanceOfType(value[1], typeof(Dictionary<string, object>));
 
             //verify struct fields
-            Assert.IsInstanceOfType(composite.Data, typeof(Dictionary<string, object>));
+            var composite = value[1] as Dictionary<string, object>;
+            Assert.AreEqual(2, composite.Keys.Count);
 
-            var structFields = composite.Data as Dictionary<string, object>;
-            Assert.AreEqual(2, structFields.Keys.Count);
-
-            var first = structFields.Keys.First();
+            var first = composite.Keys.First();
             Assert.AreEqual("structField1", first);
-            Assert.AreEqual("structStringValue", structFields[first]);
+            Assert.AreEqual("structStringValue", composite[first]);
 
-            var second = structFields.Keys.Skip(1).First();
+            var second = composite.Keys.Skip(1).First();
             Assert.AreEqual(second, "structField2");
-            Assert.AreEqual((long)5432, structFields[second]);
+            Assert.AreEqual((long)5432, composite[second]);
         }
 
         [TestMethod]
@@ -318,6 +311,80 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             var fields = dict["itemVideo"];
             Assert.IsInstanceOfType(fields, typeof(Dictionary<string, object>));
             Assert.AreEqual(2, fields.Count);
+        }
+
+        [TestMethod]
+        public void DeserializeFlowCadence_ArrayType_ContainsPathTypeAndCapabilityType_ReturnsGraffleCompositeType()
+        {
+            /*
+            {
+                "type":"Array",
+                "value": [
+                    {
+                        "type":"Path",
+                        "value": {
+                            "domain":"storage",
+                            "identifier":"pathId"
+                        }
+                    },
+                    {
+                        "type":"Type",
+                        "value": {
+                            "staticType": "staticTypeValue"
+                        }
+                    },
+                    {
+                        "type":"Capability",
+                        "value": {
+                            "path": "/public/someInteger",
+                            "address": "0x1",
+                            "borrowType": "Int"
+                        }
+                    }
+                ]
+            }
+            */
+
+            var json = @"{""type"":""Array"",""value"":[{""type"":""Path"",""value"":{""domain"":""storage"",""identifier"":""pathId""}},{""type"":""Type"",""value"":{""staticType"":""staticTypeValue""}},{""type"":""Capability"",""value"":{""path"":""/public/someInteger"",""address"":""0x1"",""borrowType"":""Int""}}]}";
+            var field = CreateField("testField", json);
+            var fields = new List<Dictionary<string, string>>() { field };
+
+            var converter = new GraffleCompositeTypeConverter();
+            var result = converter.DeserializeFlowCadence("testId", "event", fields);
+
+            //verify GraffleComposite data
+            var data = result.Data;
+            Assert.AreEqual(1, data.Count);
+            var arrayField = data["testField"];
+            Assert.IsInstanceOfType(arrayField, typeof(List<object>));
+
+            var parsedArray = arrayField as List<object>;
+            Assert.AreEqual(3, parsedArray.Count);
+
+            //check individual values
+            var path = parsedArray[0];
+            Assert.IsInstanceOfType(path, typeof(Dictionary<string, string>));
+            var pathDict = path as Dictionary<string, string>;
+            Assert.AreEqual(2, pathDict.Count);
+            Assert.IsTrue(pathDict.ContainsKey("domain"));
+            Assert.AreEqual("storage", pathDict["domain"]);
+            Assert.IsTrue(pathDict.ContainsKey("identifier"));
+            Assert.AreEqual("pathId", pathDict["identifier"]);
+
+            var type = parsedArray[1];
+            Assert.IsInstanceOfType(type, typeof(string));
+            Assert.AreEqual("staticTypeValue", type);
+
+            var capability = parsedArray[2];
+            Assert.IsInstanceOfType(capability, typeof(Dictionary<string, string>));
+            var capabilityDict = capability as Dictionary<string, string>;
+            Assert.AreEqual(3, capabilityDict.Count);
+            Assert.IsTrue(capabilityDict.ContainsKey("path"));
+            Assert.AreEqual("/public/someInteger", capabilityDict["path"]);
+            Assert.IsTrue(capabilityDict.ContainsKey("address"));
+            Assert.AreEqual("0x1", capabilityDict["address"]);
+            Assert.IsTrue(capabilityDict.ContainsKey("borrowType"));
+            Assert.AreEqual("Int", capabilityDict["borrowType"]);
         }
 
         [TestMethod]
