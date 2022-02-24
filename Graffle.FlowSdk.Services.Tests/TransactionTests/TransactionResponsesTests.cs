@@ -216,12 +216,32 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        public async Task t()
+        public async Task Serialize_ArrayContainsStructs_OnlyStructFieldsAreSerialized()
         {
-            var res = await GetTransaction(58869074, "e013f514bf38c8eebb2aa01a7e9d6d1b09f2b4ebff18e7e94013e6e01fc95889");
+            var res = await GetTransaction(24684541, "c6043a12ddab4740d6dbb27a9171062813b0fff05f0a03529c61c620311be8e4", NodeType.MainNet);
             var events = res.Events;
-            var ev = events.FirstOrDefault(ev => ev.Type == "A.05a26c163795266b.BallerzSimz.SimCompleted");
+            var ev = events.FirstOrDefault(ev => ev.Type == "A.8b148183c28ff88f.GaiaOrder.OrderAvailable");
             var composite = ev.EventComposite;
+
+            Assert.IsNotNull(composite);
+            var compositeData = composite.Data;
+            Assert.IsNotNull(composite.Data);
+
+            //verify that *only* the struct's fields were serialized
+            var arrayData = compositeData["payments"];
+            Assert.IsNotNull(arrayData);
+            Assert.IsInstanceOfType(arrayData, typeof(List<object>));
+
+            //check items in the array
+            //these should be dictionaries (ie struct fields) rather than GraffleCompositeType
+            foreach (var obj in arrayData)
+            {
+                Assert.IsInstanceOfType(obj, typeof(Dictionary<string, object>));
+            }
+
+            //let's take a look at one
+            var structFields = arrayData[0] as Dictionary<string, object>;
+            Assert.AreEqual(4, structFields.Count);
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)

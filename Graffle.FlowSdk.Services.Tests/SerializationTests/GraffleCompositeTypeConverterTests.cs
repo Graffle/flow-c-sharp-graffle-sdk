@@ -207,26 +207,19 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             //verify array values
             Assert.AreEqual(2, value.Count);
             Assert.AreEqual((uint)12345, value[0]);
-            Assert.IsInstanceOfType(value[1], typeof(GraffleCompositeType));
-
-            //verify struct
-            var composite = value[1] as GraffleCompositeType;
-            Assert.AreEqual("structId", composite.Id);
-            Assert.AreEqual("Struct", composite.Type);
+            Assert.IsInstanceOfType(value[1], typeof(Dictionary<string, object>));
 
             //verify struct fields
-            Assert.IsInstanceOfType(composite.Data, typeof(Dictionary<string, object>));
+            var composite = value[1] as Dictionary<string, object>;
+            Assert.AreEqual(2, composite.Keys.Count);
 
-            var structFields = composite.Data as Dictionary<string, object>;
-            Assert.AreEqual(2, structFields.Keys.Count);
-
-            var first = structFields.Keys.First();
+            var first = composite.Keys.First();
             Assert.AreEqual("structField1", first);
-            Assert.AreEqual("structStringValue", structFields[first]);
+            Assert.AreEqual("structStringValue", composite[first]);
 
-            var second = structFields.Keys.Skip(1).First();
+            var second = composite.Keys.Skip(1).First();
             Assert.AreEqual(second, "structField2");
-            Assert.AreEqual((long)5432, structFields[second]);
+            Assert.AreEqual((long)5432, composite[second]);
         }
 
         [TestMethod]

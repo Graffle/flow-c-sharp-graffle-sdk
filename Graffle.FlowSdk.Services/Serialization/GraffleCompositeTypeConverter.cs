@@ -85,11 +85,14 @@ namespace System.Text.Json
                                 var arrayFieldRootElements = arrayFieldRoot.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
                                 if (arrayFieldRootElements.ContainsKey("fields"))
                                 {
+                                    //composite type ie struct, resource, event, etc
                                     var arrayItemId = arrayFieldRootElements.FirstOrDefault(z => z.Key == "id").Value.ToString();
                                     var arrayItemType = arrayField.FirstOrDefault().Value.ToString();
                                     var singleComplexFields = arrayFieldRootElements.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
                                     var newItem = DeserializeFlowCadence(arrayItemId, arrayItemType, singleComplexFields);
-                                    result.Add(newItem);
+
+                                    //only add the composite type's data to the array
+                                    result.Add(newItem.Data);
                                 }
                                 else if (arrayFieldRootElements.ContainsKey("staticType"))
                                 {
