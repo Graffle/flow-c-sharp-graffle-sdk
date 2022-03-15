@@ -8,6 +8,7 @@ using Google.Protobuf;
 using Grpc.Core;
 using Graffle.FlowSdk.Services;
 using Graffle.FlowSdk.Services.Models;
+using Polly;
 
 namespace Graffle.FlowSdk
 {
@@ -119,12 +120,20 @@ namespace Graffle.FlowSdk
 
         public async Task<FlowFullTransaction> GetCompleteTransactionAsync(ByteString transactionId)
         {
-            //TODO: Add retry;
-            var transactionResultTask = GetTransactionResult(transactionId);
-            var transactionTask = GetTransactionAsync(transactionId);
-            var transactionResult = await transactionResultTask;
-            var transaction = await transactionTask;
+            var retryPolicy = Policy
+                            .Handle<Exception>()
+                            .WaitAndRetryAsync(new[]
+                            {
+                                TimeSpan.FromMilliseconds(250),
+                                TimeSpan.FromMilliseconds(500),
+                                TimeSpan.FromMilliseconds(2000)
+                            });
+
+            var transactionResult = await retryPolicy.ExecuteAsync(() => GetTransactionResult(transactionId));
+            var transaction = await retryPolicy.ExecuteAsync(() => GetTransactionAsync(transactionId));
+
             var result = new FlowFullTransaction(transactionResult, transaction);
+
             return result;
         }
     }
