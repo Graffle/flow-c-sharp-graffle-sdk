@@ -128,8 +128,14 @@ namespace Graffle.FlowSdk
                                 TimeSpan.FromMilliseconds(2000)
                             });
 
-            var transactionResult = await retryPolicy.ExecuteAsync(() => GetTransactionResult(transactionId));
             var transaction = await retryPolicy.ExecuteAsync(() => GetTransactionAsync(transactionId));
+
+            FlowTransactionResult transactionResult = null;
+            try
+            {
+                transactionResult = await retryPolicy.ExecuteAsync(() => GetTransactionResult(transactionId));
+            }
+            catch { } //eat the exception, might just be a script with no events/result
 
             var result = new FlowFullTransaction(transactionResult, transaction);
 
