@@ -14,6 +14,9 @@ namespace Graffle.FlowSdk.Services.Models
         [JsonProperty("flowTransactionResult")]
         public FlowTransactionResult FlowTransactionResult { get; }
 
+        [JsonProperty("hasTransactionResult")]
+        public bool HasTransactionResult => FlowTransactionResult != null;
+
         [JsonProperty("flowTransaction")]
         public FlowTransaction FlowTransaction { get; }
     }
