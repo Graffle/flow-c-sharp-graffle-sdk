@@ -267,6 +267,26 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
         [TestMethod]
         public void Read_OptionalType_WithDictionaryType_ReturnsFlowValueType()
         {
+            /*
+            {
+                ""type"":""Optional"",
+                ""value"": {
+                    ""type"":""Dictionary"",
+                    ""value"": [
+                        {
+                            ""key"": {
+                                ""type"":""String"",
+                                ""value"":""keyValue""
+                            },
+                            ""value"": {
+                                ""type"":""Int"",
+                                ""value"":5
+                            }
+                        }
+                    ]
+                }
+            }
+            */
             var json = @"{""type"":""Optional"",""value"":{""type"":""Dictionary"",""value"":[{""key"":{""type"":""String"",""value"":""keyValue""},""value"":{""type"":""Int"",""value"":5}}]}}";
             var reader = CreateJsonReader(json);
 
