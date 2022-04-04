@@ -269,18 +269,18 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
         {
             /*
             {
-                ""type"":""Optional"",
-                ""value"": {
-                    ""type"":""Dictionary"",
-                    ""value"": [
+                "type":"Optional",
+                "value": {
+                    "type":"Dictionary",
+                    "value": [
                         {
-                            ""key"": {
-                                ""type"":""String"",
-                                ""value"":""keyValue""
+                            "key": {
+                                "type":"String",
+                                "value":"keyValue"
                             },
-                            ""value"": {
-                                ""type"":""Int"",
-                                ""value"":5
+                            "value": {
+                                "type":"Int",
+                                "value":5
                             }
                         }
                     ]
