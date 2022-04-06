@@ -1,3 +1,4 @@
+using Graffle.FlowSdk.Services.Extensions;
 using Graffle.FlowSdk.Types;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,14 +7,36 @@ namespace Graffle.FlowSdk.Services
 {
     public static class CompositeTypeExtensions
     {
-        public static Dictionary<string, dynamic> FieldsAsDictionary(this CompositeType composite)
+        /// <summary>
+        /// Return struct data as primitive types (string, int, etc) ie not objects of type FlowValueType
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        public static Dictionary<string, dynamic> FieldsAsDictionary(this CompositeType x)
         {
-            return composite.Fields.ToDictionary(f => f.Name,
+            return x.Fields.ToDictionary(f => f.Name,
                     f =>
                     {
-                        //todo: this is a massive hack that exists elsewhere in this sdk
-                        //FlowValueType base class should have a way to expose this property
-                        return ((dynamic)f.Value).Data;
+                        var value = f.Value;
+                        dynamic result;
+                        if (FlowValueType.IsCompositeType(value.Type) && value is CompositeType composite)
+                        {
+                            result = composite.FieldsAsDictionary();
+                        }
+                        else if (value.Type == "Array" && value is ArrayType array)
+                        {
+                            result = array.ToValueData();
+                        }
+                        else if (value.Type == "Dictionary" && value is DictionaryType dict)
+                        {
+                            result = dict.ConvertToObject();
+                        }
+                        else //primitive
+                        {
+                            result = ((dynamic)f.Value).Data; //primitive value, just return the data directly
+                        }
+
+                        return result;
                     });
         }
     }

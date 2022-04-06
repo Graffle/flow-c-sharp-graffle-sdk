@@ -9,7 +9,6 @@ using Graffle.FlowSdk.Services.Nodes;
 namespace Graffle.FlowSdk.Services.Tests.BlockTests
 {
     [TestClass]
-    [Ignore]
     public class BlockHeightTests
     {
         private IGraffleClient flowClient { get; }
@@ -72,11 +71,11 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
         public async Task Ryan_Test()
         {
             var s = @"
-                        import NonFungibleToken from 0x1d7e57aa55817448
-                        import MetadataViews from 0x1d7e57aa55817448
-                        import FungibleToken from 0xf233dcee88fe0abe
-                        import FlowToken from 0x1654653399040a61
-                        import GoatedGoats from 0x2068315349bdfce5
+                        import NonFungibleToken from 0x631e88ae7f1d7c20
+                        import MetadataViews from 0x631e88ae7f1d7c20
+                        import FungibleToken from 0x9a0766d93b6608b7
+                        import FlowToken from 0x7e60df042a9c0868
+                        import GoatedGoats from 0x386817f360a5c8df
 
                         pub fun main(id: UInt64, address: Address): {String: AnyStruct} {
                             let account = getAccount(address)
@@ -95,11 +94,11 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
                             }
                         ";
 
-            var factory = new FlowClientFactory(NodeType.MainNet);
+            var factory = new FlowClientFactory(NodeType.TestNet);
             var fc = factory.CreateFlowClient();
 
-            var arg1 = new UInt64Type(8243);
-            var arg2 = new AddressType("0x8a02f31896be25f9");
+            var arg1 = new UInt64Type(1392);
+            var arg2 = new AddressType("0x0f347531750c6f15");
 
             var scriptBytes = Encoding.ASCII.GetBytes(s);
             var latestBlock = await fc.GetLatestBlockAsync();
@@ -114,6 +113,13 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
 
             var resTest = System.Text.Json.JsonSerializer.Deserialize<FlowValueType>(metaDataJson, options);
             Assert.IsInstanceOfType(resTest, typeof(DictionaryType));
+
+            var dict = resTest as DictionaryType;
+            var ser = dict.ConvertToObject();
+
+            var x = new { Prop = ser };
+
+            var json = System.Text.Json.JsonSerializer.Serialize(x);
         }
     }
 }
