@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Graffle.FlowSdk.Types;
 using Graffle.FlowSdk;
 using Graffle.FlowSdk.Services;
+using Graffle.FlowSdk.Services.Extensions;
 
 namespace System.Text.Json
 {
@@ -59,7 +60,8 @@ namespace System.Text.Json
                 var result = (ArrayType)FlowValueType.CreateFromCadence("Array", rootElement.ToString());
                 return result;
             }
-            else if (rootType.GetString() == "Dictionary"){
+            else if (rootType.GetString() == "Dictionary")
+            {
                 var rootElement = rss.RootElement.ToString();
                 var result = (DictionaryType)FlowValueType.CreateFromCadence("Dictionary", rootElement.ToString());
                 return result;

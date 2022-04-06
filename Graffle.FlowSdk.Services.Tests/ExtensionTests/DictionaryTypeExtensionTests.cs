@@ -95,5 +95,84 @@ namespace Graffle.FlowSdk.Services.Tests.ExtensionTests
             Assert.IsInstanceOfType(second.Value, typeof(string));
             Assert.AreEqual(stringField.Data, second.Value);
         }
+
+        [TestMethod]
+        public void ConvertToObject_NestedArray_ReturnsDictionary()
+        {
+            var intType = new IntType(123);
+            var stringType = new StringType("hello world");
+            var arrayType = new ArrayType(new List<FlowValueType>() { intType, stringType });
+
+            var dictKey = new StringType("dictionary KEY");
+
+            var dictionaryType = new DictionaryType();
+            dictionaryType.Data.Add(dictKey, arrayType);
+
+            var result = dictionaryType.ConvertToObject();
+            Assert.IsInstanceOfType(result, typeof(Dictionary<object, object>));
+            var dict = result as Dictionary<object, object>;
+
+            Assert.AreEqual(1, dict.Keys.Count);
+
+            var item = dict.First();
+            var key = item.Key;
+            Assert.IsInstanceOfType(key, typeof(string)); //string ie not FlowValueType
+            Assert.AreEqual(dictKey.Data, key);
+
+            var value = item.Value;
+            Assert.IsInstanceOfType(value, typeof(List<object>)); //dict key should be a list and not ArrayType
+
+            var list = value as List<object>;
+            Assert.AreEqual(2, list.Count);
+
+            //need to verify that there are primitives in here and not FlowValueType objects
+            var first = list[0];
+            Assert.IsInstanceOfType(first, typeof(int));
+            Assert.AreEqual(intType.Data, first);
+
+            var second = list[1];
+            Assert.IsInstanceOfType(second, typeof(string));
+            Assert.AreEqual(stringType.Data, second);
+        }
+
+        [TestMethod]
+        public void ConvertToObject_NestedDictionary_ReturnsDictionary() //yo dawg
+        {
+            var intType = new IntType(123);
+            var stringType = new StringType("hello world");
+            var innerDict = new DictionaryType();
+            innerDict.Data.Add(intType, stringType);
+
+            var dictKey = new StringType("dictionary KEY");
+            var outerDict = new DictionaryType();
+            outerDict.Data.Add(dictKey, innerDict);
+
+            var result = outerDict.ConvertToObject(); //basically need to verify that there are no FlowValueType objects in here
+
+            Assert.IsInstanceOfType(result, typeof(Dictionary<object, object>));
+            var dict = result as Dictionary<object, object>;
+
+            Assert.AreEqual(1, dict.Keys.Count);
+
+            var item = dict.First();
+            var key = item.Key;
+            Assert.IsInstanceOfType(key, typeof(string)); //string ie not FlowValueType
+            Assert.AreEqual(dictKey.Data, key);
+
+            //verify data
+            var value = item.Value;
+            Assert.IsInstanceOfType(value, typeof(Dictionary<object, object>));
+            var valueDict = value as Dictionary<object, object>;
+            Assert.AreEqual(1, valueDict.Keys.Count);
+
+            var innerItem = valueDict.First();
+            var innerKey = innerItem.Key;
+            Assert.IsInstanceOfType(innerKey, typeof(string));
+            Assert.AreEqual(intType.Data.ToString(), innerKey);
+
+            var innerValue = innerItem.Value;
+            Assert.IsInstanceOfType(innerValue, typeof(string));
+            Assert.AreEqual(stringType.Data, innerValue);
+        }
     }
 }
