@@ -2,6 +2,7 @@ using Graffle.FlowSdk.Services.Models;
 using Graffle.FlowSdk.Services.Nodes;
 using Graffle.FlowSdk.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -253,12 +254,63 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
             var composite = ev.EventComposite;
 
-            //this transaction doesnt work on flowscan so it's hard to know whats supposed to be in here
-            //just make sure we have something
             Assert.IsNotNull(composite);
 
+            //this object is very complex and contains many nested complex types
+            //lets recurse through the data and touch some stuff to make sure it's all there
             var data = composite.Data;
-            Assert.IsTrue(data.Any());
+            Assert.AreEqual(4, data.Keys.Count());
+
+            if (!data.TryGetValue("saleData", out dynamic saleData))
+            {
+                Assert.Fail("saleData not found in dictionary");
+            }
+
+            //saleData is a struct
+            Assert.IsInstanceOfType(saleData, typeof(Dictionary<string, object>));
+            var saleDataDict = saleData as Dictionary<string, object>;
+
+            //maindetail is also a struct
+            var mainDetail = saleDataDict["mainDetail"];
+            Assert.IsInstanceOfType(mainDetail, typeof(Dictionary<string, object>));
+            var mainDetailDict = mainDetail as Dictionary<string, object>;
+
+            //component details is an array
+            var componentDetails = mainDetailDict["componentDetails"];
+            Assert.IsInstanceOfType(componentDetails, typeof(List<object>));
+            var componentDetailsList = componentDetails as List<object>;
+
+            Assert.AreEqual(11, componentDetailsList.Count);
+
+            //this array contains structs
+            //lets just verify one
+            var item = componentDetailsList[0];
+            Assert.IsInstanceOfType(item, typeof(Dictionary<string, object>));
+
+            var itemDict = item as Dictionary<string, object>;
+            Assert.AreEqual(9, itemDict.Count());
+
+            //verify fields for this struct
+            if (!itemDict.TryGetValue("id", out object id))
+            {
+                Assert.Fail("id not found in dictionary");
+            }
+
+            Assert.AreEqual((UInt64)107520, id);
+
+            if (!itemDict.TryGetValue("name", out object name))
+            {
+                Assert.Fail("name not found");
+            }
+
+            Assert.AreEqual("Victorian Dream", name);
+
+            if (!itemDict.TryGetValue("series", out object series))
+            {
+                Assert.Fail("series not found");
+            }
+
+            Assert.AreEqual("Disordered-FengFeng", series);
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
