@@ -244,6 +244,23 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual(4, structFields.Count);
         }
 
+        [TestMethod]
+        public async Task Serialize_ArrayWithStructs_Succeeds()
+        {
+            var res = await GetTransaction(67676278, "94c061a2075679cf8df22bab85f2979739921a0c64939ce7ae1036629b55eaff");
+            var events = res.Events;
+            var ev = events[2];
+
+            var composite = ev.EventComposite;
+
+            //this transaction doesnt work on flowscan so it's hard to know whats supposed to be in here
+            //just make sure we have something
+            Assert.IsNotNull(composite);
+
+            var data = composite.Data;
+            Assert.IsTrue(data.Any());
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
@@ -251,8 +268,10 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var flowClient = flowClientFactory.CreateFlowClient(blockHeight);
             var latestBlockResponse = await flowClient.GetLatestBlockAsync(true);
             var block = await flowClient.GetBlockByHeightAsync(blockHeight);
-            var collectionId = block.CollectionGuarantees.FirstOrDefault().CollectionId;
-            var collection = await flowClient.GetCollectionById(collectionId.HashToByteString());
+
+            var collectionId = block.CollectionGuarantees.FirstOrDefault()?.CollectionId;
+            var collection = collectionId != null ? await flowClient.GetCollectionById(collectionId.HashToByteString()) : null;
+
             var transactionResult = await flowClient.GetTransactionResult(transactionId.HashToByteString());
             var transaction = await flowClient.GetTransactionAsync(transactionId.HashToByteString());
             var complete = await flowClient.GetCompleteTransactionAsync(transactionId.HashToByteString());
