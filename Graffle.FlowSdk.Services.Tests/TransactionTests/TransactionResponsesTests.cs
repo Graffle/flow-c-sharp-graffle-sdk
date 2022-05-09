@@ -2,6 +2,7 @@ using Graffle.FlowSdk.Services.Models;
 using Graffle.FlowSdk.Services.Nodes;
 using Graffle.FlowSdk.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -244,6 +245,74 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual(4, structFields.Count);
         }
 
+        [TestMethod]
+        public async Task Serialize_ArrayWithStructs_Succeeds()
+        {
+            var res = await GetTransaction(67676278, "94c061a2075679cf8df22bab85f2979739921a0c64939ce7ae1036629b55eaff");
+            var events = res.Events;
+            var ev = events[2];
+
+            var composite = ev.EventComposite;
+
+            Assert.IsNotNull(composite);
+
+            //this object is very complex and contains many nested complex types
+            //lets recurse through the data and touch some stuff to make sure it's all there
+            var data = composite.Data;
+            Assert.AreEqual(4, data.Keys.Count());
+
+            if (!data.TryGetValue("saleData", out dynamic saleData))
+            {
+                Assert.Fail("saleData not found in dictionary");
+            }
+
+            //saleData is a struct
+            Assert.IsInstanceOfType(saleData, typeof(Dictionary<string, object>));
+            var saleDataDict = saleData as Dictionary<string, object>;
+
+            //maindetail is also a struct
+            var mainDetail = saleDataDict["mainDetail"];
+            Assert.IsInstanceOfType(mainDetail, typeof(Dictionary<string, object>));
+            var mainDetailDict = mainDetail as Dictionary<string, object>;
+
+            //component details is an array
+            var componentDetails = mainDetailDict["componentDetails"];
+            Assert.IsInstanceOfType(componentDetails, typeof(List<object>));
+            var componentDetailsList = componentDetails as List<object>;
+
+            Assert.AreEqual(11, componentDetailsList.Count);
+
+            //this array contains structs
+            //lets just verify one
+            var item = componentDetailsList[0];
+            Assert.IsInstanceOfType(item, typeof(Dictionary<string, object>));
+
+            var itemDict = item as Dictionary<string, object>;
+            Assert.AreEqual(9, itemDict.Count());
+
+            //verify fields for this struct
+            if (!itemDict.TryGetValue("id", out object id))
+            {
+                Assert.Fail("id not found in dictionary");
+            }
+
+            Assert.AreEqual((UInt64)107520, id);
+
+            if (!itemDict.TryGetValue("name", out object name))
+            {
+                Assert.Fail("name not found");
+            }
+
+            Assert.AreEqual("Victorian Dream", name);
+
+            if (!itemDict.TryGetValue("series", out object series))
+            {
+                Assert.Fail("series not found");
+            }
+
+            Assert.AreEqual("Disordered-FengFeng", series);
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
@@ -251,8 +320,10 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var flowClient = flowClientFactory.CreateFlowClient(blockHeight);
             var latestBlockResponse = await flowClient.GetLatestBlockAsync(true);
             var block = await flowClient.GetBlockByHeightAsync(blockHeight);
-            var collectionId = block.CollectionGuarantees.FirstOrDefault().CollectionId;
-            var collection = await flowClient.GetCollectionById(collectionId.HashToByteString());
+
+            var collectionId = block.CollectionGuarantees.FirstOrDefault()?.CollectionId;
+            var collection = collectionId != null ? await flowClient.GetCollectionById(collectionId.HashToByteString()) : null;
+
             var transactionResult = await flowClient.GetTransactionResult(transactionId.HashToByteString());
             var transaction = await flowClient.GetTransactionAsync(transactionId.HashToByteString());
             var complete = await flowClient.GetCompleteTransactionAsync(transactionId.HashToByteString());
