@@ -246,6 +246,15 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        public async Task Serialize_LargeTransaction_Succeeds()
+        {
+            var res = await GetTransaction(25568454, "64a8781b0c6873d98ec30d5ef6ee296dcdddf93a8c2ec2e4378a6cfaea6b2631", NodeType.MainNet);
+            var events = res.Events;
+
+            Assert.AreEqual(29625, events.Count());
+        }
+
+        [TestMethod]
         public async Task Serialize_ArrayWithStructs_Succeeds()
         {
             var res = await GetTransaction(67676278, "94c061a2075679cf8df22bab85f2979739921a0c64939ce7ae1036629b55eaff");
