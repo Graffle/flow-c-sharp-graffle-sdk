@@ -10,7 +10,7 @@ namespace Graffle.FlowSdk
     {
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();
         private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                                                               .SetSlidingExpiration(TimeSpan.FromSeconds(60));
+                                                               .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
 
         private MemoryCache graffleClientCache = new MemoryCache(new MemoryCacheOptions());
 
