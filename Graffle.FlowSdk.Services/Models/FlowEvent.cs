@@ -9,30 +9,35 @@ using Newtonsoft.Json;
 
 namespace Graffle.FlowSdk.Services.Models
 {
-    public sealed class FlowEvent {
-        public FlowEvent(Flow.Entities.Event @event, ulong blockHeight, ByteString blockId, DateTimeOffset blockTimestamp, JsonSerializerOptions options) {
+    public sealed class FlowEvent
+    {
+        public FlowEvent(Flow.Entities.Event @event, ulong blockHeight, ByteString blockId, DateTimeOffset blockTimestamp, JsonSerializerOptions options)
+        {
             this.TransactionId = @event.TransactionId.ToHash();
             this.Payload = @event.Payload.ToString(Encoding.Default);
             this.EventComposite = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
             this.TransactionIndex = @event.TransactionIndex;
+            this.EventIndex = @event.EventIndex;
             this.BlockHeight = blockHeight;
             this.BlockId = blockId.ToHash();
             this.BlockTimestamp = blockTimestamp;
         }
 
         [JsonConstructor]
-        public FlowEvent(string transactionId, string payload, GraffleCompositeType eventComposite, uint transactionIndex, ulong blockHeight, string blockId, DateTimeOffset blockTimestamp)
+        public FlowEvent(string transactionId, string payload, GraffleCompositeType eventComposite, uint transactionIndex, uint eventIndex, ulong blockHeight, string blockId, DateTimeOffset blockTimestamp)
         {
             TransactionId = transactionId;
             Payload = payload;
             EventComposite = eventComposite;
             TransactionIndex = transactionIndex;
+            EventIndex = eventIndex;
             BlockHeight = blockHeight;
             BlockId = blockId;
             BlockTimestamp = blockTimestamp;
         }
 
-        public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults) {
+        public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults)
+        {
             //Set up options for deserializing event data
             var options = new JsonSerializerOptions();
             options.Converters.Add(new FlowCompositeTypeConverter());
@@ -40,14 +45,15 @@ namespace Graffle.FlowSdk.Services.Models
             options.Converters.Add(new FlowValueTypeConverter());
 
             var eventsList = new List<FlowEvent>();
-            foreach(var b in eventsResults) {
+            foreach (var b in eventsResults)
+            {
                 eventsList.AddRange(
                     b.Events.ToList()
                         .Select(e => new FlowEvent(
-                            e, 
-                            b.BlockHeight, 
-                            b.BlockId, 
-                            b.BlockTimestamp.ToDateTimeOffset(), 
+                            e,
+                            b.BlockHeight,
+                            b.BlockId,
+                            b.BlockTimestamp.ToDateTimeOffset(),
                             options))
                 );
             }
@@ -66,6 +72,9 @@ namespace Graffle.FlowSdk.Services.Models
 
         [JsonProperty("transactionIndex")]
         public uint TransactionIndex { get; }
+
+        [JsonProperty("eventIndex")]
+        public uint EventIndex { get; }
 
         [JsonProperty("blockHeight")]
         public ulong BlockHeight { get; }
