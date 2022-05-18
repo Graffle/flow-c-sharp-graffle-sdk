@@ -1,14 +1,19 @@
 using Graffle.FlowSdk.Services.Nodes;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Graffle.FlowSdk
 {
     public sealed class FlowClientFactory : IFlowClientFactory
     {
-        private MemoryCache channelCache = new MemoryCache(new MemoryCacheOptions());
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();
         private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                                                       .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
+                                                               .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
+
+        private MemoryCache graffleClientCache = new MemoryCache(new MemoryCacheOptions());
+
         private readonly NodeType nodeType;
 
         public FlowClientFactory(NodeType nodeType)
@@ -111,12 +116,31 @@ namespace Graffle.FlowSdk
         /// <returns></returns>
         private IGraffleClient GenerateFlowClient(Spork spork)
         {
-            //Check to see if the channel already exists
-            var graffleClientFound = channelCache.TryGetValue(spork.Name, out GraffleClient graffleClient);
-            if (!graffleClientFound)
+            IGraffleClient graffleClient;
+
+            //check to see if a graffle client already exists for this spork in the cache
+            if (!graffleClientCache.TryGetValue(spork.Name, out graffleClient))
             {
-                graffleClient = new GraffleClient(spork);
-                channelCache.Set(spork.Name, graffleClient, cacheEntryOptions);
+                //don't have a client for this spork in the cache
+                //acquire lock so only one thread can insert into the cache
+                var myLock = _locks.GetOrAdd("lock", x => new SemaphoreSlim(1, 1));
+                myLock.Wait();
+
+                try
+                {
+                    //we got the lock
+                    //need to check the cache again because another thread may have inserted
+                    if (!graffleClientCache.TryGetValue(spork.Name, out graffleClient))
+                    {
+                        //still not here let's add it
+                        graffleClient = new GraffleClient(spork);
+                        graffleClientCache.Set(spork.Name, graffleClient, cacheEntryOptions);
+                    }
+                }
+                finally
+                {
+                    myLock.Release();
+                }
             }
 
             return graffleClient;
