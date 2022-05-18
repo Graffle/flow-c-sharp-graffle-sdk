@@ -8,8 +8,8 @@ namespace Graffle.FlowSdk
 {
     public sealed class FlowClientFactory : IFlowClientFactory
     {
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();
-        private static readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();
+        private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                                                                .SetSlidingExpiration(TimeSpan.FromSeconds(60));
 
         private MemoryCache graffleClientCache = new MemoryCache(new MemoryCacheOptions());
