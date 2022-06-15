@@ -71,8 +71,7 @@ namespace System.Text.Json
                             bool isPrimitive = FlowValueType.IsPrimitiveType(type);
                             if (FlowValueType.IsPrimitiveType(type)
                                 || type == "Path"
-                                || type == "Capability"
-                                || type == "Type")
+                                || type == "Capability")
                             {
                                 // This is a hack to put back together primitives in an array.
                                 var x = arrayField.Values.First();
@@ -109,6 +108,11 @@ namespace System.Text.Json
                             }
                         }
                         compositeType.Data[item.Values.First().ToCamelCase()] = result;
+                        break;
+                    case "Type":
+                        var typeJson = JsonDocument.Parse(item.Values.Last());
+                        var parsedType = (FlowType)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last());
+                        compositeType.Data[item.Values.First().ToCamelCase()] = parsedType.Data.Flatten();
                         break;
                     default:
                         //We are working with a primitive Cadence type so we can use our SDK to convert it into the value we need.

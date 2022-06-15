@@ -217,6 +217,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //TODO backwards compabilitility - this txn has the old json structure for Type
         public async Task Serialize_ArrayContainsStructs_OnlyStructFieldsAreSerialized()
         {
             var res = await GetTransaction(24684541, "c6043a12ddab4740d6dbb27a9171062813b0fff05f0a03529c61c620311be8e4", NodeType.MainNet);
@@ -320,6 +321,63 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             }
 
             Assert.AreEqual("Disordered-FengFeng", series);
+        }
+
+        [TestMethod]
+        public async Task Serialize_SecureCadenceNewStructJson_Succeeds()
+        {
+            var res = await GetTransaction(70622950, "1889e0548b9b9486721d581b5bf6b5665a0b714ed4dc6d5e9fd8d1cae676d5da");
+            var events = res.Events;
+            var nftStoreFront = events[0];
+
+            var composite = nftStoreFront.EventComposite;
+
+            //get the type field
+            var nftType = composite.Data["nftType"];
+            Assert.IsInstanceOfType(nftType, typeof(Dictionary<string, object>));
+            var dict = nftType as Dictionary<string, object>;
+
+            //verify properties
+            Assert.IsTrue(dict.ContainsKey("kind"));
+            Assert.AreEqual("Resource", dict["kind"]);
+
+            Assert.IsTrue(dict.ContainsKey("type"));
+            Assert.AreEqual(string.Empty, dict["type"]);
+
+            Assert.IsTrue(dict.ContainsKey("typeID"));
+            Assert.AreEqual("A.ff68241f0f4fd521.DrSeuss.NFT", dict["typeID"]);
+
+            Assert.IsTrue(dict.ContainsKey("initializers"));
+            var initializers = dict["initializers"];
+
+            Assert.IsInstanceOfType(initializers, typeof(List<Dictionary<string, object>>));
+            var initList = initializers as List<Dictionary<string, object>>;
+            Assert.IsTrue(initList.Count == 0);
+
+            Assert.IsTrue(dict.ContainsKey("fields"));
+            var fields = dict["fields"];
+            Assert.IsInstanceOfType(fields, typeof(List<Dictionary<string, object>>));
+
+            var fieldList = fields as List<Dictionary<string, dynamic>>;
+
+            Assert.AreEqual(5, fieldList.Count());
+
+            //pull out an item
+
+            var item = fieldList[2];
+
+            Assert.IsTrue(item.ContainsKey("id"));
+            Assert.AreEqual("mintNumber", item["id"]);
+
+            Assert.IsTrue(item.ContainsKey("type"));
+
+            var itemType = item["type"];
+            Assert.IsInstanceOfType(itemType, typeof(Dictionary<string, object>));
+
+            var itemTypeDict = itemType as Dictionary<string, object>;
+            Assert.IsTrue(itemTypeDict.ContainsKey("kind"));
+
+            Assert.AreEqual(itemTypeDict["kind"], "UInt32");
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
