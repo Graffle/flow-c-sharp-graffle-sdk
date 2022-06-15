@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.22" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.20" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Graffle.FlowSdk" Version="0.1.19-prerelease" />
+    <PackageReference Include="Graffle.FlowSdk" Version="0.1.21-prerelease" />
     <PackageReference Include="Polly" Version="7.2.3" />
   </ItemGroup>
 </Project>
