@@ -314,7 +314,7 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
         }
 
         [TestMethod]
-        [Ignore] //TODO backwards compabilitility - this txn has the old json structure for Type
+        [Ignore] //TODO backwards compatibility - this txn has the old json structure for Type
         public void DeserializeFlowCadence_ArrayType_ContainsPathTypeAndCapabilityType_ReturnsGraffleCompositeType()
         {
             /*
