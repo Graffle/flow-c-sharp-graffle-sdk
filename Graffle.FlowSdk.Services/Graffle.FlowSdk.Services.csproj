@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>0.1.33-prerelease</Version>
+    <Version>0.1.34-prerelease</Version>
     <PackageDescription>Sdk and additional services for interacting with the Flow blockchain.</PackageDescription>
     <RepositoryUrl>https://github.com/Graffle/flow-c-sharp-graffle-sdk</RepositoryUrl>
     <Company>Graffle Labs Inc.</Company>
