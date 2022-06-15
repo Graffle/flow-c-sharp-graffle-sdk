@@ -380,6 +380,39 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual(itemTypeDict["kind"], "UInt32");
         }
 
+        [TestMethod]
+        public async Task Serialize_SecureCadence_DictionaryType()
+        {
+            var res = await GetTransaction(31742217, "286ddea041ea32b0dfd34ff2e904e834f1e8bd299840919e6105497f5e409096", NodeType.MainNet);
+
+            var nftListingAvailable = res.Events[0];
+
+            var composite = nftListingAvailable.EventComposite;
+            var data = composite.Data;
+
+            //pull out the dictionary
+            var nftType = data["nftType"];
+
+            var nftTypeDict = nftType as Dictionary<string, object>;
+
+            var fields = nftTypeDict["fields"];
+
+            var fieldsList = fields as List<Dictionary<string, object>>;
+
+            var dictionaryType = fieldsList[4];
+
+            var dictionaryDict = dictionaryType as Dictionary<string, object>;
+
+            Assert.AreEqual("metadata", dictionaryDict["id"]);
+
+            var typeDict = dictionaryDict["type"] as Dictionary<string, object>;
+
+            var key = typeDict["key"];
+
+            var keyDict = key as Dictionary<string, object>;
+            Assert.AreEqual("String", keyDict["kind"]);
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
