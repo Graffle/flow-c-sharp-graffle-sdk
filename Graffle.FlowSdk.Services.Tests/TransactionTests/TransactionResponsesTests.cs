@@ -413,6 +413,15 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual("String", keyDict["kind"]);
         }
 
+        [TestMethod]
+        public async Task RestrictedType_NotJsonObjectInRestrictedArray()
+        {
+            var fcf = new FlowClientFactory(NodeType.MainNet);
+            var fc = fcf.CreateFlowClient(MainNetSporks.MainNet.Name);
+
+            var evs = await fc.GetEventsForHeightRangeAsync("A.4eb8a10cb9f87357.NFTStorefront.ListingAvailable", 31738880, 31739129);
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
