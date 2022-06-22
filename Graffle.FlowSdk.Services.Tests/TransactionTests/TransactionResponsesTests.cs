@@ -350,21 +350,22 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.IsTrue(dict.ContainsKey("initializers"));
             var initializers = dict["initializers"];
 
-            Assert.IsInstanceOfType(initializers, typeof(List<Dictionary<string, object>>));
-            var initList = initializers as List<Dictionary<string, object>>;
+            Assert.IsInstanceOfType(initializers, typeof(List<object>));
+            var initList = initializers as List<object>;
             Assert.IsTrue(initList.Count == 0);
 
             Assert.IsTrue(dict.ContainsKey("fields"));
             var fields = dict["fields"];
-            Assert.IsInstanceOfType(fields, typeof(List<Dictionary<string, object>>));
+            Assert.IsInstanceOfType(fields, typeof(List<object>));
 
-            var fieldList = fields as List<Dictionary<string, dynamic>>;
+            var fieldList = fields as List<object>;
 
             Assert.AreEqual(5, fieldList.Count());
 
             //pull out an item
 
-            var item = fieldList[2];
+            var item = fieldList[2] as Dictionary<string, object>;
+            Assert.IsNotNull(item);
 
             Assert.IsTrue(item.ContainsKey("id"));
             Assert.AreEqual("mintNumber", item["id"]);
@@ -397,7 +398,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
             var fields = nftTypeDict["fields"];
 
-            var fieldsList = fields as List<Dictionary<string, object>>;
+            var fieldsList = fields as List<object>;
 
             var dictionaryType = fieldsList[4];
 
@@ -414,12 +415,80 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        public async Task RestrictedType_NotJsonObjectInRestrictedArray()
+        public async Task SecureCadence_RepeatedTypeInRestrictedType()
         {
-            var fcf = new FlowClientFactory(NodeType.MainNet);
-            var fc = fcf.CreateFlowClient(MainNetSporks.MainNet.Name);
+            //https://flowscan.org/transaction/f5c22ee398f9d5d8d2aace1cd689375fcebd300a6727aa963d58fc4fef204756
+            var res = await GetTransaction(31739093, "f5c22ee398f9d5d8d2aace1cd689375fcebd300a6727aa963d58fc4fef204756", NodeType.MainNet);
 
-            var evs = await fc.GetEventsForHeightRangeAsync("A.4eb8a10cb9f87357.NFTStorefront.ListingAvailable", 31738880, 31739129);
+            var ev = res.Events[0]; //A.4eb8a10cb9f87357.NFTStorefront.ListingAvailable
+
+            var composite = ev.EventComposite.Data;
+
+            //let's dig into the event composite and verify the repeated type was serialized properly into the graffle composite
+            Assert.IsTrue(composite.ContainsKey("nftType"));
+            var nftType = composite["nftType"];
+            Assert.IsInstanceOfType(nftType, typeof(Dictionary<string, object>));
+
+            var nftTypeDictionary = nftType as Dictionary<string, object>;
+            Assert.IsTrue(nftTypeDictionary.ContainsKey("fields"));
+            var nftTypeFields = nftType["fields"];
+            Assert.IsInstanceOfType(nftTypeFields, typeof(List<object>));
+
+            var nftTypeFieldsList = nftTypeFields as List<object>;
+            var collaborators = nftTypeFieldsList[9];
+            Assert.IsInstanceOfType(collaborators, typeof(Dictionary<string, object>));
+
+            var collaboratorsDictionary = collaborators as Dictionary<string, object>;
+            Assert.IsTrue(collaboratorsDictionary.ContainsKey("id"));
+            Assert.AreEqual("collaborators", collaboratorsDictionary["id"]);
+            Assert.IsTrue(collaboratorsDictionary.ContainsKey("type"));
+            var collaboratorsType = collaboratorsDictionary["type"];
+            Assert.IsInstanceOfType(collaboratorsType, typeof(Dictionary<string, object>));
+
+            var collaboratorVariableArray = collaboratorsType as Dictionary<string, object>;
+            Assert.IsTrue(collaboratorVariableArray.ContainsKey("kind"));
+            Assert.AreEqual("VariableSizedArray", collaboratorVariableArray["kind"]);
+            Assert.IsTrue(collaboratorVariableArray.ContainsKey("type"));
+
+            var arrayType = collaboratorVariableArray["type"] as Dictionary<string, object>;
+            Assert.IsNotNull(arrayType);
+
+            Assert.AreEqual("Struct", arrayType["kind"]);
+            Assert.AreEqual(string.Empty, arrayType["type"]);
+            Assert.AreEqual("A.9d21537544d9123d.Momentables.Collaborator", arrayType["typeID"]);
+
+            var structFields = arrayType["fields"] as List<object>;
+            Assert.IsNotNull(structFields);
+
+            var collaboratorWallet = structFields[1] as Dictionary<string, object>;
+            Assert.IsNotNull(collaboratorWallet);
+
+            Assert.AreEqual("collaboratorWallet", collaboratorWallet["id"]);
+
+            var collaboratorWalletType = collaboratorWallet["type"] as Dictionary<string, object>;
+            Assert.IsNotNull(collaboratorWalletType);
+
+            Assert.AreEqual("Capability", collaboratorWalletType["kind"]);
+
+            var capabilityType = collaboratorWalletType["type"] as Dictionary<string, object>;
+
+            Assert.AreEqual(false, capabilityType["authorized"]);
+            Assert.AreEqual("Reference", capabilityType["kind"]);
+
+            var referenceType = capabilityType["type"] as Dictionary<string, object>;
+            Assert.IsNotNull(referenceType);
+
+            //we finally made it to the restricted type that has the repeated type!!
+            Assert.AreEqual("Restriction", referenceType["kind"]);
+            Assert.AreEqual("AnyResource{A.f233dcee88fe0abe.FungibleToken.Receiver}", referenceType["typeID"]);
+
+            var restrictions = referenceType["restrictions"] as List<object>;
+            Assert.AreEqual(1, restrictions.Count);
+            Assert.AreEqual("A.f233dcee88fe0abe.FungibleToken.Receiver", restrictions.First());
+
+            var innerType = referenceType["type"] as Dictionary<string, object>;
+            Assert.IsNotNull(innerType);
+            Assert.AreEqual("AnyResource", innerType["kind"]);
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
