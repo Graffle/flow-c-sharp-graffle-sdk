@@ -91,6 +91,13 @@ namespace System.Text.Json
                                 var data = primitiveValue.Data;
                                 result.Add(data);
                             }
+                            else if (type == "Type")
+                            {
+                                //types can have nested json objects
+                                //deserialize it with FlowType
+                                var nestedType = FlowType.FromJson(arrayField.Values.Last());
+                                result.Add(nestedType.Data.Flatten());
+                            }
                             else
                             {
                                 // dealing with a recursive complex type
@@ -109,9 +116,8 @@ namespace System.Text.Json
                         }
                         compositeType.Data[item.Values.First().ToCamelCase()] = result;
                         break;
-                    case "Type":
-                        var typeJson = JsonDocument.Parse(item.Values.Last());
-                        var parsedType = (FlowType)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last());
+                    case "Type": //type can contain nested json objects
+                        var parsedType = FlowType.FromJson(item.Values.Last());
                         compositeType.Data[item.Values.First().ToCamelCase()] = parsedType.Data.Flatten();
                         break;
                     default:
@@ -131,6 +137,13 @@ namespace System.Text.Json
                                     //add its fields to the dictionary
                                     var composite = innerObject as CompositeType;
                                     myValue = composite.FieldsAsDictionary();
+                                }
+                                else if (innerObject.Type == "Type")
+                                {
+                                    //Type can have nested json objects
+                                    //flatten it and add to dictionary
+                                    var composite = innerObject as FlowType;
+                                    myValue = composite.Data.Flatten();
                                 }
                                 else //primitive, just add it to the dictionary
                                 {
