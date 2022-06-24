@@ -216,8 +216,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual(10, nestedFields.Count); //10 fields in the nested struct
         }
 
-        [TestMethod]
-        [Ignore] //TODO backwards compabilitility - this txn has the old json structure for Type
+        [TestMethod] //backwards compatibility - this txn has the old json structure for Type
         public async Task Serialize_ArrayContainsStructs_OnlyStructFieldsAreSerialized()
         {
             var res = await GetTransaction(24684541, "c6043a12ddab4740d6dbb27a9171062813b0fff05f0a03529c61c620311be8e4", NodeType.MainNet);
@@ -489,6 +488,20 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var innerType = referenceType["type"] as Dictionary<string, object>;
             Assert.IsNotNull(innerType);
             Assert.AreEqual("AnyResource", innerType["kind"]);
+        }
+
+        [TestMethod]
+        public async Task LegacyTypeJson_DeserializesCorrectly()
+        {
+            var res = await GetTransaction(24684541, "c6043a12ddab4740d6dbb27a9171062813b0fff05f0a03529c61c620311be8e4", NodeType.MainNet);
+
+            var ev = res.Events[0]; //A.4eb8a10cb9f87357.NFTStorefront.ListingAvailable
+
+            var compositeData = ev.EventComposite.Data;
+
+            //prior to secure cadence Types are just strings
+            Assert.AreEqual("A.e4cf4bdc1751c65d.AllDay.NFT", compositeData["nftType"]);
+            Assert.AreEqual("A.ead892083b3e2c6c.DapperUtilityCoin.Vault", compositeData["ftVaultType"]);
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)

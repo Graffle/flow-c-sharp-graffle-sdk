@@ -313,8 +313,7 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             Assert.AreEqual(2, fields.Count);
         }
 
-        [TestMethod]
-        [Ignore] //TODO backwards compatibility - this txn has the old json structure for Type
+        [TestMethod] //NOTE: type json here is legacy and only exists on chain before secure cadence implementation
         public void DeserializeFlowCadence_ArrayType_ContainsPathTypeAndCapabilityType_ReturnsGraffleCompositeType()
         {
             /*
@@ -386,6 +385,41 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             Assert.AreEqual("0x1", capabilityDict["address"]);
             Assert.IsTrue(capabilityDict.ContainsKey("borrowType"));
             Assert.AreEqual("Int", capabilityDict["borrowType"]);
+        }
+
+        [TestMethod]
+        public void DeserializeFlowCadence_OptionalType_ContainsLegacyFlowType_ReturnsGraffleCompositeType()
+        {
+            var json = "{\"type\":\"Optional\",\"value\":{\"type\":\"Type\",\"value\":{\"staticType\":\"myType\"}}}";
+            var field = CreateField("testField", json);
+            var fields = new List<Dictionary<string, string>>() { field };
+
+            var converter = new GraffleCompositeTypeConverter();
+            var result = converter.DeserializeFlowCadence("testId", "event", fields);
+
+            //verify GraffleComposite data
+            var data = result.Data;
+            Assert.AreEqual("myType", data["testField"]);
+        }
+
+        [TestMethod]
+        public void DeserializeFlowCadence_OptionalType_ContainsFlowType_ReturnsGraffleCompositeType()
+        {
+            var json = "{\"type\":\"Optional\",\"value\":{\"type\":\"Type\",\"value\":{\"staticType\":{\"kind\":\"UInt8\"}}}}";
+            var field = CreateField("testField", json);
+            var fields = new List<Dictionary<string, string>>() { field };
+
+            var converter = new GraffleCompositeTypeConverter();
+            var result = converter.DeserializeFlowCadence("testId", "event", fields);
+
+            //verify GraffleComposite data
+            var data = result.Data;
+
+            var testField = data["testField"];
+            Assert.IsInstanceOfType(testField, typeof(Dictionary<string, object>));
+
+            var testFieldDict = testField as Dictionary<string, object>;
+            Assert.AreEqual("UInt8", testFieldDict["kind"]);
         }
 
         [TestMethod]
