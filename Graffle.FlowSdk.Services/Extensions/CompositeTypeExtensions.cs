@@ -18,25 +18,7 @@ namespace Graffle.FlowSdk.Services
                     f =>
                     {
                         var value = f.Value;
-                        dynamic result;
-                        if (FlowValueType.IsCompositeType(value.Type) && value is CompositeType composite)
-                        {
-                            result = composite.FieldsAsDictionary();
-                        }
-                        else if (value.Type == "Array" && value is ArrayType array)
-                        {
-                            result = array.ToValueData();
-                        }
-                        else if (value.Type == "Dictionary" && value is DictionaryType dict)
-                        {
-                            result = dict.ConvertToObject();
-                        }
-                        else //primitive
-                        {
-                            result = ((dynamic)f.Value).Data; //primitive value, just return the data directly
-                        }
-
-                        return result;
+                        return FlowValueTypeUtility.FlowTypeToPrimitive(value);
                     });
         }
     }

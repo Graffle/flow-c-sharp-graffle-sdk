@@ -504,6 +504,25 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual("A.ead892083b3e2c6c.DapperUtilityCoin.Vault", compositeData["ftVaultType"]);
         }
 
+        [TestMethod]
+        public async Task OptionalStruct_ContainsOptionalTypes()
+        {
+            var res = await GetTransaction(72067483, "39a8ed040c6060bf8f142d4fe12d1854c51aa72faf680a8087e3fb7e87c80260");
+
+            var ev = res.Events[1];
+
+            var composite = ev.EventComposite;
+
+            var nft = composite.Data["nft"] as Dictionary<string, object>;
+            Assert.IsNotNull(nft);
+
+            var collectionName = nft["collectionName"];
+            var collectionDescription = nft["collectionDescription"];
+
+            Assert.AreEqual("jambb", collectionName);
+            Assert.AreEqual("jambb FIND", collectionDescription);
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
