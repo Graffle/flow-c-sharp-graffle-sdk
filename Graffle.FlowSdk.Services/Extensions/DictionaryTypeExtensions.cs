@@ -20,23 +20,7 @@ namespace Graffle.FlowSdk.Services
                 var cleanedName = propertyName.ToCamelCase();
 
                 var value = item.Value;
-                dynamic data;
-                if (FlowValueType.IsCompositeType(value.Type) && value is CompositeType composite) //nested composite type: struct, event, resource, etc
-                {
-                    data = composite.FieldsAsDictionary();
-                }
-                else if (value.Type == "Array" && value is ArrayType array) //nested array, need to get the values as primitive
-                {
-                    data = array.ToValueData();
-                }
-                else if (value.Type == "Dictionary" && value is DictionaryType dictionary) //nested dictionary, need to recurse for primitive values
-                {
-                    data = dictionary.ConvertToObject();
-                }
-                else //primitive (int, string)
-                {
-                    data = ((dynamic)item.Value).Data; //primitive type, access the data directly
-                }
+                dynamic data = FlowValueTypeUtility.FlowTypeToPrimitive(value);
 
                 result[cleanedName] = data;
             }
