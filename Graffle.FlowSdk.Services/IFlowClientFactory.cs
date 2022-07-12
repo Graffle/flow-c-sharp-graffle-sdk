@@ -1,8 +1,9 @@
+using System;
 using Graffle.FlowSdk.Services.Nodes;
 
 namespace Graffle.FlowSdk
 {
-    public interface IFlowClientFactory
+    public interface IFlowClientFactory : IDisposable
     {
         /// <summary>
         /// This creates a client from the latest Spork

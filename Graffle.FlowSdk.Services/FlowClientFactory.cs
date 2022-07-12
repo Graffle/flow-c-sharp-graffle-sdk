@@ -12,7 +12,7 @@ namespace Graffle.FlowSdk
         private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                                                                .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
 
-        private MemoryCache graffleClientCache = new MemoryCache(new MemoryCacheOptions());
+        private readonly MemoryCache graffleClientCache = new MemoryCache(new MemoryCacheOptions());
 
         private readonly NodeType nodeType;
 
@@ -144,6 +144,27 @@ namespace Graffle.FlowSdk
             }
 
             return graffleClient;
+        }
+
+        private bool _isDisposed = false;
+
+        private void Dispose(bool disposing)
+        {
+            if (!_isDisposed)
+            {
+                if (disposing)
+                {
+                    graffleClientCache?.Dispose();
+                }
+
+                _isDisposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
