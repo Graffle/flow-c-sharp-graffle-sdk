@@ -27,6 +27,10 @@ namespace Graffle.FlowSdk.Services.Extensions
             {
                 return opt.Data == null ? null : FlowTypeToPrimitive(opt.Data); //need to dig into the optional type
             }
+            else if (value.Type == "Type" && value is FlowType type)
+            {
+                return type.Data.Flatten();
+            }
             else //primitive
             {
                 return ((dynamic)value).Data; //primitive value, just return the data directly
