@@ -174,5 +174,43 @@ namespace Graffle.FlowSdk.Services.Tests.ExtensionTests
             Assert.IsInstanceOfType(innerValue, typeof(string));
             Assert.AreEqual(stringType.Data, innerValue);
         }
+
+        [TestMethod]
+        public void ConvertToObject_PreserveKeyCasingTrue_KeyCasingPreserved()
+        {
+            const string key = "NFTKey";
+            var stringType = new StringType(key);
+            var intType = new IntType(5);
+
+            var dictionaryType = new DictionaryType();
+            dictionaryType.Data.Add(stringType, intType);
+
+            var result = dictionaryType.ConvertToObject(true);
+
+            Assert.IsNotNull(result);
+
+            var resultKey = result.Keys.First();
+
+            Assert.AreEqual(key, resultKey);
+        }
+
+        [TestMethod]
+        public void ConvertToObject_PreserveKeyCasingFalse_KeyCasingNotPreserved()
+        {
+            const string key = "NFTKey";
+            var stringType = new StringType(key);
+            var intType = new IntType(5);
+
+            var dictionaryType = new DictionaryType();
+            dictionaryType.Data.Add(stringType, intType);
+
+            var result = dictionaryType.ConvertToObject(); //default false
+
+            Assert.IsNotNull(result);
+
+            var resultKey = result.Keys.First();
+
+            Assert.AreEqual(key.ToCamelCase(), resultKey);
+        }
     }
 }
