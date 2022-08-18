@@ -9,7 +9,7 @@ namespace Graffle.FlowSdk.Services.Extensions
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static dynamic FlowTypeToPrimitive(FlowValueType value)
+        public static dynamic FlowTypeToPrimitive(FlowValueType value, bool preserveDictionaryKeyCasing = false)
         {
             if (FlowValueType.IsCompositeType(value.Type) && value is CompositeType composite)
             {
@@ -21,7 +21,7 @@ namespace Graffle.FlowSdk.Services.Extensions
             }
             else if (value.Type == "Dictionary" && value is DictionaryType dict)
             {
-                return dict.ConvertToObject();
+                return dict.ConvertToObject(preserveDictionaryKeyCasing);
             }
             else if (value.Type == "Optional" && value is OptionalType opt)
             {

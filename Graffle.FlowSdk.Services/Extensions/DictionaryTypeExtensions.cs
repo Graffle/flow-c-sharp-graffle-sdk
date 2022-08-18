@@ -20,7 +20,7 @@ namespace Graffle.FlowSdk.Services
                 var cleanedName = preserveKeyCasing ? propertyName : propertyName.ToCamelCase();
 
                 var value = item.Value;
-                dynamic data = FlowValueTypeUtility.FlowTypeToPrimitive(value);
+                dynamic data = FlowValueTypeUtility.FlowTypeToPrimitive(value, preserveKeyCasing);
 
                 result[cleanedName] = data;
             }
