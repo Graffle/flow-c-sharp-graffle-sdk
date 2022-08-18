@@ -11,13 +11,13 @@ namespace Graffle.FlowSdk.Services
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        public static Dictionary<dynamic, dynamic> ConvertToObject(this DictionaryType x)
+        public static Dictionary<dynamic, dynamic> ConvertToObject(this DictionaryType x, bool preserveKeyCasing = false)
         {
             var result = new Dictionary<dynamic, dynamic>();
             foreach (var item in x.Data)
             {
                 string propertyName = ((dynamic)item.Key).Data.ToString(); //Data here is not guaranteed to be a string
-                var cleanedName = propertyName.ToCamelCase();
+                var cleanedName = preserveKeyCasing ? propertyName : propertyName.ToCamelCase();
 
                 var value = item.Value;
                 dynamic data = FlowValueTypeUtility.FlowTypeToPrimitive(value);
