@@ -211,7 +211,6 @@ namespace Graffle.FlowSdk.Services.Tests.ExtensionTests
             var resultKey = result.Keys.First();
 
             Assert.AreEqual(key.ToCamelCase(), resultKey);
-
         }
     }
 }
