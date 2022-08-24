@@ -6,7 +6,7 @@ namespace Graffle.FlowSdk.Services.Nodes
         {
             public const string Name = "MainNet";
             public const string NODE = "access.mainnet.nodes.onflow.org:9000";
-            public const ulong ROOT_HEIGHT = 35858810;
+            public const ulong ROOT_HEIGHT = 35858811;
         }
 
         public static class MainNet18
