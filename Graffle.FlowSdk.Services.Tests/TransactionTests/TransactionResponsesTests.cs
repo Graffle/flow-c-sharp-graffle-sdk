@@ -523,6 +523,18 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual("jambb FIND", collectionDescription);
         }
 
+        [TestMethod]
+        public async Task String_With_NewLines()
+        {
+            var res = await GetTransaction(38393502, "8b80c75b1ebf03ef937988970964a9f981615863ada7c0a96f5b25069401f6d4", NodeType.MainNet);
+
+            var evs = res.Events;
+
+            var ticketDeposited = evs[6].EventComposite;
+            var description = ticketDeposited.Data["description"];
+            Assert.AreEqual("Appearance: The xG Reward for players with game time in a fixture.\n\nGet xG Rewards for your football achievements.\nBuild your collection - your story.\nUnlock xG experiences.\n\nhttps://linktr.ee/xgstudios", description);
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
