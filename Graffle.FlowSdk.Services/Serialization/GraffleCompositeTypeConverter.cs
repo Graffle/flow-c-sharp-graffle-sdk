@@ -98,6 +98,11 @@ namespace System.Text.Json
                                 var nestedType = FlowType.FromJson(arrayField.Values.Last());
                                 result.Add(nestedType.Data.Flatten());
                             }
+                            else if (type == "Dictionary")
+                            {
+                                var nestedDict = DictionaryType.FromJson(arrayField.Values.Last());
+                                result.Add(nestedDict.ConvertToObject());
+                            }
                             else
                             {
                                 // dealing with a recursive complex type

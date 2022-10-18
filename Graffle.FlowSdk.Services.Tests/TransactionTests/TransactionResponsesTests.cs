@@ -533,6 +533,31 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var ticketDeposited = evs[6].EventComposite;
             var description = ticketDeposited.Data["description"];
             Assert.AreEqual("Appearance: The xG Reward for players with game time in a fixture.\n\nGet xG Rewards for your football achievements.\nBuild your collection - your story.\nUnlock xG experiences.\n\nhttps://linktr.ee/xgstudios", description);
+
+        }
+
+        [TestMethod]
+        public async Task Array_WithDictionary()
+        {
+            var res = await GetTransaction(39272677, "1a9ec1df4c7fecb695ab536bb1d2f776c625a5855f21f37c952819418151a517", NodeType.MainNet);
+
+            var evs = res.Events;
+            var purchaseDetails = evs[4];
+
+            var composite = purchaseDetails.EventComposite;
+            var arr = composite.Data["momentsInPack"] as List<object>;
+
+            //this array contains dictionaries lol
+            var dict = arr[0] as Dictionary<object, object>;
+            Assert.IsNotNull(dict);
+
+            Assert.IsTrue(dict.ContainsKey("id"));
+            var id = Convert.ToInt64(dict["id"]);
+            Assert.AreEqual(7689m, id);
+
+            Assert.IsTrue(dict.ContainsKey("serial"));
+            var serial = Convert.ToInt64(dict["serial"]);
+            Assert.AreEqual(394m, serial);
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
