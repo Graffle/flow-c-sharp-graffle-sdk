@@ -533,7 +533,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var ticketDeposited = evs[6].EventComposite;
             var description = ticketDeposited.Data["description"];
             Assert.AreEqual("Appearance: The xG Reward for players with game time in a fixture.\n\nGet xG Rewards for your football achievements.\nBuild your collection - your story.\nUnlock xG experiences.\n\nhttps://linktr.ee/xgstudios", description);
-
         }
 
         [TestMethod]
