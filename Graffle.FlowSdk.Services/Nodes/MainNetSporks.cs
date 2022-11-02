@@ -2,10 +2,17 @@ namespace Graffle.FlowSdk.Services.Nodes
 {
     public static class MainNetSporks
     {
-        public static class MainNet //19
+        public static class MainNet //20
         {
             public const string Name = "MainNet";
             public const string NODE = "access.mainnet.nodes.onflow.org:9000";
+            public const ulong ROOT_HEIGHT = 40171634;
+        }
+
+        public static class MainNet19
+        {
+            public const string Name = "MainNet19";
+            public const string NODE = "access-001.mainnet19.nodes.onflow.org:9000";
             public const ulong ROOT_HEIGHT = 35858811;
         }
 
