@@ -559,6 +559,22 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual(394m, serial);
         }
 
+        [TestMethod]
+        public async Task OptionalString_ContainsEscapedCharacters()
+        {
+            var res = await GetTransaction(40209600, "60b8d95c0656da483e879484fa57017f1b1a8e3e0c24ee59c4d7eda75ca03f1d", NodeType.MainNet);
+
+            var evs = res.Events;
+            var ev = evs[2];
+            var data = ev.EventComposite.Data;
+
+            var description = data["description"] as string;
+            Assert.IsNotNull(description);
+
+            //https://flowscan.org/transaction/60b8d95c0656da483e879484fa57017f1b1a8e3e0c24ee59c4d7eda75ca03f1d
+            Assert.AreEqual("Derrick \"The Black Beast\" Lewis delivers a lights out uppercut against Curtis Blaydes, to break the record for the most KOs in UFC heavyweight history and tie for the most KO/TKO wins in UFC history", description);
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
