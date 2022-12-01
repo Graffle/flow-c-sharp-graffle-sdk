@@ -10,7 +10,7 @@ namespace Graffle.FlowSdk
     {
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();
         private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
-                                                               .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
+                                                                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
 
         private readonly MemoryCache graffleClientCache = new MemoryCache(new MemoryCacheOptions());
 
@@ -43,7 +43,7 @@ namespace Graffle.FlowSdk
         /// This creates a client from the latest Spork
         /// </summary>
         /// <returns></returns>
-        public IGraffleClient CreateFlowClient()
+        public IGraffleClient CreateFlowClient(bool cacheOverride = false)
         {
             Spork spork = null;
             switch (nodeType)
@@ -60,7 +60,7 @@ namespace Graffle.FlowSdk
                 default:
                     throw new NotSupportedException($"Node Type: {nodeType} is not yet supported.");
             }
-            return GenerateFlowClient(spork);
+            return GenerateFlowClientInternal(spork, cacheOverride);
         }
 
         /// <summary>
@@ -68,9 +68,9 @@ namespace Graffle.FlowSdk
         /// </summary>
         /// <param name="spork"></param>
         /// <returns></returns>
-        public IGraffleClient CreateFlowClient(Spork spork)
+        public IGraffleClient CreateFlowClient(Spork spork, bool cacheOverride = false)
         {
-            return GenerateFlowClient(spork);
+            return GenerateFlowClientInternal(spork, cacheOverride);
         }
 
         /// <summary>
@@ -78,10 +78,10 @@ namespace Graffle.FlowSdk
         /// </summary>
         /// <param name="sporkName"></param>
         /// <returns></returns>
-        public IGraffleClient CreateFlowClient(string sporkName)
+        public IGraffleClient CreateFlowClient(string sporkName, bool cacheOverride = false)
         {
             var spork = Sporks.GetSporkByName(sporkName);
-            return GenerateFlowClient(spork);
+            return GenerateFlowClientInternal(spork, cacheOverride);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Graffle.FlowSdk
         /// </summary>
         /// <param name="blockHeight"></param>
         /// <returns></returns>
-        public IGraffleClient CreateFlowClient(ulong blockHeight)
+        public IGraffleClient CreateFlowClient(ulong blockHeight, bool cacheOverride = false)
         {
             Spork spork = null;
             switch (nodeType)
@@ -106,7 +106,7 @@ namespace Graffle.FlowSdk
                 default:
                     throw new NotSupportedException($"Node Type: {nodeType} is not yet supported.");
             }
-            return GenerateFlowClient(spork);
+            return GenerateFlowClientInternal(spork, cacheOverride);
         }
 
         /// <summary>
@@ -114,23 +114,23 @@ namespace Graffle.FlowSdk
         /// </summary>
         /// <param name="spork"></param>
         /// <returns></returns>
-        private IGraffleClient GenerateFlowClient(Spork spork)
+        private IGraffleClient GenerateFlowClientInternal(Spork spork, bool cacheOverride)
         {
             IGraffleClient graffleClient;
 
             //check to see if a graffle client already exists for this spork in the cache
-            if (!graffleClientCache.TryGetValue(spork.Name, out graffleClient))
+            if (cacheOverride || !graffleClientCache.TryGetValue(spork.Name, out graffleClient))
             {
                 //don't have a client for this spork in the cache
                 //acquire lock so only one thread can insert into the cache
-                var myLock = _locks.GetOrAdd("lock", x => new SemaphoreSlim(1, 1));
+                var myLock = _locks.GetOrAdd(spork.Name, x => new SemaphoreSlim(1, 1));
                 myLock.Wait();
 
                 try
                 {
                     //we got the lock
                     //need to check the cache again because another thread may have inserted
-                    if (!graffleClientCache.TryGetValue(spork.Name, out graffleClient))
+                    if (cacheOverride || !graffleClientCache.TryGetValue(spork.Name, out graffleClient))
                     {
                         //still not here let's add it
                         graffleClient = new GraffleClient(spork);
@@ -155,6 +155,10 @@ namespace Graffle.FlowSdk
                 if (disposing)
                 {
                     graffleClientCache?.Dispose();
+
+                    foreach (var l in _locks)
+                        l.Value?.Dispose();
+                    _locks?.Clear();
                 }
 
                 _isDisposed = true;
