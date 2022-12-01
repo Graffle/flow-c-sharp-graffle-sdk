@@ -11,26 +11,44 @@ namespace Graffle.FlowSdk.Services.Tests
         [TestMethod]
         public void CreateSingleClient()
         {
-            var flowClientFactory = new FlowClientFactory(NodeType.MainNet);
+            using var flowClientFactory = new FlowClientFactory(NodeType.MainNet);
             var spork = Sporks.GetSporkByName(Nodes.MainNetSporks.MainNet.Name);
             var flowClient = flowClientFactory.CreateFlowClient(spork);
             Assert.AreEqual(MainNetSporks.MainNet.Name, flowClient.CurrentSpork.Name);
         }
 
-         [TestMethod]
+        [TestMethod]
         public void CreateMultipleClient()
         {
-            var flowClientFactory = new FlowClientFactory(NodeType.MainNet);
+            using var flowClientFactory = new FlowClientFactory(NodeType.MainNet);
             var mainSpork = Sporks.GetSporkByName(Nodes.MainNetSporks.MainNet.Name);
             var flowClient = flowClientFactory.CreateFlowClient(mainSpork);
 
             var mainSpork1 = Sporks.GetSporkByName(Nodes.MainNetSporks.MainNet1.Name);
             var flowClient2 = flowClientFactory.CreateFlowClient(mainSpork1);
             var flowClient3 = flowClientFactory.CreateFlowClient(mainSpork1);
-            
+
             Assert.AreEqual(MainNetSporks.MainNet.Name, flowClient.CurrentSpork.Name);
             Assert.AreEqual(MainNetSporks.MainNet1.Name, flowClient2.CurrentSpork.Name);
             Assert.AreEqual(flowClient3, flowClient2);
+        }
+
+        [TestMethod]
+        public void MultipleClients_CacheOverride()
+        {
+            using var flowClientFactory = new FlowClientFactory(NodeType.MainNet);
+            var mainSpork = Sporks.GetSporkByName(Nodes.MainNetSporks.MainNet.Name);
+            var flowClient = flowClientFactory.CreateFlowClient(mainSpork);
+
+            var mainSpork1 = Sporks.GetSporkByName(Nodes.MainNetSporks.MainNet1.Name);
+            var flowClient2 = flowClientFactory.CreateFlowClient(mainSpork1);
+            var flowClient3 = flowClientFactory.CreateFlowClient(mainSpork1, true);
+
+            Assert.AreEqual(MainNetSporks.MainNet.Name, flowClient.CurrentSpork.Name);
+            Assert.AreEqual(MainNetSporks.MainNet1.Name, flowClient2.CurrentSpork.Name);
+
+            //these should be different references 
+            Assert.AreNotEqual(flowClient3, flowClient2);
         }
     }
 }
