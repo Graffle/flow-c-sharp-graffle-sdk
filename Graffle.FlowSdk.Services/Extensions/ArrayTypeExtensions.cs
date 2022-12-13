@@ -10,12 +10,12 @@ namespace Graffle.FlowSdk.Services.Extensions
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        public static List<dynamic> ToValueData(this ArrayType x)
+        public static List<dynamic> ToValueData(this ArrayType x, bool preserveDictionaryKeyCasing = false)
         {
             var result = new List<dynamic>();
             foreach (var item in x.Data)
             {
-                result.Add(FlowValueTypeUtility.FlowTypeToPrimitive(item));
+                result.Add(FlowValueTypeUtility.FlowTypeToPrimitive(item, preserveDictionaryKeyCasing));
             }
             return result;
         }

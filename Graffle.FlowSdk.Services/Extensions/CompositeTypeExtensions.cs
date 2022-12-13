@@ -12,13 +12,13 @@ namespace Graffle.FlowSdk.Services
         /// </summary>
         /// <param name="x"></param>
         /// <returns></returns>
-        public static Dictionary<string, dynamic> FieldsAsDictionary(this CompositeType x)
+        public static Dictionary<string, dynamic> FieldsAsDictionary(this CompositeType x, bool preserveDictionaryKeyCasing = false)
         {
             return x.Fields.ToDictionary(f => f.Name,
                     f =>
                     {
                         var value = f.Value;
-                        return FlowValueTypeUtility.FlowTypeToPrimitive(value);
+                        return FlowValueTypeUtility.FlowTypeToPrimitive(value, preserveDictionaryKeyCasing);
                     });
         }
     }

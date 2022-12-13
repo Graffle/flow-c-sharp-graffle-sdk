@@ -13,8 +13,19 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
         public async Task Dictionary_Struct_Type_DeserializesCorrectlyToPrimitive()
         {
             const string script = @"import NFTCatalog from 0x49a7cda3a1eecc29
-                                    pub fun main() : { String: NFTCatalog.NFTCatalogMetadata} {
-                                        return NFTCatalog.getCatalog()
+                                    pub fun main(batch : [UInt64]): {String : NFTCatalog.NFTCatalogMetadata} {
+                                        if batch == nil {
+                                            return NFTCatalog.getCatalog()
+                                        }
+                                        let catalog = NFTCatalog.getCatalog()
+                                        let catalogIDs = catalog.keys
+                                        var data : {String : NFTCatalog.NFTCatalogMetadata} = {}
+                                        var i = batch![0]
+                                        while i < batch![1] {
+                                            data.insert(key: catalogIDs[i], catalog[catalogIDs[i]]!)
+                                            i = i + 1
+                                        }
+                                        return data
                                     }";
 
             using var flowClientFactory = new FlowClientFactory("MainNet");
@@ -22,7 +33,11 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             var latestBlock = await flowClient.GetLatestBlockAsync();
             var scriptBytes = Encoding.UTF8.GetBytes(script);
 
-            var scriptResponse = await flowClient.ExecuteScriptAtBlockHeightAsync(latestBlock.Height, scriptBytes, new List<FlowValueType>());
+            var arg1 = new UInt64Type(0);
+            var arg2 = new UInt64Type(50);
+            var array = new ArrayType(new List<FlowValueType> { arg1, arg2 });
+
+            var scriptResponse = await flowClient.ExecuteScriptAtBlockHeightAsync(latestBlock.Height, scriptBytes, new List<FlowValueType>() { array });
             var scriptResponseJson = Encoding.UTF8.GetString(scriptResponse.Value.ToByteArray());
 
             var flowType = DictionaryType.FromJson(scriptResponseJson);
