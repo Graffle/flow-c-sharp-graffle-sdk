@@ -25,9 +25,9 @@ namespace Graffle.FlowSdk
             this.CurrentSpork = spork;
         }
 
-        public async Task PingAsync()
+        public async Task<bool> PingAsync()
         {
-            await flowClient.Ping();
+            return await flowClient.Ping();
         }
 
         public async Task<FlowBlock> GetLatestBlockAsync(bool isSealed = true, CallOptions options = new CallOptions())

@@ -8,14 +8,15 @@ using Graffle.FlowSdk.Services.Models;
 
 namespace Graffle.FlowSdk
 {
-    public interface IGraffleClient {
+    public interface IGraffleClient
+    {
         Spork CurrentSpork { get; }
-        
+
         Spork FirstSpork { get; }
-        
+
         Spork LatestSpork { get; }
-        
-        Task PingAsync();
+
+        Task<bool> PingAsync();
 
         Task<FlowBlock> GetLatestBlockAsync(bool isSealed = true, CallOptions options = new CallOptions());
 
@@ -37,7 +38,7 @@ namespace Graffle.FlowSdk
         Task<FlowFullTransaction> GetCompleteTransactionAsync(ByteString transactionId);
 
         Task<FlowTransactionResponse> SendTransactionAsync(FlowTransaction flowTransaction, CallOptions options = new CallOptions());
-        
+
         Task<FlowTransactionResult> WaitForSealAsync(FlowTransactionResponse transactionResponse, int delayMs = 1000, int timeoutMS = 30000);
 
         Task<Flow.Entities.Account> GetAccountFromConfigAsync(string name, string filePath = null);
