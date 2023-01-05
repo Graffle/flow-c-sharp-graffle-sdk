@@ -28,7 +28,7 @@ namespace System.Text.Json
             foreach (var item in fields)
             {
                 //Parse the json out so we can traverse the elements
-                var parsedJson = JsonDocument.Parse(item.Values.Last());
+                var parsedJson = JsonDocument.Parse(item["value"]);
 
                 //convert the json into a root dictionary for us to look through to find the value we need
                 var root = parsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
@@ -46,36 +46,36 @@ namespace System.Text.Json
                     case "Contract":
                     case "Enum":
                         //Break down like we have before to prep the complex object for a recursive call
-                        var complexParsedJson = JsonDocument.Parse(item.Values.Last());
+                        var complexParsedJson = JsonDocument.Parse(item["value"]);
                         var complexRoot = complexParsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
                         var complexRootValue = complexRoot.FirstOrDefault(z => z.Key == "value").Value.EnumerateObject().ToDictionary(z => z.Name, z => z.Value);
                         var complexFields = complexRootValue.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
                         var complexCompositeType = DeserializeFlowCadence(complexRootValue.FirstOrDefault().Value.ToString(), complexRoot.FirstOrDefault().Value.ToString(), complexFields);
 
                         //Place the complex type in its correct position
-                        compositeType.Data[item.Values.First().ToCamelCase()] = complexCompositeType.Data;
+                        compositeType.Data[item["name"].ToCamelCase()] = complexCompositeType.Data;
                         break;
                     case "Dictionary":
-                        var myDictionary = (DictionaryType)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last());
+                        var myDictionary = (DictionaryType)FlowValueType.CreateFromCadence(rootType.GetString(), item["value"]);
                         var myObject = myDictionary.ConvertToObject();
-                        compositeType.Data[item.Values.First().ToCamelCase()] = myObject;
+                        compositeType.Data[item["name"].ToCamelCase()] = myObject;
                         break;
                     case "Array":
-                        var arrayJson = JsonDocument.Parse(item.Values.Last());
+                        var arrayJson = JsonDocument.Parse(item["value"]);
                         var arrayRoot = arrayJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
                         var arrayFields = root.FirstOrDefault(z => z.Key == "value").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
                         var result = new List<object>();
                         foreach (var arrayField in arrayFields)
                         {
-                            var type = arrayField.Values.First();
+                            var type = arrayField["type"];
                             bool isPrimitive = FlowValueType.IsPrimitiveType(type);
                             if (FlowValueType.IsPrimitiveType(type)
                                 || type == "Path"
                                 || type == "Capability")
                             {
                                 // This is a hack to put back together primitives in an array.
-                                var x = arrayField.Values.First();
-                                var y = arrayField.Values.Last();
+                                var x = arrayField["type"];
+                                var y = arrayField["value"];
                                 string z;
                                 if (isPrimitive)
                                 {
@@ -95,18 +95,18 @@ namespace System.Text.Json
                             {
                                 //types can have nested json objects
                                 //deserialize it with FlowType
-                                var nestedType = FlowType.FromJson(arrayField.Values.Last());
+                                var nestedType = FlowType.FromJson(arrayField["value"]);
                                 result.Add(nestedType.Data.Flatten());
                             }
                             else if (type == "Dictionary")
                             {
-                                var nestedDict = DictionaryType.FromJson(arrayField.Values.Last());
+                                var nestedDict = DictionaryType.FromJson(arrayField["value"]);
                                 result.Add(nestedDict.ConvertToObject());
                             }
                             else
                             {
                                 // dealing with a recursive complex type
-                                var arrayFieldRoot = JsonDocument.Parse(arrayField.Values.Last());
+                                var arrayFieldRoot = JsonDocument.Parse(arrayField["value"]);
                                 var arrayFieldRootElements = arrayFieldRoot.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
 
                                 //composite type ie struct, resource, event, etc
@@ -119,15 +119,15 @@ namespace System.Text.Json
                                 result.Add(newItem.Data);
                             }
                         }
-                        compositeType.Data[item.Values.First().ToCamelCase()] = result;
+                        compositeType.Data[item["name"].ToCamelCase()] = result;
                         break;
                     case "Type": //type can contain nested json objects
-                        var parsedType = FlowType.FromJson(item.Values.Last());
-                        compositeType.Data[item.Values.First().ToCamelCase()] = parsedType.Data.Flatten();
+                        var parsedType = FlowType.FromJson(item["value"]);
+                        compositeType.Data[item["name"].ToCamelCase()] = parsedType.Data.Flatten();
                         break;
                     default:
                         //We are working with a primitive Cadence type so we can use our SDK to convert it into the value we need.
-                        var myValue = ((dynamic)FlowValueType.CreateFromCadence(rootType.GetString(), item.Values.Last())).Data;
+                        var myValue = ((dynamic)FlowValueType.CreateFromCadence(rootType.GetString(), item["value"])).Data;
 
                         //If we see the type is optional then we need to open the value type below it to assign either null or the value inside to the property
                         if (rootType.GetString() == "Optional")
@@ -158,7 +158,7 @@ namespace System.Text.Json
                         }
 
                         //Pace the value in our result composite object
-                        compositeType.Data[item.Values.First().ToCamelCase()] = myValue;
+                        compositeType.Data[item["name"].ToCamelCase()] = myValue;
                         break;
                 }
             }

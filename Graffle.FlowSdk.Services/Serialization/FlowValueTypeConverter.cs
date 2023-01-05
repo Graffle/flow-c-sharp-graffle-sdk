@@ -32,23 +32,23 @@ namespace System.Text.Json
                 };
                 foreach (var item in fields)
                 {
-                    var parsedJson = JsonDocument.Parse(item.Values.Last());
+                    var parsedJson = JsonDocument.Parse(item["value"]);
                     var fieldRoot = parsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
                     var fieldRootType = fieldRoot.FirstOrDefault(z => z.Key == "type").Value;
                     if (fieldRootType.GetString() == "Dictionary")
                     {
-                        var myDictionary = (DictionaryType)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item.Values.Last());
+                        var myDictionary = (DictionaryType)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item["value"]);
                         var myObject = myDictionary.ConvertToObject();
-                        compositeType.Data[item.Values.First().ToCamelCase()] = myObject;
+                        compositeType.Data[item["name"].ToCamelCase()] = myObject;
                     }
                     else if (fieldRootType.GetString() == "Array")
                     {
-                        var myArray = (ArrayType)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item.Values.Last());
-                        compositeType.Data[item.Values.First().ToCamelCase()] = myArray.ToValueData();
+                        var myArray = (ArrayType)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item["value"]);
+                        compositeType.Data[item["name"].ToCamelCase()] = myArray.ToValueData();
                     }
                     else
                     {
-                        compositeType.Data[item.Values.First().ToCamelCase()] = ((dynamic)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item.Values.Last())).Data;
+                        compositeType.Data[item["name"].ToCamelCase()] = ((dynamic)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item["value"])).Data;
                     }
                 }
 
