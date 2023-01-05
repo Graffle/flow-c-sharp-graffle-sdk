@@ -583,6 +583,30 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var evs = res.Events;
         }
 
+        [TestMethod]
+        public async Task a()
+        {
+            var res = await GetTransaction(90623401, "01140138555b59a8c83d4201d7ea42234476c6347724db60f0d614f813a66a6a");
+
+            var evs = res.Events;
+        }
+
+        [TestMethod]
+        public async Task b()
+        {
+            var res = await GetTransaction(90639372, "d9968ffbf85ac3c9b73052e113c476585348352521c923b0b01d8ed3044cb6f2");
+
+            var evs = res.Events;
+        }
+
+        [TestMethod]
+        public async Task c()
+        {
+            var res = await GetTransaction(90653230, "2b9afab339fa92a8b79aaffaefb48e33c90ac9b28fe3447c6c7b9a72a88c109a");
+
+            var evs = res.Events;
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
