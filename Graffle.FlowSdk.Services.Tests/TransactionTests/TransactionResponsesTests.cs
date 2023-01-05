@@ -575,6 +575,14 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual("Derrick \"The Black Beast\" Lewis delivers a lights out uppercut against Curtis Blaydes, to break the record for the most KOs in UFC heavyweight history and tie for the most KO/TKO wins in UFC history", description);
         }
 
+        [TestMethod]
+        public async Task TestNet39_JsonOrderTest()
+        {
+            var res = await GetTransaction(90597482, "2e54ff7245c2f99acdcd30c32063e4c0e00a70b8412296008ff7ff0860c18a6c");
+
+            var evs = res.Events;
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
