@@ -576,35 +576,57 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        public async Task TestNet39_JsonOrderTest()
+        public async Task TestNet39_AccountCreated()
         {
+            //starting in testnet 39 the sequence of individual json members is not guaranteed
             var res = await GetTransaction(90597482, "2e54ff7245c2f99acdcd30c32063e4c0e00a70b8412296008ff7ff0860c18a6c");
 
             var evs = res.Events;
+            var accountCreated = evs[5];
+
+            var data = accountCreated.EventComposite.Data;
+            Assert.IsTrue(data.ContainsKey("address"));
+            Assert.AreEqual("0x64fcaa5f4b8eb4b6", data["address"]);
         }
 
         [TestMethod]
-        public async Task a()
+        public async Task TestNet39_FindMarketSale()
         {
             var res = await GetTransaction(90623401, "01140138555b59a8c83d4201d7ea42234476c6347724db60f0d614f813a66a6a");
 
             var evs = res.Events;
+            var findMarketSale = evs[1].EventComposite.Data;
+
+            //verify some primitive data
+            Assert.AreEqual("onefootball", findMarketSale["tenant"].ToString());
+            Assert.AreEqual("112985363", findMarketSale["id"].ToString());
+            Assert.AreEqual("119660397", findMarketSale["saleID"].ToString());
+            Assert.AreEqual("0xc93b666cb28bf15a", findMarketSale["seller"]);
+
+            //get some complex data from the event
+            var nft = findMarketSale["nft"] as Dictionary<string, object>;
+
+            Assert.AreEqual("112985363", nft["id"].ToString());
+            Assert.AreEqual("Meet Juventus’ Secretary of Defense", nft["name"]);
         }
 
         [TestMethod]
-        public async Task b()
+        public async Task TestNet39_NFTStoreFrontV2_ListingCompleted()
         {
             var res = await GetTransaction(90639372, "d9968ffbf85ac3c9b73052e113c476585348352521c923b0b01d8ed3044cb6f2");
 
             var evs = res.Events;
-        }
+            var listingCompleted = evs[13].EventComposite.Data;
 
-        [TestMethod]
-        public async Task c()
-        {
-            var res = await GetTransaction(90653230, "2b9afab339fa92a8b79aaffaefb48e33c90ac9b28fe3447c6c7b9a72a88c109a");
+            //verify some primitive data
+            Assert.AreEqual("124595091", listingCompleted["listingResourceID"].ToString());
+            Assert.AreEqual("123164895", listingCompleted["storefrontResourceID"].ToString());
+            Assert.AreEqual("True", listingCompleted["purchased"].ToString());
 
-            var evs = res.Events;
+            //verify some complex data
+            var nftType = listingCompleted["nftType"] as Dictionary<string, object>;
+            Assert.AreEqual("Resource", nftType["kind"]);
+            Assert.AreEqual("A.2ba03636e5c3e411.Magnetiq.NFT", nftType["typeID"]);
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
