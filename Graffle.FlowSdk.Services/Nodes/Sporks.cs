@@ -24,6 +24,8 @@ namespace Graffle.FlowSdk.Services.Nodes
 
     public static class Sporks
     {
+        public static Spork MainNet() => GetSporkByName(MainNetSporks.MainNet.Name);
+        public static Spork TestNet() => GetSporkByName(TestNetSporks.TestNet.Name);
 
         public static Spork GetSporkByName(string sporkName) =>
             sporkName switch
