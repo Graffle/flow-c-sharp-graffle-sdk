@@ -13,11 +13,11 @@ namespace Graffle.FlowSdk.Services.Extensions
         {
             if (FlowValueType.IsCompositeType(value.Type) && value is CompositeType composite)
             {
-                return composite.FieldsAsDictionary();
+                return composite.FieldsAsDictionary(preserveDictionaryKeyCasing);
             }
             else if (value.Type == "Array" && value is ArrayType array)
             {
-                return array.ToValueData();
+                return array.ToValueData(preserveDictionaryKeyCasing);
             }
             else if (value.Type == "Dictionary" && value is DictionaryType dict)
             {
@@ -25,11 +25,15 @@ namespace Graffle.FlowSdk.Services.Extensions
             }
             else if (value.Type == "Optional" && value is OptionalType opt)
             {
-                return opt.Data == null ? null : FlowTypeToPrimitive(opt.Data); //need to dig into the optional type
+                return opt.Data == null ? null : FlowTypeToPrimitive(opt.Data, preserveDictionaryKeyCasing); //need to dig into the optional type
             }
             else if (value.Type == "Type" && value is FlowType type)
             {
                 return type.Data.Flatten();
+            }
+            else if (value.Type == "Function" && value is FunctionType func)
+            {
+                return func.Flatten();
             }
             else //primitive
             {
