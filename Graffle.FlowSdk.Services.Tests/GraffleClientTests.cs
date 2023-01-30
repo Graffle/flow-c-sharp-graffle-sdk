@@ -16,7 +16,8 @@ namespace Graffle.FlowSdk.Services.Tests
          new[]
          {
             new [] { Sporks.GetSporkByName("MainNet") },
-            new [] { Sporks.GetSporkByName("TestNet") }
+            new [] { Sporks.GetSporkByName("TestNet") },
+            new [] { Sporks.GetSporkByName("TestNet40") }
          };
 
         [TestMethod]
