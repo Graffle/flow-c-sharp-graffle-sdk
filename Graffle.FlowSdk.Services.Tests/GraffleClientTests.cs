@@ -15,9 +15,10 @@ namespace Graffle.FlowSdk.Services.Tests
         public static IEnumerable<object[]> SPORKS() =>
          new[]
          {
+            new [] { Sporks.GetSporkByName("MainNet21") },
             new [] { Sporks.GetSporkByName("MainNet") },
             new [] { Sporks.GetSporkByName("TestNet") },
-            new [] { Sporks.GetSporkByName("TestNet40") }
+            //new [] { Sporks.GetSporkByName("TestNet40") }
          };
 
         [TestMethod]
