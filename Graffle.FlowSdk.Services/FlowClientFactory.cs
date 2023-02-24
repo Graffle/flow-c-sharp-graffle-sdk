@@ -73,6 +73,16 @@ namespace Graffle.FlowSdk
             return GenerateFlowClientInternal(spork, cacheOverride);
         }
 
+        public IGraffleClient CreateFlowClientFromUri(string accessNodeUri, bool cacheOverride = false)
+        {
+            if (string.IsNullOrEmpty(accessNodeUri))
+                throw new ArgumentException();
+
+            //kind of a hack here, create a temporary spork with the given uri
+            //start and end height not needed
+            return GenerateFlowClientInternal(new Spork(accessNodeUri, accessNodeUri, 0, 0, false, false), cacheOverride);
+        }
+
         /// <summary>
         /// creates a new spork from the name of the spork
         /// </summary>
