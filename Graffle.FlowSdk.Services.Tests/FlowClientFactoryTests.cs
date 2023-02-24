@@ -50,5 +50,19 @@ namespace Graffle.FlowSdk.Services.Tests
             //these should be different references 
             Assert.AreNotEqual(flowClient3, flowClient2);
         }
+
+        [TestMethod]
+        public void CustomAccessNode()
+        {
+            using var fcf = new FlowClientFactory(NodeType.MainNet);
+
+            const string uri1 = "google.com";
+            const string uri2 = "bing.com";
+
+            var fc1 = fcf.CreateFlowClientFromUri(uri1);
+            var fc2 = fcf.CreateFlowClientFromUri(uri2);
+
+            Assert.AreNotSame(fc1, fc2);
+        }
     }
 }
