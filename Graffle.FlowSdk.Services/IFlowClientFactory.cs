@@ -31,5 +31,7 @@ namespace Graffle.FlowSdk
         /// <param name="blockHeight"></param>
         /// <returns></returns>
         IGraffleClient CreateFlowClient(ulong blockHeight, bool cacheOverride = false);
+
+        IGraffleClient CreateFlowClientFromUri(string accessNodeUri, bool cacheOverride = false);
     }
 }
