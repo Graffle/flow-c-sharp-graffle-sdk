@@ -4,6 +4,7 @@ using Graffle.FlowSdk.Services.Models;
 using Graffle.FlowSdk.Services.Nodes;
 using Graffle.FlowSdk.Types;
 using Grpc.Core;
+using Grpc.Net.Client;
 using Polly;
 using System;
 using System.Collections.Generic;
@@ -14,14 +15,39 @@ namespace Graffle.FlowSdk
     public sealed class GraffleClient : IGraffleClient
     {
         public Spork CurrentSpork { get; private set; }
-        public Spork FirstSpork => CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet17.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet1.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
-        public Spork LatestSpork => CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
+        public Spork FirstSpork
+        {
+            get
+            {
+                if (CurrentSpork == null)
+                    return null;
+
+                return CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet17.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet1.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
+            }
+        }
+
+        public Spork LatestSpork
+        {
+            get
+            {
+                if (CurrentSpork == null)
+                    return null;
+
+                return CurrentSpork.IsTestNet ? Sporks.GetSporkByName(TestNetSporks.TestNet.Name) : (!CurrentSpork.IsEmulator ? Sporks.GetSporkByName(MainNetSporks.MainNet.Name) : Sporks.GetSporkByName(EmulatorSporks.Emulator.Name));
+            }
+        }
 
         private FlowClient flowClient { get; }
 
         public GraffleClient(Spork spork)
         {
             this.flowClient = FlowClient.Create(spork.Node);
+            this.CurrentSpork = spork;
+        }
+
+        public GraffleClient(GrpcChannel rpcChannel, Spork spork)
+        {
+            this.flowClient = FlowClient.Create(rpcChannel);
             this.CurrentSpork = spork;
         }
 
