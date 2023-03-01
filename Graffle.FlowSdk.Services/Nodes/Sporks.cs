@@ -4,7 +4,7 @@ namespace Graffle.FlowSdk.Services.Nodes
 {
     public sealed class Spork
     {
-        internal Spork(string name, string node, ulong rootHeight, ulong? maxHeight, bool isTestNet = false, bool isEmulator = false)
+        public Spork(string name, string node, ulong rootHeight, ulong? maxHeight, bool isTestNet = false, bool isEmulator = false)
         {
             Name = name;
             Node = node;
