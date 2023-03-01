@@ -69,8 +69,15 @@ namespace Graffle.FlowSdk.Services
                 AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(60)
             };
 
-            var result = MemoryCache.Default.AddOrGetExisting(uri, lazy, cachePolicy) as Lazy<GrpcChannel>;
-            return result.Value;
+            var cacheResult = MemoryCache.Default.AddOrGetExisting(uri, lazy, cachePolicy);
+            if (cacheResult != null && cacheResult is Lazy<GrpcChannel> cachedLazy)
+            {
+                return cachedLazy.Value;
+            }
+            else
+            {
+                return lazy.Value;
+            }
         }
 
         private Spork CurrentSpork()
