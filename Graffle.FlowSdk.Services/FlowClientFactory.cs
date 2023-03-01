@@ -6,6 +6,7 @@ using System.Threading;
 
 namespace Graffle.FlowSdk
 {
+    [Obsolete("Use GraffleClientFactory")]
     public sealed class FlowClientFactory : IFlowClientFactory
     {
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();

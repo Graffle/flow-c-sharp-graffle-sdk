@@ -4,6 +4,7 @@ using Graffle.FlowSdk.Services.Models;
 using Graffle.FlowSdk.Services.Nodes;
 using Graffle.FlowSdk.Types;
 using Grpc.Core;
+using Grpc.Net.Client;
 using Polly;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,12 @@ namespace Graffle.FlowSdk
         public GraffleClient(Spork spork)
         {
             this.flowClient = FlowClient.Create(spork.Node);
+            this.CurrentSpork = spork;
+        }
+
+        public GraffleClient(GrpcChannel rpcChannel, Spork spork)
+        {
+            this.flowClient = FlowClient.Create(rpcChannel);
             this.CurrentSpork = spork;
         }
 

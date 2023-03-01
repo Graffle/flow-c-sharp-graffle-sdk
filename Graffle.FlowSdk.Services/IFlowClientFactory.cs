@@ -3,6 +3,7 @@ using Graffle.FlowSdk.Services.Nodes;
 
 namespace Graffle.FlowSdk
 {
+    [Obsolete("Use GraffleClientFactory")]
     public interface IFlowClientFactory : IDisposable
     {
         /// <summary>

@@ -1,5 +1,6 @@
 using System;
 using Graffle.FlowSdk;
+using Graffle.FlowSdk.Services;
 using Graffle.FlowSdk.Services.Nodes;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -19,6 +20,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton(typeof(IFlowClientFactory), flowClientFactory);
 
             Console.WriteLine("Set Up Flow Client Factory Complete");
+            return services;
+        }
+
+        public static IServiceCollection AddGraffleClientFactory(this IServiceCollection services, string flowNode)
+        {
+            var factory = new GraffleClientFactory(flowNode);
+            services.AddSingleton(typeof(IGraffleClientFactory), factory);
             return services;
         }
     }
