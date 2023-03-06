@@ -13,7 +13,23 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
     [TestClass]
     public class TransactionResponsesTests
     {
-        [TestMethod]
+        private static IFlowClientFactory _main;
+        private static IFlowClientFactory _test;
+
+        [ClassInitialize]
+        public static void ClassInit(TestContext ctx)
+        {
+            _main = new FlowClientFactory("MainNet");
+            _test = new FlowClientFactory("TestNet");
+        }
+
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            _main?.Dispose();
+            _test?.Dispose();
+        }
+
         public async Task TransactionWithArray()
         {
             var transactionResult = await GetTransaction(60145148, "35a060e0a370220ad0c949852afcd88da8a965e2bc829b332f512f7618ecedfc");
@@ -637,19 +653,14 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
-            //probably don't need all of these calls but lets do them anyways to ensure no exceptions are thrown
-            var flowClientFactory = new FlowClientFactory(nodeType);
-            var flowClient = flowClientFactory.CreateFlowClient(blockHeight);
-            var latestBlockResponse = await flowClient.GetLatestBlockAsync(true);
-            var block = await flowClient.GetBlockByHeightAsync(blockHeight);
-
-            var collectionId = block.CollectionGuarantees.FirstOrDefault()?.CollectionId;
-            var collection = collectionId != null ? await flowClient.GetCollectionById(collectionId.HashToByteString()) : null;
+            var flowClient = nodeType switch
+            {
+                NodeType.MainNet => _main.CreateFlowClient(blockHeight),
+                NodeType.TestNet => _test.CreateFlowClient(blockHeight),
+                _ => throw new Exception()
+            };
 
             var transactionResult = await flowClient.GetTransactionResult(transactionId.HashToByteString());
-            var transaction = await flowClient.GetTransactionAsync(transactionId.HashToByteString());
-            var complete = await flowClient.GetCompleteTransactionAsync(transactionId.HashToByteString());
-
             return transactionResult;
         }
     }
