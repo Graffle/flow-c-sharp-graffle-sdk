@@ -11,6 +11,13 @@ namespace Graffle.FlowSdk.Services.Models
 {
     public sealed class FlowEvent
     {
+        private static readonly JsonSerializerOptions _jsonOptions;
+        static FlowEvent()
+        {
+            _jsonOptions = new JsonSerializerOptions();
+            _jsonOptions.Converters.Add(new GraffleCompositeTypeConverter());
+        }
+
         public FlowEvent(Flow.Entities.Event @event, ulong blockHeight, ByteString blockId, DateTimeOffset blockTimestamp, JsonSerializerOptions options)
         {
             this.TransactionId = @event.TransactionId.ToHash();
@@ -38,12 +45,6 @@ namespace Graffle.FlowSdk.Services.Models
 
         public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults)
         {
-            //Set up options for deserializing event data
-            var options = new JsonSerializerOptions();
-            options.Converters.Add(new FlowCompositeTypeConverter());
-            options.Converters.Add(new GraffleCompositeTypeConverter());
-            options.Converters.Add(new FlowValueTypeConverter());
-
             var eventsList = new List<FlowEvent>();
             foreach (var b in eventsResults)
             {
@@ -54,7 +55,7 @@ namespace Graffle.FlowSdk.Services.Models
                             b.BlockHeight,
                             b.BlockId,
                             b.BlockTimestamp.ToDateTimeOffset(),
-                            options))
+                            _jsonOptions))
                 );
             }
 

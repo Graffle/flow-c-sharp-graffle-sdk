@@ -1,10 +1,6 @@
-using System.Collections.Generic;
+using Graffle.FlowSdk.Types;
 using System.Linq;
 using System.Text.Json.Serialization;
-using Graffle.FlowSdk.Types;
-using Graffle.FlowSdk;
-using Graffle.FlowSdk.Services;
-using Graffle.FlowSdk.Services.Extensions;
 
 namespace System.Text.Json
 {
@@ -17,59 +13,27 @@ namespace System.Text.Json
             var root = rss.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
 
             //At this level we can look at the Type field and figure out what we are looking it.
-            var rootType = root.FirstOrDefault(z => z.Key == "type").Value;
+            var rootType = root.FirstOrDefault(z => z.Key == "type").Value.GetString();
 
-            //TODO: Use a factory, to support other composite types
-            if (rootType.GetString() == "Struct" || rootType.GetString() == "Event")
+            if (FlowValueType.IsCompositeType(rootType))
             {
-                var rootValue = root.FirstOrDefault(z => z.Key == "value").Value.EnumerateObject().ToDictionary(z => z.Name, z => z.Value);
-                var fields = rootValue.FirstOrDefault(z => z.Key == "fields").Value.EnumerateArray().Select(h => h.EnumerateObject().ToDictionary(n => n.Name, n => n.Value.ToString()));
-
-                var compositeType = new GraffleCompositeType(root.FirstOrDefault().Value.ToString())
-                {
-                    Id = rootValue.FirstOrDefault().Value.ToString(),
-                    Data = new Dictionary<string, dynamic>()
-                };
-                foreach (var item in fields)
-                {
-                    var parsedJson = JsonDocument.Parse(item["value"]);
-                    var fieldRoot = parsedJson.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
-                    var fieldRootType = fieldRoot.FirstOrDefault(z => z.Key == "type").Value;
-                    if (fieldRootType.GetString() == "Dictionary")
-                    {
-                        var myDictionary = (DictionaryType)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item["value"]);
-                        var myObject = myDictionary.ConvertToObject();
-                        compositeType.Data[item["name"].ToCamelCase()] = myObject;
-                    }
-                    else if (fieldRootType.GetString() == "Array")
-                    {
-                        var myArray = (ArrayType)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item["value"]);
-                        compositeType.Data[item["name"].ToCamelCase()] = myArray.ToValueData();
-                    }
-                    else
-                    {
-                        compositeType.Data[item["name"].ToCamelCase()] = ((dynamic)FlowValueType.CreateFromCadence(fieldRootType.GetString(), item["value"])).Data;
-                    }
-                }
-
-                return compositeType;
+                return CompositeType.FromJson(rss.RootElement.GetRawText());
             }
-            else if (rootType.GetString() == "Array")
+            else if (rootType == "Array")
             {
-                var rootElement = rss.RootElement.ToString();
-                var result = (ArrayType)FlowValueType.CreateFromCadence("Array", rootElement.ToString());
-                return result;
+                return ArrayType.FromJson(rss.RootElement.GetRawText());
             }
-            else if (rootType.GetString() == "Dictionary")
+            else if (rootType == "Dictionary")
             {
-                var rootElement = rss.RootElement.ToString();
-                var result = (DictionaryType)FlowValueType.CreateFromCadence("Dictionary", rootElement.ToString());
-                return result;
+                return DictionaryType.FromJson(rss.RootElement.GetRawText());
             }
-            else
+            else if (rootType == "Type")
             {
-                var rootValue = root.FirstOrDefault(z => z.Key == "value").Value.ToString();
-                return FlowValueType.Create(rootType.GetString(), rootValue);
+                return FlowType.FromJson(rss.RootElement.GetRawText());
+            }
+            else //primitive
+            {
+                return FlowValueType.CreateFromCadence(rootType, rss.RootElement.GetRawText());
             }
         }
 

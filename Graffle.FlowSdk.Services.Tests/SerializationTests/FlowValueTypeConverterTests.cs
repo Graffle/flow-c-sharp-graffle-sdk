@@ -1,10 +1,10 @@
+using Graffle.FlowSdk.Types;
+using Graffle.FlowSdk.Types.TypeDefinitions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Text;
-using Graffle.FlowSdk.Types;
+using System.Text.Json;
 
 namespace Graffle.FlowSdk.Services.Tests.SerializationTests
 {
@@ -77,7 +77,10 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
 
         [TestMethod]
         [DataRow("Struct")]
+        [DataRow("Resource")]
         [DataRow("Event")]
+        [DataRow("Contract")]
+        [DataRow("Enum")]
         public void Read_ComplexType_ReturnsFlowValueType(string type)
         {
             /*
@@ -110,22 +113,23 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             var converter = new FlowValueTypeConverter();
             var result = converter.Read(ref reader, null, null);
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(GraffleCompositeType));
+            Assert.IsInstanceOfType(result, typeof(CompositeType));
 
-            var composite = result as GraffleCompositeType;
-            var data = composite.Data;
-            Assert.AreEqual(2, data.Keys.Count);
+            var composite = result as CompositeType;
+            Assert.AreEqual(type, composite.Type);
+            Assert.AreEqual("idString", composite.Id);
 
-            //validate data
-            var first = data.First();
-            Assert.AreEqual("intField", first.Key);
-            Assert.IsInstanceOfType(first.Value, typeof(Int16));
-            Assert.AreEqual((Int16)123, first.Value);
+            Assert.AreEqual(2, composite.Fields.Count);
 
-            var second = data.Skip(1).First();
-            Assert.AreEqual("stringField", second.Key);
-            Assert.IsInstanceOfType(second.Value, typeof(string));
-            Assert.AreEqual("hello", second.Value);
+            var intField = composite.Fields.First(x => x.Name == "intField");
+            Assert.AreEqual("Int16", intField.Value.Type);
+            Assert.IsInstanceOfType(intField.Value, typeof(Int16Type));
+            Assert.AreEqual((short)123, ((Int16Type)intField.Value).Data);
+
+            var strField = composite.Fields.First(x => x.Name == "stringField");
+            Assert.AreEqual("String", strField.Value.Type);
+            Assert.IsInstanceOfType(strField.Value, typeof(StringType));
+            Assert.AreEqual("hello", ((StringType)strField.Value).Data);
         }
 
         [TestMethod]
@@ -163,27 +167,29 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             var converter = new FlowValueTypeConverter();
             var result = converter.Read(ref reader, null, null);
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(GraffleCompositeType));
+            Assert.IsInstanceOfType(result, typeof(CompositeType));
 
-            var composite = result as GraffleCompositeType;
+            var composite = result as CompositeType;
             var data = composite.Data;
 
-            Assert.AreEqual(1, data.Keys.Count);
+            Assert.AreEqual(1, data.Fields.Count);
             Assert.AreEqual("structId", composite.Id);
 
-            var item = data.First();
-            Assert.AreEqual("arrayField", item.Key);
-            Assert.IsInstanceOfType(item.Value, typeof(List<object>));
+            var item = data.Fields.First();
+            Assert.AreEqual("arrayField", item.Name);
+            Assert.IsInstanceOfType(item.Value, typeof(ArrayType));
 
-            var arr = item.Value as List<object>;
-            Assert.AreEqual(2, arr.Count);
+            var arr = item.Value as ArrayType;
+            Assert.AreEqual(2, arr.Data.Count);
 
             //validate array values
-            Assert.IsInstanceOfType(arr[0], typeof(string));
-            Assert.AreEqual("stringValue", arr[0]);
+            var first = arr.Data.First();
+            Assert.IsInstanceOfType(first, typeof(StringType));
+            Assert.AreEqual("stringValue", ((StringType)first).Data);
 
-            Assert.IsInstanceOfType(arr[1], typeof(Int64));
-            Assert.AreEqual((Int64)1234567, arr[1]);
+            var second = arr.Data.Skip(1).First();
+            Assert.IsInstanceOfType(second, typeof(Int64Type));
+            Assert.AreEqual(1234567L, ((Int64Type)second).Data);
         }
 
         [TestMethod]
@@ -233,35 +239,62 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             var converter = new FlowValueTypeConverter();
             var result = converter.Read(ref reader, null, null);
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(GraffleCompositeType));
+            Assert.IsInstanceOfType(result, typeof(CompositeType));
 
-            var composite = result as GraffleCompositeType;
+            var composite = result as CompositeType;
             Assert.AreEqual("structId", composite.Id);
 
-            var data = composite.Data;
-            Assert.AreEqual(1, data.Keys.Count);
+            var fields = composite.Fields;
+            Assert.AreEqual(1, fields.Count);
 
             //get the dictionary
-            var item = data.First();
-            Assert.AreEqual("dictionaryField", item.Key);
-            Assert.IsInstanceOfType(item.Value, typeof(Dictionary<object, object>));
+            var item = fields.First();
+            Assert.AreEqual("dictionaryField", item.Name);
+            Assert.IsInstanceOfType(item.Value, typeof(DictionaryType));
 
-            var dict = item.Value as Dictionary<object, object>;
+            var dict = item.Value as DictionaryType;
 
             //validate dictionary values
-            Assert.AreEqual(2, dict.Keys.Count);
+            Assert.AreEqual(2, dict.Data.Keys.Count);
 
-            var first = dict.First();
-            Assert.IsInstanceOfType(first.Key, typeof(string)); //these always come out as strings
-            Assert.AreEqual("123", first.Key);
-            Assert.IsInstanceOfType(first.Value, typeof(string));
-            Assert.AreEqual("heyyyy", first.Value);
+            var first = dict.Data.First();
+            Assert.IsInstanceOfType(first.Key, typeof(IntType)); //these always come out as strings
+            Assert.AreEqual(123, Cast<IntType>(first.Key).Data);
+            Assert.IsInstanceOfType(first.Value, typeof(StringType));
+            Assert.AreEqual("heyyyy", Cast<StringType>(first.Value).Data);
 
-            var second = dict.Skip(1).First();
-            Assert.IsInstanceOfType(second.Key, typeof(string));
-            Assert.AreEqual("0x4", second.Key);
-            Assert.IsInstanceOfType(second.Value, typeof(int));
-            Assert.AreEqual(-15, second.Value);
+            var second = dict.Data.Skip(1).First();
+            Assert.IsInstanceOfType(second.Key, typeof(AddressType));
+            Assert.AreEqual("0x4", Cast<AddressType>(second.Key).Data);
+            Assert.IsInstanceOfType(second.Value, typeof(Int32Type));
+            Assert.AreEqual(-15, Cast<Int32Type>(second.Value).Data);
+        }
+
+        [TestMethod]
+        [DataRow("UInt8")]
+        [DataRow("Address")]
+        [DataRow("String")]
+        public void Read_FlowType(string kind)
+        {
+            var json = $"{{\"type\":\"Type\",\"staticType\":{{\"kind\":\"{kind}\"}}}}";
+            var reader = CreateJsonReader(json);
+
+            var converter = new FlowValueTypeConverter();
+            var result = converter.Read(ref reader, null, null);
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(FlowType));
+
+            var flowType = result as FlowType;
+            Assert.AreEqual("Type", flowType.Type);
+            Assert.IsInstanceOfType(flowType.Data, typeof(SimpleTypeDefinition));
+
+            var simp = flowType.Data as SimpleTypeDefinition;
+            Assert.AreEqual(kind, simp.Kind);
+        }
+
+        private T Cast<T>(FlowValueType flowType) where T : FlowValueType
+        {
+            return (T)flowType;
         }
 
         [TestMethod]
