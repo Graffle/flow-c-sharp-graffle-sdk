@@ -1,4 +1,5 @@
 using Graffle.FlowSdk.Services;
+using Graffle.FlowSdk.Services.Extensions;
 using Graffle.FlowSdk.Types;
 using System.Collections.Generic;
 using System.Linq;
@@ -125,40 +126,17 @@ namespace System.Text.Json
                         var parsedType = FlowType.FromJson(item["value"]);
                         compositeType.Data[item["name"].ToCamelCase()] = parsedType.Data.Flatten();
                         break;
+                    case "Function":
+                        var func = FunctionType.FromJson(item["value"]);
+                        compositeType.Data[item["name"].ToCamelCase()] = func.Data.Flatten();
+                        break;
                     default:
                         //We are working with a primitive Cadence type so we can use our SDK to convert it into the value we need.
-                        var myValue = ((dynamic)FlowValueType.CreateFromCadence(rootType.GetString(), item["value"])).Data;
-
-                        //If we see the type is optional then we need to open the value type below it to assign either null or the value inside to the property
-                        if (rootType.GetString() == "Optional")
-                        {
-                            if (myValue != null) //optional value is non-null
-                            {
-                                //get the inner object from the optional type
-                                FlowValueType innerObject = FlowValueType.Create(((FlowValueType)myValue).Type, myValue.Data);
-                                if (FlowValueType.IsCompositeType(innerObject.Type))
-                                {
-                                    //nested composite type
-                                    //add its fields to the dictionary
-                                    var composite = innerObject as CompositeType;
-                                    myValue = composite.FieldsAsDictionary();
-                                }
-                                else if (innerObject.Type == "Type")
-                                {
-                                    //Type can have nested json objects
-                                    //flatten it and add to dictionary
-                                    var composite = innerObject as FlowType;
-                                    myValue = composite.Data.Flatten();
-                                }
-                                else //primitive, just add it to the dictionary
-                                {
-                                    myValue = ((dynamic)innerObject).Data;
-                                }
-                            }
-                        }
+                        var myValue = FlowValueType.CreateFromCadence(rootType.GetString(), item["value"]);
 
                         //Pace the value in our result composite object
-                        compositeType.Data[item["name"].ToCamelCase()] = myValue;
+                        compositeType.Data[item["name"].ToCamelCase()] = FlowValueTypeUtility.FlowTypeToPrimitive(myValue);
+
                         break;
                 }
             }
