@@ -595,7 +595,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo
         public async Task TestNet39_AccountCreated()
         {
             //starting in testnet 39 the sequence of individual json members is not guaranteed
@@ -610,7 +609,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo
         public async Task TestNet39_FindMarketSale()
         {
             var res = await GetTransaction(90623401, "01140138555b59a8c83d4201d7ea42234476c6347724db60f0d614f813a66a6a");
@@ -632,7 +630,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo
         public async Task TestNet39_NFTStoreFrontV2_ListingCompleted()
         {
             var res = await GetTransaction(90639372, "d9968ffbf85ac3c9b73052e113c476585348352521c923b0b01d8ed3044cb6f2");
