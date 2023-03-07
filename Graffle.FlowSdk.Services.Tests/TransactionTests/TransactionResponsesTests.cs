@@ -340,10 +340,9 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo
         public async Task Serialize_SecureCadenceNewStructJson_Succeeds()
         {
-            var res = await GetTransaction(70622950, "1889e0548b9b9486721d581b5bf6b5665a0b714ed4dc6d5e9fd8d1cae676d5da");
+            var res = await GetTransaction(96377682, "f1a275a477d150bc89b88ee1c3a2af957013c795be669cae8cdb56e32c6176c2");
             var events = res.Events;
             var nftStoreFront = events[0];
 
@@ -362,7 +361,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual(string.Empty, dict["type"]);
 
             Assert.IsTrue(dict.ContainsKey("typeID"));
-            Assert.AreEqual("A.ff68241f0f4fd521.DrSeuss.NFT", dict["typeID"]);
+            Assert.AreEqual("A.4dfd62c88d1b6462.AllDay.NFT", dict["typeID"]);
 
             Assert.IsTrue(dict.ContainsKey("initializers"));
             var initializers = dict["initializers"];
@@ -385,7 +384,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.IsNotNull(item);
 
             Assert.IsTrue(item.ContainsKey("id"));
-            Assert.AreEqual("mintNumber", item["id"]);
+            Assert.AreEqual("editionID", item["id"]);
 
             Assert.IsTrue(item.ContainsKey("type"));
 
@@ -395,7 +394,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var itemTypeDict = itemType as Dictionary<string, object>;
             Assert.IsTrue(itemTypeDict.ContainsKey("kind"));
 
-            Assert.AreEqual(itemTypeDict["kind"], "UInt32");
+            Assert.AreEqual(itemTypeDict["kind"], "UInt64");
         }
 
         [TestMethod]
@@ -523,12 +522,11 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo
         public async Task OptionalStruct_ContainsOptionalTypes()
         {
-            var res = await GetTransaction(72067483, "39a8ed040c6060bf8f142d4fe12d1854c51aa72faf680a8087e3fb7e87c80260");
+            var res = await GetTransaction(96364363, "07dd1909a0bc732cc9092010588571fab617b7a7c573058741e1f0391c74551c");
 
-            var ev = res.Events[1];
+            var ev = res.Events[0];
 
             var composite = ev.EventComposite;
 
@@ -538,8 +536,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var collectionName = nft["collectionName"];
             var collectionDescription = nft["collectionDescription"];
 
-            Assert.AreEqual("jambb", collectionName);
-            Assert.AreEqual("jambb FIND", collectionDescription);
+            Assert.AreEqual("Wearables", collectionName);
+            Assert.AreEqual("Doodles 2 lets anyone create a uniquely personalized and endlessly customizable character in a one-of-a-kind style. Wearables and other collectibles can easily be bought, traded, or sold. Doodles 2 will also incorporate collaborative releases with top brands in fashion, music, sports, gaming, and more.\n\nDoodles 2 Private Beta, which will offer first access to the Doodles character creator tools, will launch later in 2022. Doodles 2 Private Beta will only be available to Beta Pass holders.", collectionDescription);
         }
 
         [TestMethod]
@@ -646,6 +644,31 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var nftType = listingCompleted["nftType"] as Dictionary<string, object>;
             Assert.AreEqual("Resource", nftType["kind"]);
             Assert.AreEqual("A.2ba03636e5c3e411.Magnetiq.NFT", nftType["typeID"]);
+        }
+
+        [TestMethod]
+        public async Task OptionalArray()
+        {
+            var res = await GetTransaction(96370355, "87fd126ccd565384f1b738d52a4334161e99e05e8aa016070050fd575403b59c");
+
+            var evs = res.Events;
+
+            var assetUpdated = evs[0].EventComposite.Data;
+
+            Assert.IsTrue(assetUpdated.ContainsKey("orh"));
+            var orh = assetUpdated["orh"] as List<object>;
+            Assert.IsNotNull(orh);
+
+            var asString = orh.Select(x => x.ToString()).ToHashSet();
+            Assert.IsTrue(asString.Contains("Gino"));
+            Assert.IsTrue(asString.Contains("Mario"));
+            Assert.IsTrue(asString.Contains("Soul"));
+            Assert.IsTrue(asString.Contains("Tom"));
+            Assert.IsTrue(asString.Contains("Sue"));
+            Assert.IsTrue(asString.Contains("Kim"));
+            Assert.IsTrue(asString.Contains("Toto"));
+
+            Assert.AreEqual(7, asString.Count);
         }
 
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
