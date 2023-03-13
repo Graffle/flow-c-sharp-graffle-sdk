@@ -71,6 +71,11 @@ namespace Graffle.FlowSdk
             return await flowClient.ExecuteScriptAtBlockHeightAsync(blockHeight, cadenceScript, args, options);
         }
 
+        public async Task<Flow.Access.ExecuteScriptResponse> ExecuteScriptAtLatestBlockAsync(byte[] cadenceScript, IEnumerable<FlowValueType> args, CallOptions options = new CallOptions())
+        {
+            return await flowClient.ExecuteScriptAtLatestBlockAsync(cadenceScript, args, options);
+        }
+
         public async Task<Flow.Access.ExecuteScriptResponse> ExecuteScriptAtBlockIdAsync(ByteString blockId, byte[] cadenceScript, IEnumerable<FlowValueType> args, CallOptions options = new CallOptions())
         {
             return await flowClient.ExecuteScriptAtBlockIdAsync(blockId, cadenceScript, args, options);
