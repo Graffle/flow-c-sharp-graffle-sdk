@@ -1,5 +1,6 @@
 using Graffle.FlowSdk.Services.Nodes;
 using Graffle.FlowSdk.Types;
+using Grpc.Net.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -108,6 +109,73 @@ namespace Graffle.FlowSdk.Services.Tests
             var uuidValue = dict.Data[uuidKey];
             Assert.AreEqual("UInt64", uuidValue.Type);
             Assert.AreEqual(uuid.Data, Cast<UInt64Type>(uuidValue).Data);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
+        public async Task ExecuteScriptLatestBlockAsync_ComplexResult(Spork spork)
+        {
+            const string script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+            var bytes = Encoding.UTF8.GetBytes(script);
+
+            var client = new GraffleClient(spork);
+            var str = new StringType("arg1");
+            var ts = new Int64Type(123L);
+            var uuid = new UInt64Type(654ul);
+
+            var res = await client.ExecuteScriptAtLatestBlockAsync(bytes, new List<FlowValueType>() { str, ts, uuid });
+            var json = Encoding.UTF8.GetString(res.Value.ToByteArray());
+
+            var opt = new JsonSerializerOptions();
+            opt.Converters.Add(new FlowValueTypeConverter());
+
+            var flowType = JsonSerializer.Deserialize<FlowValueType>(json, opt);
+            Assert.IsInstanceOfType(flowType, typeof(DictionaryType));
+
+            var dict = flowType as DictionaryType;
+            var keys = dict.Data.Keys.Cast<StringType>();
+
+            var msgKey = keys.First(x => x.Data == "msg");
+            Assert.AreEqual("String", msgKey.Type);
+            Assert.AreEqual("msg", Cast<StringType>(msgKey).Data);
+
+            var msgValue = dict.Data[msgKey];
+            Assert.AreEqual("String", msgValue.Type);
+            Assert.AreEqual(str.Data, Cast<StringType>(msgValue).Data);
+
+            var tsKey = keys.First(x => x.Data == "ts");
+            Assert.AreEqual("String", tsKey.Type);
+            Assert.AreEqual("ts", Cast<StringType>(tsKey).Data);
+
+            var tsValue = dict.Data[tsKey];
+            Assert.AreEqual("Int64", tsValue.Type);
+            Assert.AreEqual(ts.Data, Cast<Int64Type>(tsValue).Data);
+
+            var uuidKey = keys.First(x => x.Data == "uuid");
+            Assert.AreEqual("String", uuidKey.Type);
+            Assert.AreEqual("uuid", Cast<StringType>(uuidKey).Data);
+
+            var uuidValue = dict.Data[uuidKey];
+            Assert.AreEqual("UInt64", uuidValue.Type);
+            Assert.AreEqual(uuid.Data, Cast<UInt64Type>(uuidValue).Data);
+        }
+
+        [TestMethod]
+        public async Task GetEventsForHeightRangeAsync_MainNet()
+        {
+            using var rpc = GrpcChannel.ForAddress($"http://{Sporks.MainNet().Node}");
+            var client = new GraffleClient(rpc, Sporks.MainNet());
+
+            var evs = await client.GetEventsForHeightRangeAsync("A.f919ee77447b7497.FlowFees.FeesDeducted", Sporks.MainNet().RootHeight, Sporks.MainNet().RootHeight + 249ul);
+        }
+
+        [TestMethod]
+        public async Task GetEventsForHeightRangeAsync_TestNet()
+        {
+            using var rpc = GrpcChannel.ForAddress($"http://{Sporks.TestNet().Node}");
+            var client = new GraffleClient(rpc, Sporks.TestNet());
+
+            var evs = await client.GetEventsForHeightRangeAsync("A.912d5440f7e3769e.FlowFees.FeesDeducted", Sporks.TestNet().RootHeight, Sporks.TestNet().RootHeight + 249ul);
         }
 
         private T Cast<T>(FlowValueType flowType) where T : FlowValueType

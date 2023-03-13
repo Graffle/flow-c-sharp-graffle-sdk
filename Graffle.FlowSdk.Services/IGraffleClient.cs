@@ -26,6 +26,8 @@ namespace Graffle.FlowSdk
 
         Task<Flow.Access.ExecuteScriptResponse> ExecuteScriptAtBlockIdAsync(ByteString blockId, byte[] cadenceScript, IEnumerable<FlowValueType> args, CallOptions options = new CallOptions());
 
+        Task<Flow.Access.ExecuteScriptResponse> ExecuteScriptAtLatestBlockAsync(byte[] cadenceScript, IEnumerable<FlowValueType> args, CallOptions options = new CallOptions());
+
         Task<FlowBlock> GetBlockByHeightAsync(ulong blockHeight, CallOptions options = new CallOptions());
 
         Task<FlowTransaction> GetTransactionAsync(ByteString transactionId);
