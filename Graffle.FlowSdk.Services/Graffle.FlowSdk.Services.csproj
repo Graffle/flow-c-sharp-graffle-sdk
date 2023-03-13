@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>1.0.28-prerelease</Version>
+    <Version>1.0.28</Version>
     <PackageDescription>Sdk and additional services for interacting with the Flow blockchain.</PackageDescription>
     <RepositoryUrl>https://github.com/Graffle/flow-c-sharp-graffle-sdk</RepositoryUrl>
     <Company>Graffle Labs Inc.</Company>
