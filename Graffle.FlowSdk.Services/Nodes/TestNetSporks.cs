@@ -6,6 +6,13 @@ namespace Graffle.FlowSdk.Services.Nodes
         {
             public const string Name = "TestNet";
             public const string NODE = "access.testnet.nodes.onflow.org:9000";
+            public const ulong ROOT_HEIGHT = 93156994; //todo
+        }
+
+        public static class TestNet41 //41
+        {
+            public const string Name = "TestNet41";
+            public const string NODE = "access-001.devnet41.nodes.onflow.org:9000";
             public const ulong ROOT_HEIGHT = 93156994;
         }
 
