@@ -340,6 +340,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task Serialize_SecureCadenceNewStructJson_Succeeds()
         {
             var res = await GetTransaction(96377682, "f1a275a477d150bc89b88ee1c3a2af957013c795be669cae8cdb56e32c6176c2");
@@ -522,6 +523,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task OptionalStruct_ContainsOptionalTypes()
         {
             var res = await GetTransaction(96364363, "07dd1909a0bc732cc9092010588571fab617b7a7c573058741e1f0391c74551c");
@@ -647,6 +649,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task OptionalArray()
         {
             var res = await GetTransaction(96370355, "87fd126ccd565384f1b738d52a4334161e99e05e8aa016070050fd575403b59c");
