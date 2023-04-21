@@ -39,6 +39,12 @@ namespace Graffle.FlowSdk
 
         private FlowClient flowClient { get; }
 
+        public GraffleClient(FlowClient fc, Spork spork)
+        {
+            this.flowClient = fc;
+            CurrentSpork = spork;
+        }
+
         public GraffleClient(Spork spork)
         {
             this.flowClient = FlowClient.Create(spork.Node);
