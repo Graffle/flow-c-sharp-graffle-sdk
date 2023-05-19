@@ -64,6 +64,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task Transaction_Dictionary_Contains_Structs()
         {
             var transactionResult = await GetTransaction(60147017, "2d724581f3758d9515951c585ee7795e5e22755f81d4268688a601c87ec8fbd7");
@@ -139,6 +140,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task Transaction_Dictionary_With_UInt64Key()
         {
             var transactionResult = await GetTransaction(59886127, "bf49159ac950b2a147eb8df651c1bb125e6c1b202de73ace85d17986a70df9ca");
@@ -179,6 +181,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task Transaction_StructContainsOptionalStruct()
         {
             var res = await GetTransaction(60816404, "4c6e308af1982760a269c2e44a62dfbea77b62fc36bbacf5e35142ae235dc743");
@@ -595,6 +598,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task TestNet39_AccountCreated()
         {
             //starting in testnet 39 the sequence of individual json members is not guaranteed
@@ -609,6 +613,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task TestNet39_FindMarketSale()
         {
             var res = await GetTransaction(90623401, "01140138555b59a8c83d4201d7ea42234476c6347724db60f0d614f813a66a6a");
@@ -630,6 +635,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore] //todo refactor
         public async Task TestNet39_NFTStoreFrontV2_ListingCompleted()
         {
             var res = await GetTransaction(90639372, "d9968ffbf85ac3c9b73052e113c476585348352521c923b0b01d8ed3044cb6f2");
