@@ -4,11 +4,15 @@ using Graffle.FlowSdk.Types;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace System.Text.Json
 {
     public class GraffleCompositeTypeConverter : JsonConverter<GraffleCompositeType>
     {
+        private static Regex QUOTE_REGEX = new Regex("\"", RegexOptions.Compiled);
+        private const string ESCAPED_QUOTE = "\\\"";
+
         /// <summary>
         /// This function will recursively break down primitive and complex objects into a Graffle Composite Type Object.
         /// </summary>
@@ -80,7 +84,9 @@ namespace System.Text.Json
                                 string z;
                                 if (isPrimitive)
                                 {
-                                    z = $"{{\"type\":\"{x}\",\"value\":\"{y}\"}}";
+                                    //since we are manually constructing the json here need to make sure quotes in value are escaped
+                                    var tmp = QUOTE_REGEX.Replace(y, ESCAPED_QUOTE);
+                                    z = $"{{\"type\":\"{x}\",\"value\":\"{tmp}\"}}";
                                 }
                                 else
                                 {

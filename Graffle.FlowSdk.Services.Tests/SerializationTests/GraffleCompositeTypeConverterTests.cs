@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Web;
 
 namespace Graffle.FlowSdk.Services.Tests.SerializationTests
 {
@@ -420,6 +421,28 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
 
             var testFieldDict = testField as Dictionary<string, object>;
             Assert.AreEqual("UInt8", testFieldDict["kind"]);
+        }
+
+        [TestMethod]
+        public void DeserializeFlowCadence_Array_String_SingleQuote()
+        {
+            string quote = HttpUtility.JavaScriptStringEncode("\"");
+            var json = $"{{\"type\":\"Array\",\"value\":[{{\"type\":\"String\",\"value\":\"{quote}\"}}]}}";
+
+            var field = CreateField("testField", json);
+            var fields = new List<Dictionary<string, string>>() { field };
+
+            var converter = new GraffleCompositeTypeConverter();
+            var result = converter.DeserializeFlowCadence("testId", "event", fields);
+
+            //verify GraffleComposite data
+            var data = result.Data;
+
+            var testField = data["testField"];
+            Assert.IsInstanceOfType(testField, typeof(List<object>));
+
+            var actual = (testField as List<object>).First();
+            Assert.AreEqual(actual, "\"");
         }
 
         [TestMethod]
