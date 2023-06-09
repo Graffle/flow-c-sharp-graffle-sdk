@@ -179,15 +179,6 @@ namespace Graffle.FlowSdk.Services.Tests
 
         }
 
-        // [TestMethod]
-        // public async Task GetEventsForHeightRangeAsync_TestNet45() //todo refactor
-        // {
-        //     using var rpc = GrpcChannel.ForAddress($"http://{TestNetSporks.TestNet45.NODE}");
-        //     var client = new GraffleClient(rpc, Sporks.TestNet());
-
-        //     var evs = await client.GetEventsForHeightRangeAsync("A.2d55b98eb200daef.NFTStorefrontV2.ListingCompleted", 105070980, 105070989);
-        // }
-
         private T Cast<T>(FlowValueType flowType) where T : FlowValueType
         {
             return (T)flowType;
