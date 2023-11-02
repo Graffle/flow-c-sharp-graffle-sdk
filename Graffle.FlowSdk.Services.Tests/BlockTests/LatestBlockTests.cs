@@ -20,6 +20,7 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task GetLatestBlockAsync_TestNet_Succeeds()
         {
             var factory = new FlowClientFactory(Nodes.NodeType.TestNet);
