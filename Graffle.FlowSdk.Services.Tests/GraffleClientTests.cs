@@ -17,7 +17,7 @@ namespace Graffle.FlowSdk.Services.Tests
          new[]
          {
             new [] { Sporks.GetSporkByName("MainNet") },
-            new [] { /*Sporks.GetSporkByName("TestNet")*/ new Spork("test", "side-still-sanctuary.flow-testnet.quiknode.pro:9000", 129578013ul, null, true ) },
+            new [] { Sporks.GetSporkByName("TestNet") },
          };
 
         [TestMethod]
@@ -172,7 +172,7 @@ namespace Graffle.FlowSdk.Services.Tests
         [TestMethod]
         public async Task GetEventsForHeightRangeAsync_TestNet()
         {
-            using var rpc = GrpcChannel.ForAddress($"http://side-still-sanctuary.flow-testnet.quiknode.pro:9000");
+            using var rpc = GrpcChannel.ForAddress($"http://{Sporks.TestNet().Node}");
             var client = new GraffleClient(rpc, Sporks.TestNet());
 
             var evs = await client.GetEventsForHeightRangeAsync("A.912d5440f7e3769e.FlowFees.FeesDeducted", Sporks.TestNet().RootHeight, Sporks.TestNet().RootHeight + 249ul);

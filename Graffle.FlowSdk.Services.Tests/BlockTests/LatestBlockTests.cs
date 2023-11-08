@@ -16,7 +16,7 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
             var block = await fc.GetLatestBlockAsync(true);
 
             Assert.IsNotNull(block);
-            Assert.IsTrue(block.Height > MainNetSporks.MainNet.ROOT_HEIGHT);
+            Assert.IsTrue(block.Height >= MainNetSporks.MainNet.ROOT_HEIGHT);
         }
 
         [TestMethod]
