@@ -154,6 +154,8 @@ namespace System.Text.Json
             //Parse the Cadence Json
             JsonDocument.TryParseValue(ref reader, out var rss);
 
+            var asStr = rss.RootElement.GetRawText();
+
             //Convert to a Dictionary so we can get access to the fields
             var root = rss.RootElement.EnumerateObject().ToDictionary(x => x.Name, x => x.Value);
 
