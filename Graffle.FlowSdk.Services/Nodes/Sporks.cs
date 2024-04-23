@@ -4,7 +4,7 @@ namespace Graffle.FlowSdk.Services.Nodes
 {
     public sealed class Spork
     {
-        public Spork(string name, string node, ulong rootHeight, ulong? maxHeight, bool isTestNet = false, bool isEmulator = false)
+        public Spork(string name, string node, ulong rootHeight, ulong? maxHeight, bool isTestNet = false, bool isEmulator = false, bool isPreviewNet = false)
         {
             Name = name;
             Node = node;
@@ -12,6 +12,7 @@ namespace Graffle.FlowSdk.Services.Nodes
             MaxHeight = maxHeight;
             IsTestNet = isTestNet;
             IsEmulator = isEmulator;
+            IsPreviewNet = isPreviewNet;
         }
 
         public string Name { get; }
@@ -20,14 +21,18 @@ namespace Graffle.FlowSdk.Services.Nodes
         public ulong? MaxHeight { get; }
         public bool IsTestNet { get; }
         public bool IsEmulator { get; }
+        public bool IsPreviewNet { get; }
     }
 
     public static class Sporks
     {
         private static readonly Spork _main = GetSporkByName(MainNetSporks.MainNet.Name);
         private static readonly Spork _test = GetSporkByName(TestNetSporks.TestNet.Name);
+        private static readonly Spork _previewNet = new("PreviewNet", "access.previewnet.nodes.onflow.org:9000", 0, null, false, false, true);
+
         public static Spork MainNet() => _main;
         public static Spork TestNet() => _test;
+        public static Spork PreviewNet() => _previewNet;
 
         public static Spork GetSporkByName(string sporkName) =>
             sporkName switch
