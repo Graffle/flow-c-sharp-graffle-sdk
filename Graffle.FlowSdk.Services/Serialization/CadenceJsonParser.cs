@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Dynamic;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Graffle.FlowSdk.Types;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -14,17 +9,18 @@ namespace Graffle.FlowSdk.Services.Serialization
 {
     public class JsonCadenceInterchangeFormatParser
     {
-        private static readonly Newtonsoft.Json.JsonConverter _expando = new ExpandoObjectConverter();
+        private static readonly JsonConverter _expando = new ExpandoObjectConverter();
 
-        public static object FromJson(string json)
+        public static object ObjectFromVerboseJson(string json)
         {
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
 
-            return ParseFieldValue(parsed);
+            return ParseVerboseType(parsed);
         }
 
-        public static object TypeFromJson(string json)
+        public static object ObjectFromFlowVerboseType(string json)
         {
+            //tood move this to cadence type parser also rename taht class xddd
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
 
             return CadenceTypeParser.ParseFlowType(parsed);
@@ -45,7 +41,10 @@ namespace Graffle.FlowSdk.Services.Serialization
 
             var id = valueDict["id"].ToString();
 
-            var fields = valueDict["fields"] as IList<object>;
+            if (valueDict["fields"] is not IList<object> fields)
+            {
+                throw new Exception("todo");
+            }
 
             var res = new GraffleCompositeType(type)
             {
@@ -59,15 +58,20 @@ namespace Graffle.FlowSdk.Services.Serialization
                     throw new Exception("todo");
 
                 var parsedField = ParseEventField(fieldObj);
-                res.Data[parsedField.name.ToCamelCase()] = parsedField.value;
+                res.Data[parsedField.name] = parsedField.value;
             }
 
             return res;
         }
 
-        public static object ParseFieldValue(object field)
+        /// <summary>
+        /// https://cadence-lang.org/docs/1.0/json-cadence-spec
+        /// </summary>
+        /// <param name="flowVerboseType"></param>
+        /// <returns></returns>
+        private static dynamic ParseVerboseType(object flowVerboseType)
         {
-            if (field is not IDictionary<string, object> fieldValue)
+            if (flowVerboseType is not IDictionary<string, object> fieldValue)
                 throw new Exception("todo");
 
             string type = fieldValue["type"].ToString();
@@ -97,7 +101,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                                 throw new Exception("todo");
 
                             var name = fieldObj["name"].ToString();
-                            var innerValue = ParseFieldValue(fieldObj["value"]);
+                            var innerValue = ParseVerboseType(fieldObj["value"]);
 
                             result.Add(name.ToCamelCase(), innerValue);
                         }
@@ -115,8 +119,8 @@ namespace Graffle.FlowSdk.Services.Serialization
                             if (dictValue is not IDictionary<string, object> innerObj)
                                 throw new Exception("todo");
 
-                            var parsedKey = ParseFieldValue(innerObj["key"]);
-                            var parsedValue = ParseFieldValue(innerObj["value"]);
+                            var parsedKey = ParseVerboseType(innerObj["key"]);
+                            var parsedValue = ParseVerboseType(innerObj["value"]);
 
                             result.Add(parsedKey, parsedValue);
                         }
@@ -130,7 +134,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         List<object> values = [];
                         foreach (var arrValue in arr)
                         {
-                            values.Add(ParseFieldValue(arrValue));
+                            values.Add(ParseVerboseType(arrValue));
                         }
 
                         return values;
@@ -140,7 +144,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (value is null)
                             return null;
 
-                        return ParseFieldValue(value);
+                        return ParseVerboseType(value);
                     }
                 case "Type":
                     {
@@ -161,22 +165,52 @@ namespace Graffle.FlowSdk.Services.Serialization
                         result.Add("functionType", CadenceTypeParser.ParseFlowType(valueDict["functionType"]));
                         return result;
                     }
-                default: //primitive
+                case "Void":
+                    {
+                        return "Void";
+                    }
+                case "Path":
+                    {
+                        return ParsePathType(value);
+                    }
+                case "Capability":
+                    {
+                        if (value is not IDictionary<string, object> valueDict)
+                        {
+                            throw new Exception("todo");
+                        }
+
+                        return new Dictionary<string, object>
+                        {
+                            { "path", ParsePathType(valueDict["path"]) },
+                            { "address", valueDict["address"] }, //str
+                            { "borrowType", CadenceTypeParser.ParseFlowType(valueDict["borrowType"]) }
+                        };
+                    }
+                default: //primitive json, string bool number etc
                     {
                         return value;
                     }
             }
         }
 
-        public static (string name, object value) ParseEventField(IDictionary<string, object> field)
+        private static (string name, object value) ParseEventField(IDictionary<string, object> field)
         {
-            var res = new Dictionary<string, object>();
-            var name = field["name"].ToString();
+            return (field["name"].ToString().ToCamelCase(), ParseVerboseType(field["value"]));
+        }
 
-            if (field["value"] is not IDictionary<string, object> valueObj)
+        private static IDictionary<string, object> ParsePathType(object value)
+        {
+            if (value is not IDictionary<string, object> valueDict)
+            {
                 throw new Exception("todo");
+            }
 
-            return (name.ToCamelCase(), ParseFieldValue(valueObj));
+            return new Dictionary<string, object>()
+            {
+                { "domain", valueDict["domain"] },
+                { "identifer", valueDict["identifer"] }
+            };
         }
     }
 }
