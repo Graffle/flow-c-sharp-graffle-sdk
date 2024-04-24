@@ -30,5 +30,14 @@ namespace Graffle.FlowSdk.Services.Tests
 
             var res = JsonCadenceInterchangeFormatParser.FromJson(expectedJson);
         }
+
+        [TestMethod]
+        public void composite_type()
+        {
+            var expectedJson = "{\"kind\":\"Resource\",\"typeID\":\"compositeTypeId\",\"fields\":[{\"id\":\"fieldId\",\"type\":{\"kind\":\"Int32\"}}],\"initializers\":[],\"type\":\"\"}";
+
+            var res = JsonCadenceInterchangeFormatParser.TypeFromJson(expectedJson);
+        }
+
     }
 }

@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Graffle.FlowSdk.Types;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -18,6 +21,13 @@ namespace Graffle.FlowSdk.Services.Serialization
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
 
             return ParseFieldValue(parsed);
+        }
+
+        public static object TypeFromJson(string json)
+        {
+            var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
+
+            return CadenceTypeParser.ParseFlowType(parsed);
         }
 
         public static GraffleCompositeType FromEventPayload(string json)
@@ -131,6 +141,25 @@ namespace Graffle.FlowSdk.Services.Serialization
                             return null;
 
                         return ParseFieldValue(value);
+                    }
+                case "Type":
+                    {
+                        Dictionary<string, object> result = [];
+                        result.Add("type", "Type");
+                        result.Add("staticType", CadenceTypeParser.ParseFlowType(value));
+                        return result;
+                    }
+                case "Function":
+                    {
+                        Dictionary<string, object> result = [];
+                        result.Add("type", "Function");
+
+                        if (value is not IDictionary<string, object> valueDict)
+                        {
+                            throw new Exception("todo");
+                        }
+                        result.Add("functionType", CadenceTypeParser.ParseFlowType(valueDict["functionType"]));
+                        return result;
                     }
                 default: //primitive
                     {
