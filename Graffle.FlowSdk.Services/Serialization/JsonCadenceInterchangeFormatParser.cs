@@ -7,7 +7,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
-    public class JsonCadenceInterchangeFormatParser
+    public class JsonCadenceInterchangeFormatDeserializer
     {
         private static readonly JsonConverter _expando = new ExpandoObjectConverter();
 
@@ -85,16 +85,13 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "Contract":
                 case "Enum":
                     {
-                        var result = new Dictionary<string, object>();
-
                         if (value is not IDictionary<string, object> compositeObj)
                             throw new Exception("todo");
-
-                        result.Add("id", compositeObj["id"]);
 
                         if (compositeObj["fields"] is not IList<object> fieldsArr)
                             throw new Exception("todo");
 
+                        var result = new Dictionary<string, object>();
                         foreach (var f in fieldsArr)
                         {
                             if (f is not IDictionary<string, object> fieldObj)
@@ -148,10 +145,12 @@ namespace Graffle.FlowSdk.Services.Serialization
                     }
                 case "Type":
                     {
-                        Dictionary<string, object> result = [];
-                        result.Add("type", "Type");
-                        result.Add("staticType", CadenceTypeParser.ParseFlowType(value));
-                        return result;
+                        if (value is not IDictionary<string, object> valueDict)
+                        {
+                            throw new Exception("todo");
+                        }
+
+                        return CadenceTypeParser.ParseFlowType(valueDict["staticType"]);
                     }
                 case "Function":
                     {

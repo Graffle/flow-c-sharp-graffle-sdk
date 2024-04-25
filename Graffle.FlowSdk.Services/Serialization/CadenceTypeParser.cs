@@ -41,7 +41,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                     }
                 case "Capability":
                     {
-                        var type = result["type"];
+                        var type = typeDict["type"];
                         result.Add("type", type == null ? string.Empty : ParseFlowType(type));
                         break;
                     }
@@ -169,7 +169,6 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "AccountKey":
                 case "Block":
                     {
-                        result.Add("kind", kind);
                         break;
                     }
                 default:
