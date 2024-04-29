@@ -13,19 +13,11 @@ namespace Graffle.FlowSdk.Services.Models
             this.TransactionId = @event.TransactionId.ToHash();
             this.Payload = @event.Payload.ToString(Encoding.Default);
             this.EventComposite = JsonCadenceInterchangeFormatDeserializer.FromEventPayload(this.Payload);
-            var old = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
+            //this.EventComposite = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
             this.TransactionIndex = @event.TransactionIndex;
             this.BlockId = blockId.ToHash();
             this.Type = @event.Type;
             this.EventIndex = @event.EventIndex;
-
-            var oldStr = System.Text.Json.JsonSerializer.Serialize(old.Data);
-            var newStr = System.Text.Json.JsonSerializer.Serialize(this.EventComposite.Data);
-
-            if (oldStr != newStr)
-            {
-                //       throw new System.Exception("abc");
-            }
         }
 
         [JsonConstructor]

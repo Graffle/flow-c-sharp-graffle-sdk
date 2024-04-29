@@ -26,16 +26,11 @@ namespace Graffle.FlowSdk.Services.Models
 
     public sealed class FlowTransaction : IFlowTransaction
     {
-        private JsonSerializerOptions options;
 
         public FlowTransaction(Flow.Access.TransactionResponse transaction, bool includeArguments = true)
         {
             Script = new FlowScript(transaction.Transaction.Script.ToString(System.Text.Encoding.UTF8));
 
-            this.options = new JsonSerializerOptions();
-            this.options.Converters.Add(new FlowCompositeTypeConverter());
-            this.options.Converters.Add(new GraffleCompositeTypeConverter());
-            this.options.Converters.Add(new FlowValueTypeConverter());
 
             if (transaction.Transaction.Arguments != null && transaction.Transaction.Arguments.Any() && includeArguments)
             {

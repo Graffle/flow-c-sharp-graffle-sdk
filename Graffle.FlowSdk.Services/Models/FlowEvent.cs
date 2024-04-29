@@ -23,8 +23,8 @@ namespace Graffle.FlowSdk.Services.Models
         {
             this.TransactionId = @event.TransactionId.ToHash();
             this.Payload = @event.Payload.ToString(Encoding.Default);
-            //this.EventComposite = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
             this.EventComposite = JsonCadenceInterchangeFormatDeserializer.FromEventPayload(this.Payload);
+            //this.EventComposite = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
             this.TransactionIndex = @event.TransactionIndex;
             this.EventIndex = @event.EventIndex;
             this.BlockHeight = blockHeight;
@@ -52,13 +52,16 @@ namespace Graffle.FlowSdk.Services.Models
             {
                 eventsList.AddRange(
                     b.Events.ToList()
-                        .Select(e => new FlowEvent(
+                        .Select(e =>
+                        {
+                            return new FlowEvent(
                             e,
                             b.BlockHeight,
                             b.BlockId,
                             b.BlockTimestamp.ToDateTimeOffset(),
-                            _jsonOptions))
-                );
+                            _jsonOptions);
+                        }
+                ));
             }
 
             return eventsList;

@@ -107,8 +107,6 @@ namespace Graffle.FlowSdk.Services.Tests.BlockTests
             var result = DictionaryType.FromJson(metaDataJson);
 
             JsonSerializerOptions options = new();
-            options.Converters.Add(new FlowCompositeTypeConverter());
-            options.Converters.Add(new GraffleCompositeTypeConverter());
             options.Converters.Add(new FlowValueTypeConverter());
 
             var resTest = System.Text.Json.JsonSerializer.Deserialize<FlowValueType>(metaDataJson, options);
