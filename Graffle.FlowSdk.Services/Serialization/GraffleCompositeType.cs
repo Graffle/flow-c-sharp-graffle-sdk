@@ -5,7 +5,7 @@ using Graffle.FlowSdk.Types;
 using Graffle.FlowSdk;
 using Graffle.FlowSdk.Services;
 
-namespace System.Text.Json
+namespace Graffle.FlowSdk.Services
 {
     public class GraffleCompositeType : FlowValueType
     {

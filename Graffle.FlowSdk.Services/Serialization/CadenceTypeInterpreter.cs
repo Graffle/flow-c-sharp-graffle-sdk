@@ -1,22 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Graffle.FlowSdk.Types.TypeDefinitions;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
     public class CadenceTypeInterpreter
     {
-        public static dynamic InterpretCadenceType(object cadenceObject)
+        public static dynamic InterpretCadenceType(object cadenceType)
         {
-            if (cadenceObject is string str)
+            if (cadenceType is string str)
             {
-                return cadenceObject; //repeated type TODO test and comment!!!
+                return cadenceType; //repeated type TODO test and comment!!!
             }
 
-            if (cadenceObject is not IDictionary<string, object> type) //expecting ExpandoObject object here
-                throw new Exception("todo");
+            ArgumentNullException.ThrowIfNull(cadenceType, nameof(cadenceType));
+            if (cadenceType is not IDictionary<string, object> type) //expecting ExpandoObject object here
+                throw new Exception($"Incoming object is not of type IDictionary<string,object> receieved {cadenceType?.GetType()}");
 
             var kind = type["kind"].ToString();
             Dictionary<string, object> result = new() { { "kind", kind } };
@@ -66,7 +65,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         result.Add("typeID", type["typeID"]);
                         if (type["types"] is not List<object> types)
                         {
-                            throw new Exception("todo");
+                            throw new Exception($"Unexpected type for \"types\" field, expecting List<object> received {type["types"]?.GetType()}");
                         }
 
                         result.Add("types", types.Select(InterpretCadenceType).ToList());
@@ -79,7 +78,7 @@ namespace Graffle.FlowSdk.Services.Serialization
 
                         if (type["restrictions"] is not List<object> restrictions)
                         {
-                            throw new Exception("todo");
+                            throw new Exception($"Unexpected type for \"restrictions\" field, expecting List<object> received {type["restrictions"]?.GetType()}");
                         }
 
 
@@ -110,7 +109,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         result.Add("typeID", type["typeID"]);
                         if (type["parameters"] is not IList<object> parameters)
                         {
-                            throw new Exception("todo");
+                            throw new Exception($"Unexpected type for \"parameters\" field, expecting List<object> received {type["parameters"]?.GetType()}");
                         }
                         result.Add("parameters", parameters.Select(GetParameter).ToList());
                         result.Add("return", InterpretCadenceType(type["return"]));
@@ -171,7 +170,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         break;
                     }
                 default:
-                    throw new Exception("todo");
+                    throw new Exception($"Unknown kind {kind}");
             }
 
             return result;
@@ -180,7 +179,7 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static IDictionary<string, object> GetParameter(object value)
         {
             if (value is not IDictionary<string, object> dict)
-                throw new Exception("todo");
+                throw new Exception($"Unexpected type for GetParameter object, expecting List<object> received {value?.GetType()}");
 
             return new Dictionary<string, object>()
             {
@@ -193,7 +192,7 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static List<object> GetInitializers(object value)
         {
             if (value is not IList<object> list)
-                throw new Exception("todo");
+                throw new Exception($"Unexpected type for GetInitializers object, expecting List<object> received {value?.GetType()}");
 
             return list.Select(GetParameter).Cast<object>().ToList();
         }
@@ -201,7 +200,7 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static IList<object> GetFields(object value)
         {
             if (value is not IList<object> list)
-                throw new Exception("todo");
+                throw new Exception($"Unexpected type for GetFields object, expecting List<object> received {value?.GetType()}");
 
             return list.Select(GetField).Cast<object>().ToList();
         }
@@ -209,7 +208,7 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static IDictionary<string, object> GetField(object value)
         {
             if (value is not IDictionary<string, object> dict)
-                throw new Exception("todo");
+                throw new Exception($"Unexpected type for GetField object, expecting IDictionary<string,object> received {value?.GetType()}");
 
             return new Dictionary<string, object>
             {
