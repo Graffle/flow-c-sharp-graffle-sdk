@@ -4,10 +4,11 @@ using System.Text.Json.Serialization;
 using Graffle.FlowSdk.Types;
 using Graffle.FlowSdk;
 using Graffle.FlowSdk.Services;
+using System;
 
 namespace Graffle.FlowSdk.Services
 {
-    public class GraffleCompositeType : FlowValueType
+    public class GraffleCompositeType : FlowValueType //why does this derive from FlowValueType..
     {
         public GraffleCompositeType()
         {
