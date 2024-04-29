@@ -32,7 +32,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             var dict = (IDictionary<string, object>)parsed;
 
             if (dict["value"] is not IDictionary<string, object> value)
-                throw new Exception($"Unexpected type for \"value\" field, expected IDictionary<string,object> received {dict["value"]?.GetType()}");
+                throw new Exception($"Unexpected type for event \"value\" field, expected IDictionary<string,object> received {dict["value"]?.GetType()}");
 
             var type = dict["type"].ToString();
             var id = value["id"].ToString();
@@ -43,14 +43,12 @@ namespace Graffle.FlowSdk.Services.Serialization
             };
 
             if (value["fields"] is not IList<object> fields)
-            {
-                throw new Exception($"Unexpected type for \"fields\" field, expected IList<object> received {value["fields"]?.GetType()}");
-            }
+                throw new Exception($"Unexpected type for event \"fields\" field, expected IList<object> received {value["fields"]?.GetType()}");
 
             foreach (var field in fields)
             {
                 if (field is not IDictionary<string, object> fieldDictionary)
-                    throw new Exception("todo");
+                    throw new Exception($"Unexpected type for event field, expected IDictionary<string,object> received {field?.GetType()}");
 
                 var name = fieldDictionary["name"].ToString().ToCamelCase();
                 var fieldValue = InterpretCadenceExpandoObject(fieldDictionary["value"]);
