@@ -15,7 +15,7 @@ namespace Graffle.FlowSdk.Services.Tests
         {
             var cadenceJsonString = @"{""type"":""Dictionary"",""value"":[{""key"":{""type"":""UInt8"",""value"":""123""},""value"":{""type"":""String"",""value"":""test""}}]}";
 
-            var res = JsonCadenceInterchangeFormatDeserializer.ObjectFromVerboseJson(cadenceJsonString);
+            var res = CadenceJsonInterpreter.ObjectFromVerboseJson(cadenceJsonString);
         }
 
         [TestMethod]
@@ -28,7 +28,7 @@ namespace Graffle.FlowSdk.Services.Tests
         {
             var expectedJson = $"{{\"type\":\"{type}\",\"value\":{{\"fields\":[{{\"name\":\"intField\",\"value\":{{\"type\":\"Int16\",\"value\":\"123\"}}}},{{\"name\":\"stringField\",\"value\":{{\"type\":\"String\",\"value\":\"hello\"}}}}],\"id\":\"idString\"}}}}";
 
-            var res = JsonCadenceInterchangeFormatDeserializer.ObjectFromVerboseJson(expectedJson);
+            var res = CadenceJsonInterpreter.ObjectFromVerboseJson(expectedJson);
         }
 
         [TestMethod]
@@ -36,7 +36,7 @@ namespace Graffle.FlowSdk.Services.Tests
         {
             var expectedJson = "{\"kind\":\"Resource\",\"typeID\":\"compositeTypeId\",\"fields\":[{\"id\":\"fieldId\",\"type\":{\"kind\":\"Int32\"}}],\"initializers\":[],\"type\":\"\"}";
 
-            var res = JsonCadenceInterchangeFormatDeserializer.ObjectFromFlowVerboseType(expectedJson);
+            var res = CadenceJsonInterpreter.ObjectFromFlowVerboseType(expectedJson);
         }
 
     }

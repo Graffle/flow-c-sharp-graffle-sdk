@@ -6,20 +6,19 @@ using Graffle.FlowSdk.Types.TypeDefinitions;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
-    public class CadenceTypeParser
+    public class CadenceTypeInterpreter
     {
-        public static dynamic ParseFlowType(object incoming)
+        public static dynamic InterpretCadenceType(object cadenceObject)
         {
-            if (incoming is string str)
+            if (cadenceObject is string str)
             {
-                return incoming; //repeated type TODO test and comment!!!
+                return cadenceObject; //repeated type TODO test and comment!!!
             }
 
-            if (incoming is not IDictionary<string, object> typeDict) //expecting ExpandoObject object here {}
+            if (cadenceObject is not IDictionary<string, object> type) //expecting ExpandoObject object here
                 throw new Exception("todo");
 
-            var kind = typeDict["kind"].ToString();
-
+            var kind = type["kind"].ToString();
             Dictionary<string, object> result = new() { { "kind", kind } };
 
             switch (kind)
@@ -34,87 +33,87 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "ContractInterface":
                     {
                         result.Add("type", string.Empty);
-                        result.Add("typeID", typeDict["typeID"]);
-                        result.Add("initializers", ParseInitializers(typeDict["initializers"]));
-                        result.Add("fields", ParseFields(typeDict["fields"]));
+                        result.Add("typeID", type["typeID"]);
+                        result.Add("initializers", GetInitializers(type["initializers"]));
+                        result.Add("fields", GetFields(type["fields"]));
                         break;
                     }
                 case "Capability":
                     {
-                        var type = typeDict["type"];
-                        result.Add("type", type == null ? string.Empty : ParseFlowType(type));
+                        var capabilityType = type["type"];
+                        result.Add("type", capabilityType == null ? string.Empty : InterpretCadenceType(capabilityType));
                         break;
                     }
                 case "Dictionary":
                     {
-                        result.Add("key", ParseFlowType(typeDict["key"]));
-                        result.Add("value", ParseFlowType(typeDict["value"]));
+                        result.Add("key", InterpretCadenceType(type["key"]));
+                        result.Add("value", InterpretCadenceType(type["value"]));
                         break;
                     }
                 case "Reference":
                     {
-                        result.Add("authorized", typeDict["authorized"]); //should be bool
-                        result.Add("type", ParseFlowType(typeDict["type"]));
+                        result.Add("authorized", type["authorized"]); //should be bool
+                        result.Add("type", InterpretCadenceType(type["type"]));
                         break;
                     }
                 case "Optional":
                     {
-                        result.Add("type", ParseFlowType(typeDict["type"]));
+                        result.Add("type", InterpretCadenceType(type["type"]));
                         break;
                     }
                 case "Intersection":
                     {
-                        result.Add("typeID", typeDict["typeID"]);
-                        if (typeDict["types"] is not List<object> types)
+                        result.Add("typeID", type["typeID"]);
+                        if (type["types"] is not List<object> types)
                         {
                             throw new Exception("todo");
                         }
 
-                        result.Add("types", types.Select(x => ParseFlowType(x)).ToList());
+                        result.Add("types", types.Select(InterpretCadenceType).ToList());
                         break;
                     }
                 case "Restriction":
                     {
-                        result.Add("typeID", typeDict["typeID"]);
-                        result.Add("type", ParseFlowType(typeDict["type"]));
+                        result.Add("typeID", type["typeID"]);
+                        result.Add("type", InterpretCadenceType(type["type"]));
 
-                        if (typeDict["restrictions"] is not List<object> restrictions)
+                        if (type["restrictions"] is not List<object> restrictions)
                         {
                             throw new Exception("todo");
                         }
 
 
-                        result.Add("restrictions", restrictions.Select(x => ParseFlowType(x)).ToList());
+                        result.Add("restrictions", restrictions.Select(InterpretCadenceType).ToList());
                         break;
                     }
                 case "VariableSizedArray":
                     {
-                        result.Add("type", ParseFlowType(typeDict["type"]));
+                        result.Add("type", InterpretCadenceType(type["type"]));
                         break;
                     }
                 case "ConstantSizedArray":
                     {
-                        result.Add("size", typeDict["size"]);
-                        result.Add("type", ParseFlowType(typeDict["type"]));
+                        result.Add("size", type["size"]);
+                        result.Add("type", InterpretCadenceType(type["type"]));
                         break;
                     }
                 case "Enum":
                     {
-                        result.Add("type", ParseFlowType(typeDict["type"]));
-                        result.Add("typeID", typeDict["typeID"]);
-                        result.Add("initializers", ParseInitializers(typeDict["initializers"]));
-                        result.Add("fields", ParseFields(typeDict["fields"]));
+                        result.Add("type", InterpretCadenceType(type["type"]));
+                        result.Add("typeID", type["typeID"]);
+                        result.Add("initializers", GetInitializers(type["initializers"]));
+                        result.Add("fields", GetFields(type["fields"]));
                         break;
                     }
                 case "Function":
                     {
-                        result.Add("typeID", typeDict["typeID"]);
-                        if (typeDict["parameters"] is not IList<object> parameters)
+                        result.Add("typeID", type["typeID"]);
+                        if (type["parameters"] is not IList<object> parameters)
                         {
                             throw new Exception("todo");
                         }
-                        result.Add("parameters", parameters.Select(x => ParseParameterType(x)).ToList());
-                        result.Add("return", ParseFlowType(typeDict["return"]));
+                        result.Add("parameters", parameters.Select(GetParameter).ToList());
+                        result.Add("return", InterpretCadenceType(type["return"]));
                         break;
                     }
                 case "Int":
@@ -178,57 +177,45 @@ namespace Graffle.FlowSdk.Services.Serialization
             return result;
         }
 
-        public static IDictionary<string, object> ParseParameterType(object value)
+        public static IDictionary<string, object> GetParameter(object value)
         {
             if (value is not IDictionary<string, object> dict)
                 throw new Exception("todo");
 
-            Dictionary<string, object> result = [];
-
-            result.Add("label", dict["label"]);
-            result.Add("id", dict["id"]);
-            result.Add("type", ParseFlowType(dict["type"]));
-            return result;
+            return new Dictionary<string, object>()
+            {
+                { "label", dict["label"] },
+                { "id", dict["id"] },
+                { "type", InterpretCadenceType(dict["type"]) }
+            };
         }
 
-        public static List<object> ParseInitializers(object value)
+        public static List<object> GetInitializers(object value)
         {
             if (value is not IList<object> list)
                 throw new Exception("todo");
 
-            List<object> result = [];
-            foreach (var item in list)
-            {
-                result.Add(ParseParameterType(item));
-            }
-
-            return result;
+            return list.Select(GetParameter).Cast<object>().ToList();
         }
 
-        public static IList<object> ParseFields(object value)
+        public static IList<object> GetFields(object value)
         {
             if (value is not IList<object> list)
                 throw new Exception("todo");
 
-            List<object> result = [];
-            foreach (var item in list)
-            {
-                result.Add(ParseFieldType(item));
-            }
-
-            return result;
+            return list.Select(GetField).Cast<object>().ToList();
         }
 
-        public static IDictionary<string, object> ParseFieldType(object value)
+        public static IDictionary<string, object> GetField(object value)
         {
             if (value is not IDictionary<string, object> dict)
                 throw new Exception("todo");
 
-            Dictionary<string, object> result = [];
-
-            result.Add("id", dict["id"]);
-            result.Add("type", ParseFlowType(dict["type"]));
-            return result;
+            return new Dictionary<string, object>
+            {
+                { "id", dict["id"] },
+                { "type", InterpretCadenceType(dict["type"]) }
+            };
         }
     }
 }
