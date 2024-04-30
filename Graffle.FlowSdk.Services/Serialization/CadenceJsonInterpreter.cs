@@ -106,8 +106,10 @@ namespace Graffle.FlowSdk.Services.Serialization
                             var parsedKey = InterpretCadenceExpandoObject(itemDictionary["key"]);
                             var parsedValue = InterpretCadenceExpandoObject(itemDictionary["value"]);
 
+                            string keyStr = parsedKey.ToString();
+
                             //todo camel case for backwards compat?
-                            result.Add(parsedKey.ToString(), parsedValue);
+                            result.Add(keyStr.ToCamelCase(), parsedValue);
                         }
                         return result;
                     }

@@ -1,11 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
     public class CadenceTypeInterpreter
     {
+        private static readonly ExpandoObjectConverter _expando = new();
+
+        public static object ObjectFromCadenceJson(string json)
+        {
+            var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
+
+            return InterpretCadenceType(parsed);
+        }
+
         public static dynamic InterpretCadenceType(object cadenceType)
         {
             if (cadenceType is string str)
