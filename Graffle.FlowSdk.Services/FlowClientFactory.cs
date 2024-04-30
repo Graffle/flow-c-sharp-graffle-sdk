@@ -8,6 +8,7 @@ namespace Graffle.FlowSdk
 {
     public sealed class FlowClientFactory : IFlowClientFactory
     {
+        public bool UseBetaDeserializer { get; init; } = false;
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();
         private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                                                                         .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
@@ -143,7 +144,7 @@ namespace Graffle.FlowSdk
                     if (cacheOverride || !graffleClientCache.TryGetValue(spork.Name, out graffleClient))
                     {
                         //still not here let's add it
-                        graffleClient = new GraffleClient(spork);
+                        graffleClient = new GraffleClient(spork) { UseBetaDeserializer = UseBetaDeserializer };
                         graffleClientCache.Set(spork.Name, graffleClient, cacheEntryOptions);
                     }
                 }

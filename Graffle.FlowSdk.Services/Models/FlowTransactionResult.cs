@@ -18,7 +18,7 @@ namespace Graffle.FlowSdk.Services.Models
 
     public class FlowTransactionResult : IFlowTransactionResult
     {
-        public FlowTransactionResult(Flow.Access.TransactionResultResponse flowTransactionResponse)
+        public FlowTransactionResult(Flow.Access.TransactionResultResponse flowTransactionResponse, bool useBetaDeserializer = false)
         {
             BlockId = flowTransactionResponse.BlockId.ToHash();
             ErrorMessage = flowTransactionResponse.ErrorMessage;
@@ -33,7 +33,10 @@ namespace Graffle.FlowSdk.Services.Models
 
             foreach (var item in flowTransactionResponse.Events)
             {
-                Events.Add(new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId, options));
+                if (!useBetaDeserializer)
+                    Events.Add(new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId, options));
+                else
+                    Events.Add(new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId));
             }
         }
 

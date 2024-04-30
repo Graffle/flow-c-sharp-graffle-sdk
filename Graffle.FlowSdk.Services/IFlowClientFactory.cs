@@ -5,6 +5,7 @@ namespace Graffle.FlowSdk
 {
     public interface IFlowClientFactory : IDisposable
     {
+        bool UseBetaDeserializer { get; }
         /// <summary>
         /// This creates a client from the latest Spork
         /// </summary>

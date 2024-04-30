@@ -10,6 +10,7 @@ namespace Graffle.FlowSdk
 {
     public interface IGraffleClient
     {
+        bool UseBetaDeserializer { get; }
         Spork CurrentSpork { get; }
 
         Spork FirstSpork { get; }

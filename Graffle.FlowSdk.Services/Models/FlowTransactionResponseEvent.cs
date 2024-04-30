@@ -12,13 +12,24 @@ namespace Graffle.FlowSdk.Services.Models
         {
             this.TransactionId = @event.TransactionId.ToHash();
             this.Payload = @event.Payload.ToString(Encoding.Default);
-            this.EventComposite = CadenceJsonInterpreter.GraffleCompositeFromEventPayload(this.Payload);
-            //this.EventComposite = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
+            this.EventComposite = System.Text.Json.JsonSerializer.Deserialize<GraffleCompositeType>(this.Payload, options);
             this.TransactionIndex = @event.TransactionIndex;
             this.BlockId = blockId.ToHash();
             this.Type = @event.Type;
             this.EventIndex = @event.EventIndex;
         }
+
+        public FlowTransactionResponseEvent(Flow.Entities.Event @event, ByteString blockId)
+        {
+            this.TransactionId = @event.TransactionId.ToHash();
+            this.Payload = @event.Payload.ToString(Encoding.Default);
+            this.EventComposite = CadenceJsonInterpreter.GraffleCompositeFromEventPayload(this.Payload);
+            this.TransactionIndex = @event.TransactionIndex;
+            this.BlockId = blockId.ToHash();
+            this.Type = @event.Type;
+            this.EventIndex = @event.EventIndex;
+        }
+
 
         [JsonConstructor]
         public FlowTransactionResponseEvent(string transactionId, string payload, GraffleCompositeType eventComposite, uint transactionIndex, string blockId, string type, uint eventIndex)

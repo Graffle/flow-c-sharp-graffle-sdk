@@ -212,6 +212,8 @@ namespace Graffle.FlowSdk.Services.Serialization
                     }
                 case "Int":
                     {
+                        //this is for backwards compability, see IntType in flow-c-sharp-sdk repo
+                        //in reality Int has no min or max value, if int doesnt work just return the original object
                         if (int.TryParse(cadenceObjectDictionary["value"].ToString(), out var value))
                             return value;
 

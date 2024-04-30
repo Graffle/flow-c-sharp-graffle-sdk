@@ -19,8 +19,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         [ClassInitialize]
         public static void ClassInit(TestContext ctx)
         {
-            _main = new FlowClientFactory("MainNet");
-            _test = new FlowClientFactory("TestNet");
+            _main = new FlowClientFactory("MainNet") { UseBetaDeserializer = true };
+            _test = new FlowClientFactory("TestNet") { UseBetaDeserializer = true };
         }
 
         [ClassCleanup]
@@ -30,6 +30,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             _test?.Dispose();
         }
 
+        [TestMethod]
+        [Ignore] //todo refactor
         public async Task TransactionWithArray()
         {
             var transactionResult = await GetTransaction(60145148, "35a060e0a370220ad0c949852afcd88da8a965e2bc829b332f512f7618ecedfc");
