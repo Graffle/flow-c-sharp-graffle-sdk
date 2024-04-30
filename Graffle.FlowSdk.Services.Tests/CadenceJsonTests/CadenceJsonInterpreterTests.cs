@@ -120,6 +120,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var kvp = composite.First();
             Assert.AreEqual("structField1", kvp.Key);
             Assert.AreEqual(2, kvp.Value);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -132,6 +136,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             Assert.IsInstanceOfType<bool>(res);
             Assert.AreEqual(value, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -153,6 +161,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             Assert.AreEqual("/public/someInteger", dict["path"]);
             Assert.AreEqual("0x1", dict["address"]);
             Assert.AreEqual("Int", dict["borrowType"]);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -212,6 +224,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             Assert.IsTrue(borrowType.ContainsKey("kind"));
             Assert.AreEqual("Int", borrowType["kind"]);
+
+            // var fvt = FlowValueType.CreateFromCadence(json);
+            // var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            // JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -236,6 +252,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             Assert.IsTrue(dict.ContainsKey("stringField"));
             Assert.AreEqual((long)123, dict["intField"]);
             Assert.AreEqual("hello", dict["stringField"]);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -252,6 +272,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             Assert.IsTrue(dict.ContainsKey("123"));
             Assert.AreEqual("test", dict["123"]);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -261,6 +285,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(-100.002m, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -270,6 +298,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(100.002m, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -316,6 +348,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             }
 
             Assert.AreEqual(0, initializers.Count);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -423,6 +459,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             }
             Assert.IsTrue(returnType.ContainsKey("kind"));
             Assert.AreEqual("Void", returnType["kind"]);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -432,6 +472,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0L, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -441,6 +485,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0L, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -450,6 +498,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0L, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -459,6 +511,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0L, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -486,6 +542,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
             Assert.AreEqual(0, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -495,6 +555,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
             Assert.AreEqual("91389681247993671255432112000000000", res);
+
+            // var fvt = FlowValueType.CreateFromCadence(json);
+            // var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            // JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -503,6 +567,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var json = "{\"type\":\"Optional\",\"value\":null}";
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
             Assert.IsNull(res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -512,6 +580,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual("Derrick \"The Black Beast\" Lewis delivers a lights out uppercut against Curtis Blaydes, to break the record for the most KOs in UFC heavyweight history and tie for the most KO/TKO wins in UFC history", res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -530,6 +602,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             Assert.IsTrue(dict.ContainsKey("identifier"));
             Assert.AreEqual("testDomain", dict["domain"]);
             Assert.AreEqual("testIdentifier", dict["identifier"]);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -542,12 +618,29 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
         }
 
         [TestMethod]
+        public void StringType_Simple()
+        {
+            var json = "{\"type\":\"String\",\"value\":\"xdd\"}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual("xdd", res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
+        }
+
+        [TestMethod]
         public void UInt8()
         {
             var json = @"{""type"":""UInt8"",""value"":""0""}";
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0ul, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -557,6 +650,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0ul, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -566,6 +663,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0ul, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -575,6 +676,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0ul, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -602,6 +707,11 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(0U, res);
+
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -611,6 +721,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(100ul, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -620,6 +734,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(100ul, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -629,6 +747,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(100ul, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -638,6 +760,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
 
             Assert.AreEqual(100ul, res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
     }
