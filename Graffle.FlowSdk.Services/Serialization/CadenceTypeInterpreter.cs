@@ -198,7 +198,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             {
                 if (item is not IDictionary<string, object> p)
                 {
-                    throw new Exception("todo");
+                    throw new Exception($"Unexpected type for inner parameter object, expecting IDictionary<string,object> received {item?.GetType()}");
                 }
 
                 res.Add("label", p["label"]);

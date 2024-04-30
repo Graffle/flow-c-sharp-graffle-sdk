@@ -246,7 +246,6 @@ namespace Graffle.FlowSdk.Services.Serialization
                 target = pathValueDict;
             }
 
-
             return new Dictionary<string, object>()
             {
                 { "domain", target["domain"] },
