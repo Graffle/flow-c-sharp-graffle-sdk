@@ -10,12 +10,23 @@ using Polly.Retry;
 using Org.BouncyCastle.Security;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Org.BouncyCastle.Asn1.Misc;
+using System.Text.Json;
+using Graffle.FlowSdk.Types;
+using Graffle.FlowSdk.Services.Extensions;
 
 namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 {
     [TestClass]
     public class CadenceJsonInterpreterTests
     {
+        private void JsonEquals(object first, object second)
+        {
+            var firstJson = JsonSerializer.Serialize(first);
+            var secondJson = JsonSerializer.Serialize(second);
+
+            Assert.AreEqual(firstJson, secondJson);
+        }
+
         [TestMethod]
         public void AddressType()
         {
@@ -24,6 +35,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             Assert.IsInstanceOfType<string>(res);
             Assert.AreEqual("0x66d6f450e25a4e22", res);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
@@ -45,6 +60,10 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             //second item
             var second = values[1];
             Assert.AreEqual("hello world", second);
+
+            var fvt = FlowValueType.CreateFromCadence(json);
+            var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
+            JsonEquals(res, obj);
         }
 
         [TestMethod]
