@@ -176,17 +176,24 @@ namespace Graffle.FlowSdk.Services.Serialization
             return result;
         }
 
-        public static IDictionary<string, object> GetParameter(object value)
+        public static object GetParameter(object value)
         {
-            if (value is not IDictionary<string, object> dict)
+            if (value is not IList<object> list)
                 throw new Exception($"Unexpected type for GetParameter object, expecting List<object> received {value?.GetType()}");
 
-            return new Dictionary<string, object>()
+            var res = new Dictionary<string, object>();
+            foreach (var item in list)
             {
-                { "label", dict["label"] },
-                { "id", dict["id"] },
-                { "type", InterpretCadenceType(dict["type"]) }
-            };
+                if (item is not IDictionary<string, object> p)
+                {
+                    throw new Exception("todo");
+                }
+
+                res.Add("label", p["label"]);
+                res.Add("id", p["id"]);
+                res.Add("type", InterpretCadenceType(p["type"]));
+            }
+            return res;
         }
 
         public static List<object> GetInitializers(object value)

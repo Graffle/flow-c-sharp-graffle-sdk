@@ -10,19 +10,11 @@ namespace Graffle.FlowSdk.Services.Serialization
     {
         private static readonly JsonConverter _expando = new ExpandoObjectConverter();
 
-        public static object ObjectFromVerboseJson(string json)
+        public static object ObjectFromCadenceJson(string json)
         {
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
 
             return InterpretCadenceExpandoObject(parsed);
-        }
-
-        public static object ObjectFromFlowVerboseType(string json)
-        {
-            //tood move this to cadence type parser also rename taht class xddd
-            var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
-
-            return CadenceTypeInterpreter.InterpretCadenceType(parsed);
         }
 
         public static GraffleCompositeType GraffleCompositeFromEventPayload(string eventPayloadJson)
@@ -105,7 +97,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (cadenceObjectDictionary["value"] is not IList<object> value)
                             throw new Exception($"Unexpected type recevied for Dictionary \"value\" field expected IList<object> received {cadenceObjectDictionary["value"]?.GetType()}");
 
-                        Dictionary<object, object> result = [];
+                        Dictionary<string, object> result = [];
                         foreach (var item in value)
                         {
                             if (item is not IDictionary<string, object> itemDictionary)
@@ -114,7 +106,8 @@ namespace Graffle.FlowSdk.Services.Serialization
                             var parsedKey = InterpretCadenceExpandoObject(itemDictionary["key"]);
                             var parsedValue = InterpretCadenceExpandoObject(itemDictionary["value"]);
 
-                            result.Add(parsedKey, parsedValue);
+                            //todo camel case for backwards compat?
+                            result.Add(parsedKey.ToString(), parsedValue);
                         }
                         return result;
                     }
@@ -154,7 +147,6 @@ namespace Graffle.FlowSdk.Services.Serialization
 
                         return new Dictionary<string, object>()
                         {
-                            { "type", "Function" },
                             { "functionType", CadenceTypeInterpreter.InterpretCadenceType(value["functionType"]) }
                         };
                     }
@@ -226,15 +218,20 @@ namespace Graffle.FlowSdk.Services.Serialization
             }
         }
 
-        private static Dictionary<string, object> ParsePathType(object pathObject)
+        private static object ParsePathType(object pathObject)
         {
+            if (pathObject is string str)
+                return str; //backwards compatibility
+
             if (pathObject is not IDictionary<string, object> path)
                 throw new Exception($"Unexpected type recevied for path expected IDictionary<string,object> received {pathObject?.GetType()}");
+            if (path["value"] is not IDictionary<string, object> pathValue)
+                throw new Exception($"Unexpected type recevied for path value expected IDictionary<string,object> received {path["value"]?.GetType()}");
 
             return new Dictionary<string, object>()
             {
-                { "domain", path["domain"] },
-                { "identifer", path["identifer"] }
+                { "domain", pathValue["domain"] },
+                { "identifier", pathValue["identifier"] }
             };
         }
     }
