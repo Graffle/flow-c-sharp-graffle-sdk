@@ -211,6 +211,15 @@ namespace Graffle.FlowSdk.Services.Serialization
 
                         return cadenceObjectDictionary["value"];
                     }
+                case "UInt":
+                    {
+                        //this is for backwards compability, see UIntType in flow-c-sharp-sdk repo
+                        //in reality Int has no min or max value, if int doesnt work just return the original object
+                        if (uint.TryParse(cadenceObjectDictionary["value"].ToString(), out var value))
+                            return value;
+
+                        return cadenceObjectDictionary["value"];
+                    }
                 default: //primitive json, string bool number etc
                     {
                         return cadenceObjectDictionary["value"];
@@ -225,13 +234,21 @@ namespace Graffle.FlowSdk.Services.Serialization
 
             if (pathObject is not IDictionary<string, object> path)
                 throw new Exception($"Unexpected type recevied for path expected IDictionary<string,object> received {pathObject?.GetType()}");
-            if (path["value"] is not IDictionary<string, object> pathValue)
-                throw new Exception($"Unexpected type recevied for path value expected IDictionary<string,object> received {path["value"]?.GetType()}");
+
+            IDictionary<string, object> target = path;
+            if (path.TryGetValue("value", out var pathValue))
+            {
+                if (pathValue is not IDictionary<string, object> pathValueDict)
+                    throw new Exception($"Unexpected type received for path value expected IDictionary<string,object> received {pathValue?.GetType()}");
+
+                target = pathValueDict;
+            }
+
 
             return new Dictionary<string, object>()
             {
-                { "domain", pathValue["domain"] },
-                { "identifier", pathValue["identifier"] }
+                { "domain", target["domain"] },
+                { "identifier", target["identifier"] }
             };
         }
     }

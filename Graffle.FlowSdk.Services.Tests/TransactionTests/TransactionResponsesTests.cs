@@ -572,7 +572,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var arr = composite.Data["momentsInPack"] as List<object>;
 
             //this array contains dictionaries lol
-            var dict = arr[0] as Dictionary<object, object>;
+            var dict = arr[0] as Dictionary<string, object>;
             Assert.IsNotNull(dict);
 
             Assert.IsTrue(dict.ContainsKey("id"));

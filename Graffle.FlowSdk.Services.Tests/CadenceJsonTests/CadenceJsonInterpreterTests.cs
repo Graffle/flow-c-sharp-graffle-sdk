@@ -414,5 +414,212 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             Assert.AreEqual(0L, res);
         }
+
+        [TestMethod]
+        public void Int16()
+        {
+            var json = @"{""type"":""Int16"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(0L, res);
+        }
+
+        [TestMethod]
+        public void Int32()
+        {
+            var json = @"{""type"":""Int32"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(0L, res);
+        }
+
+        [TestMethod]
+        public void Int64()
+        {
+            var json = @"{""type"":""Int64"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(0L, res);
+        }
+
+        [TestMethod]
+        public void Int128()
+        {
+            var json = @"{""type"":""Int128"",""value"":""91389681247993671255432112000000000""}";
+
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+            Assert.AreEqual("91389681247993671255432112000000000", res);
+        }
+
+        [TestMethod]
+        public void Int256()
+        {
+            var json = @"{""type"":""Int256"",""value"":""91389681247993671255432112000000000""}";
+
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+            Assert.AreEqual("91389681247993671255432112000000000", res);
+        }
+
+        [TestMethod]
+        public void IntType()
+        {
+            var json = @"{""type"":""Int"",""value"":""0""}";
+
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+            Assert.AreEqual(0, res);
+        }
+
+        [TestMethod]
+        public void IntType_BigNumber()
+        {
+            var json = @"{""type"":""Int"",""value"":""91389681247993671255432112000000000""}";
+
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+            Assert.AreEqual("91389681247993671255432112000000000", res);
+        }
+
+        [TestMethod]
+        public void OptionalType_Null()
+        {
+            var json = "{\"type\":\"Optional\",\"value\":null}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+            Assert.IsNull(res);
+        }
+
+        [TestMethod]
+        public void Optional_StringType()
+        {
+            var json = "{\"type\":\"Optional\",\"value\":{\"type\":\"String\",\"value\":\"Derrick \\\"The Black Beast\\\" Lewis delivers a lights out uppercut against Curtis Blaydes, to break the record for the most KOs in UFC heavyweight history and tie for the most KO/TKO wins in UFC history\"}}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual("Derrick \"The Black Beast\" Lewis delivers a lights out uppercut against Curtis Blaydes, to break the record for the most KOs in UFC heavyweight history and tie for the most KO/TKO wins in UFC history", res);
+        }
+
+        [TestMethod]
+        public void PathType()
+        {
+            var json = @"{""type"":""Path"",""value"":{""domain"":""testDomain"",""identifier"":""testIdentifier""}}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(dict.ContainsKey("domain"));
+            Assert.IsTrue(dict.ContainsKey("identifier"));
+            Assert.AreEqual("testDomain", dict["domain"]);
+            Assert.AreEqual("testIdentifier", dict["identifier"]);
+        }
+
+        [TestMethod]
+        public void StringType()
+        {
+            var json = "{\"type\":\"String\",\"value\":\"Appearance: The xG Reward for players with game time in a fixture.\n\nGet xG Rewards for your football achievements.\nBuild your collection - your story.\nUnlock xG experiences.\n\nhttps://linktr.ee/xgstudios\"}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual("Appearance: The xG Reward for players with game time in a fixture.\n\nGet xG Rewards for your football achievements.\nBuild your collection - your story.\nUnlock xG experiences.\n\nhttps://linktr.ee/xgstudios", res);
+        }
+
+        [TestMethod]
+        public void UInt8()
+        {
+            var json = @"{""type"":""UInt8"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(0ul, res);
+        }
+
+        [TestMethod]
+        public void UInt16()
+        {
+            var json = @"{""type"":""UInt16"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(0ul, res);
+        }
+
+        [TestMethod]
+        public void UInt32()
+        {
+            var json = @"{""type"":""UInt32"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(0ul, res);
+        }
+
+        [TestMethod]
+        public void UInt64()
+        {
+            var json = @"{""type"":""UInt64"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(0ul, res);
+        }
+
+        [TestMethod]
+        public void UInt128()
+        {
+            var json = @"{""type"":""UInt128"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual("0", res);
+        }
+
+        [TestMethod]
+        public void UInt256()
+        {
+            var json = @"{""type"":""UInt256"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual("0", res);
+        }
+
+        [TestMethod]
+        public void UInt()
+        {
+            var json = @"{""type"":""UInt"",""value"":""0""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(0U, res);
+        }
+
+        [TestMethod]
+        public void Word8()
+        {
+            var json = @"{""type"":""Word8"",""value"":""100""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(100ul, res);
+        }
+
+        [TestMethod]
+        public void Word16()
+        {
+            var json = @"{""type"":""Word16"",""value"":""100""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(100ul, res);
+        }
+
+        [TestMethod]
+        public void Word32()
+        {
+            var json = @"{""type"":""Word32"",""value"":""100""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(100ul, res);
+        }
+
+        [TestMethod]
+        public void Word64()
+        {
+            var json = @"{""type"":""Word32"",""value"":""100""}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            Assert.AreEqual(100ul, res);
+        }
+
     }
 }
