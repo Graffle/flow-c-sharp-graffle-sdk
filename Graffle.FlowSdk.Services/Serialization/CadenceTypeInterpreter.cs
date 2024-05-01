@@ -30,8 +30,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                 throw new Exception($"Incoming object is not of type IDictionary<string,object> receieved {cadenceType?.GetType()}");
 
             var kind = type["kind"].ToString();
-            Dictionary<string, object> result = new() { { "kind", kind } };
-
+            Dictionary<string, dynamic> result = new() { { "kind", kind } };
             switch (kind)
             {
                 //composite types
@@ -92,7 +91,6 @@ namespace Graffle.FlowSdk.Services.Serialization
                         {
                             throw new Exception($"Unexpected type for \"restrictions\" field, expecting List<object> received {type["restrictions"]?.GetType()}");
                         }
-
 
                         result.Add("restrictions", restrictions.Select(InterpretCadenceType).ToList());
                         break;

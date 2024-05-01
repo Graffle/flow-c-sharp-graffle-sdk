@@ -10,11 +10,11 @@ namespace Graffle.FlowSdk.Services.Serialization
     {
         private static readonly JsonConverter _expando = new ExpandoObjectConverter();
 
-        public static object ObjectFromCadenceJson(string json)
+        public static object ObjectFromCadenceJson(string json, bool preserveDictionaryKeyCasing = false)
         {
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
 
-            return InterpretCadenceExpandoObject(parsed);
+            return InterpretCadenceExpandoObject(parsed, preserveDictionaryKeyCasing);
         }
 
         public static GraffleCompositeType GraffleCompositeFromEventPayload(string eventPayloadJson)
@@ -57,13 +57,12 @@ namespace Graffle.FlowSdk.Services.Serialization
         /// </summary>
         /// <param name="cadenceObject"></param>
         /// <returns></returns>
-        private static dynamic InterpretCadenceExpandoObject(object cadenceObject)
+        private static dynamic InterpretCadenceExpandoObject(object cadenceObject, bool preserveDictionaryKeyCasing = false)
         {
-            if (cadenceObject is not IDictionary<string, object> cadenceObjectDictionary)
+            if (cadenceObject is not IDictionary<string, object> cadenceObjectDictionary) //aka ExpandoObject
                 throw new Exception($"Unexpected type recevied for InterpretCadenceExpandoObject expected IDictionary<string,object> received {cadenceObject?.GetType()}");
 
             string type = cadenceObjectDictionary["type"].ToString();
-
             switch (type)
             {
                 case "Struct":
@@ -78,7 +77,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (value["fields"] is not IList<object> fields)
                             throw new Exception($"Unexpected type recevied for Composite \"fields\" field expected IList<object> received {value["fields"]?.GetType()}");
 
-                        var result = new Dictionary<string, object>();
+                        var result = new Dictionary<string, dynamic>();
                         foreach (var f in fields)
                         {
                             if (f is not IDictionary<string, object> fieldDictionary)
@@ -97,7 +96,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (cadenceObjectDictionary["value"] is not IList<object> value)
                             throw new Exception($"Unexpected type recevied for Dictionary \"value\" field expected IList<object> received {cadenceObjectDictionary["value"]?.GetType()}");
 
-                        Dictionary<string, object> result = [];
+                        Dictionary<string, dynamic> result = [];
                         foreach (var item in value)
                         {
                             if (item is not IDictionary<string, object> itemDictionary)
@@ -109,7 +108,8 @@ namespace Graffle.FlowSdk.Services.Serialization
                             string keyStr = parsedKey.ToString();
 
                             //todo camel case for backwards compat?
-                            result.Add(keyStr.ToCamelCase(), parsedValue);
+                            //also needs override maybe?
+                            result.Add(preserveDictionaryKeyCasing ? keyStr : keyStr.ToCamelCase(), parsedValue);
                         }
                         return result;
                     }
@@ -118,7 +118,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (cadenceObjectDictionary["value"] is not IList<object> value)
                             throw new Exception($"Unexpected type recevied for Array \"value\" field expected IList<object> received {cadenceObjectDictionary["value"]?.GetType()}");
 
-                        List<object> values = [];
+                        List<dynamic> values = [];
                         foreach (var arrItem in value)
                         {
                             values.Add(InterpretCadenceExpandoObject(arrItem));
@@ -147,7 +147,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> value)
                             throw new Exception($"Unexpected type recevied for Function \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
 
-                        return new Dictionary<string, object>()
+                        return new Dictionary<string, dynamic>()
                         {
                             { "functionType", CadenceTypeInterpreter.InterpretCadenceType(value["functionType"]) }
                         };
@@ -165,7 +165,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> value)
                             throw new Exception($"Unexpected type recevied for Capability \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
 
-                        return new Dictionary<string, object>
+                        return new Dictionary<string, dynamic>
                         {
                             { "path", ParsePathType(value["path"]) },
                             { "address", value["address"] }, //str
@@ -207,18 +207,22 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "Int":
                     {
                         //this is for backwards compability, see IntType in flow-c-sharp-sdk repo
-                        //in reality Int has no min or max value, if int doesnt work just return the original object
-                        if (int.TryParse(cadenceObjectDictionary["value"].ToString(), out var value))
-                            return value;
+                        //in reality Int has no min or max value
+                        if (int.TryParse(cadenceObjectDictionary["value"].ToString(), out var intValue))
+                            return intValue;
+                        else if (long.TryParse(cadenceObjectDictionary["value"].ToString(), out var longValue)) ///value doent fit into 32bits, try 64
+                            return longValue;
 
+                        //value too large for 64bit integer just return the original object (string)
                         return cadenceObjectDictionary["value"];
                     }
                 case "UInt":
                     {
-                        //this is for backwards compability, see UIntType in flow-c-sharp-sdk repo
-                        //in reality Int has no min or max value, if int doesnt work just return the original object
-                        if (uint.TryParse(cadenceObjectDictionary["value"].ToString(), out var value))
-                            return value;
+                        //see above
+                        if (uint.TryParse(cadenceObjectDictionary["value"].ToString(), out var uintValue))
+                            return uintValue;
+                        else if (ulong.TryParse(cadenceObjectDictionary["value"].ToString(), out var ulongValue))
+                            return ulongValue;
 
                         return cadenceObjectDictionary["value"];
                     }
@@ -238,7 +242,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                 throw new Exception($"Unexpected type recevied for path expected IDictionary<string,object> received {pathObject?.GetType()}");
 
             IDictionary<string, object> target = path;
-            if (path.TryGetValue("value", out var pathValue))
+            if (path.TryGetValue("value", out var pathValue)) //check for value field
             {
                 if (pathValue is not IDictionary<string, object> pathValueDict)
                     throw new Exception($"Unexpected type received for path value expected IDictionary<string,object> received {pathValue?.GetType()}");
@@ -246,7 +250,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                 target = pathValueDict;
             }
 
-            return new Dictionary<string, object>()
+            return new Dictionary<string, dynamic>()
             {
                 { "domain", target["domain"] },
                 { "identifier", target["identifier"] }
