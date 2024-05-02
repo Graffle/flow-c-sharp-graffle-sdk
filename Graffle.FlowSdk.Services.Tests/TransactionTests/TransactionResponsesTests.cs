@@ -19,8 +19,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         [ClassInitialize]
         public static void ClassInit(TestContext ctx)
         {
-            _main = new FlowClientFactory("MainNet");
-            _test = new FlowClientFactory("TestNet");
+            _main = new FlowClientFactory("MainNet") { UseBetaDeserializer = true };
+            _test = new FlowClientFactory("TestNet") { UseBetaDeserializer = true };
         }
 
         [ClassCleanup]
@@ -30,6 +30,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             _test?.Dispose();
         }
 
+        [TestMethod]
+        [Ignore] //todo refactor
         public async Task TransactionWithArray()
         {
             var transactionResult = await GetTransaction(60145148, "35a060e0a370220ad0c949852afcd88da8a965e2bc829b332f512f7618ecedfc");
@@ -570,7 +572,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var arr = composite.Data["momentsInPack"] as List<object>;
 
             //this array contains dictionaries lol
-            var dict = arr[0] as Dictionary<object, object>;
+            var dict = arr[0] as Dictionary<string, object>;
             Assert.IsNotNull(dict);
 
             Assert.IsTrue(dict.ContainsKey("id"));
@@ -599,18 +601,20 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo refactor
+        //    [Ignore] //todo refactor
         public async Task TestNet39_AccountCreated()
         {
             //starting in testnet 39 the sequence of individual json members is not guaranteed
-            var res = await GetTransaction(90597482, "2e54ff7245c2f99acdcd30c32063e4c0e00a70b8412296008ff7ff0860c18a6c");
+            var res = await GetTransaction(177644105, "2201cc03967515ec9b335ba78da3853b107c2547a1bb49b309b24b7a8b90b6fd");
 
             var evs = res.Events;
             var accountCreated = evs[5];
 
             var data = accountCreated.EventComposite.Data;
             Assert.IsTrue(data.ContainsKey("address"));
-            Assert.AreEqual("0x64fcaa5f4b8eb4b6", data["address"]);
+
+            Assert.IsInstanceOfType<string>(data["address"]);
+            Assert.AreEqual("0x5cfdc888e006eb85", data["address"] as string);
         }
 
         [TestMethod]

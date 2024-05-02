@@ -2,6 +2,7 @@ using System.Text;
 using Google.Protobuf;
 using System.Text.Json;
 using Newtonsoft.Json;
+using Graffle.FlowSdk.Services.Serialization;
 
 namespace Graffle.FlowSdk.Services.Models
 {
@@ -17,6 +18,18 @@ namespace Graffle.FlowSdk.Services.Models
             this.Type = @event.Type;
             this.EventIndex = @event.EventIndex;
         }
+
+        public FlowTransactionResponseEvent(Flow.Entities.Event @event, ByteString blockId)
+        {
+            this.TransactionId = @event.TransactionId.ToHash();
+            this.Payload = @event.Payload.ToString(Encoding.Default);
+            this.EventComposite = CadenceJsonInterpreter.GraffleCompositeFromEventPayload(this.Payload);
+            this.TransactionIndex = @event.TransactionIndex;
+            this.BlockId = blockId.ToHash();
+            this.Type = @event.Type;
+            this.EventIndex = @event.EventIndex;
+        }
+
 
         [JsonConstructor]
         public FlowTransactionResponseEvent(string transactionId, string payload, GraffleCompositeType eventComposite, uint transactionIndex, string blockId, string type, uint eventIndex)

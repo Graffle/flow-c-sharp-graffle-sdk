@@ -1,0 +1,201 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Metadata;
+using System.Threading.Tasks;
+using Graffle.FlowSdk.Services.Serialization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
+{
+    [TestClass]
+    public class CadenceTypeInterpreterTests
+    {
+        [TestMethod]
+        public void Capability()
+        {
+            var json = "{\"kind\":\"Capability\",\"type\":{\"kind\":\"UInt8\"}}";
+
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(dict.ContainsKey("kind"));
+            Assert.IsTrue(dict.ContainsKey("type"));
+
+            if (dict["type"] is not IDictionary<string, object> typeDict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(typeDict.ContainsKey("kind"));
+            Assert.AreEqual(typeDict["kind"], "UInt8");
+        }
+
+        [TestMethod]
+        public void Capability_NoType()
+        {
+            var json = "{\"kind\":\"Capability\",\"type\":null}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(dict.ContainsKey("kind"));
+            Assert.IsTrue(dict.ContainsKey("type"));
+            Assert.AreEqual(string.Empty, dict["type"]);
+        }
+
+        [TestMethod]
+        public void CompositeType()
+        {
+            var json = "{\"kind\":\"Resource\",\"typeID\":\"compositeTypeId\",\"fields\":[{\"id\":\"fieldId\",\"type\":{\"kind\":\"Int32\"}}],\"initializers\":[],\"type\":\"\"}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(dict.ContainsKey("kind"));
+            Assert.IsTrue(dict.ContainsKey("type"));
+            Assert.IsTrue(dict.ContainsKey("typeID"));
+            Assert.IsTrue(dict.ContainsKey("initializers"));
+            Assert.IsTrue(dict.ContainsKey("fields"));
+
+            Assert.AreEqual("Resource", dict["kind"]);
+            Assert.AreEqual(string.Empty, dict["type"]);
+            Assert.AreEqual("compositeTypeId", dict["typeID"]);
+
+            if (dict["initializers"] is not List<object> inits)
+            {
+                Assert.Fail("expected list");
+                return;
+            }
+
+            Assert.AreEqual(0, inits.Count);
+
+            if (dict["fields"] is not List<object> fields)
+            {
+                Assert.Fail("expected list");
+                return;
+            }
+
+            Assert.AreEqual(1, fields.Count);
+        }
+
+        [TestMethod]
+        public void ConstantSizedArray()
+        {
+            var json = "{\"kind\":\"ConstantSizedArray\",\"size\":500,\"type\":{\"kind\":\"UInt8\"}}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(dict.ContainsKey("kind"));
+            Assert.IsTrue(dict.ContainsKey("size"));
+            Assert.IsTrue(dict.ContainsKey("type"));
+
+            Assert.AreEqual("ConstantSizedArray", dict["kind"]);
+            Assert.AreEqual(500L, dict["size"]);
+
+            if (dict["type"] is not IDictionary<string, object> typeDict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("UInt8", typeDict["kind"]);
+        }
+
+        [TestMethod]
+        public void DictionaryTypeTest()
+        {
+            var json = "{\"kind\":\"Dictionary\",\"key\":{\"kind\":\"String\"},\"value\":{\"kind\":\"UInt8\"}}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(dict.ContainsKey("kind"));
+            Assert.IsTrue(dict.ContainsKey("key"));
+            Assert.IsTrue(dict.ContainsKey("value"));
+
+            if (dict["key"] is not IDictionary<string, object> key)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("String", key["kind"]);
+
+            if (dict["value"] is not IDictionary<string, object> value)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("UInt8", value["kind"]);
+        }
+
+        [TestMethod]
+        public void EnumType()
+        {
+            var json = "{\"kind\":\"Enum\",\"type\":{\"kind\":\"String\"},\"typeID\":\"testTypeId\",\"initializers\":[],\"fields\":[{\"id\":\"fieldId\",\"type\":{\"kind\":\"UInt8\"}}]}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(dict.ContainsKey("type"));
+            Assert.IsTrue(dict.ContainsKey("typeID"));
+            Assert.IsTrue(dict.ContainsKey("fields"));
+            Assert.IsTrue(dict.ContainsKey("initializers"));
+
+            if (dict["type"] is not IDictionary<string, object> type)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("String", type["kind"]);
+
+            Assert.AreEqual("testTypeId", dict["typeID"]);
+
+            if (dict["initializers"] is not List<object> inits)
+            {
+                Assert.Fail("expected list");
+                return;
+            }
+
+            Assert.AreEqual(0, inits.Count);
+
+            if (dict["fields"] is not List<object> fields)
+            {
+                Assert.Fail("expected list");
+                return;
+            }
+
+            Assert.AreEqual(1, fields.Count);
+        }
+    }
+}

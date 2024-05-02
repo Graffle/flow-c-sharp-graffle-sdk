@@ -6,6 +6,7 @@ using Google.Protobuf;
 using Google.Protobuf.Collections;
 using System.Text.Json;
 using Newtonsoft.Json;
+using Graffle.FlowSdk.Services.Serialization;
 
 namespace Graffle.FlowSdk.Services.Models
 {
@@ -30,6 +31,18 @@ namespace Graffle.FlowSdk.Services.Models
             this.BlockTimestamp = blockTimestamp;
         }
 
+        public FlowEvent(Flow.Entities.Event @event, ulong blockHeight, ByteString blockId, DateTimeOffset blockTimestamp)
+        {
+            this.TransactionId = @event.TransactionId.ToHash();
+            this.Payload = @event.Payload.ToString(Encoding.Default);
+            this.EventComposite = CadenceJsonInterpreter.GraffleCompositeFromEventPayload(this.Payload);
+            this.TransactionIndex = @event.TransactionIndex;
+            this.EventIndex = @event.EventIndex;
+            this.BlockHeight = blockHeight;
+            this.BlockId = blockId.ToHash();
+            this.BlockTimestamp = blockTimestamp;
+        }
+
         [JsonConstructor]
         public FlowEvent(string transactionId, string payload, GraffleCompositeType eventComposite, uint transactionIndex, uint eventIndex, ulong blockHeight, string blockId, DateTimeOffset blockTimestamp)
         {
@@ -43,20 +56,34 @@ namespace Graffle.FlowSdk.Services.Models
             BlockTimestamp = blockTimestamp;
         }
 
-        public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults)
+        public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults, bool useBetaDeserializer = false)
         {
             var eventsList = new List<FlowEvent>();
             foreach (var b in eventsResults)
             {
                 eventsList.AddRange(
                     b.Events.ToList()
-                        .Select(e => new FlowEvent(
-                            e,
-                            b.BlockHeight,
-                            b.BlockId,
-                            b.BlockTimestamp.ToDateTimeOffset(),
-                            _jsonOptions))
-                );
+                        .Select(e =>
+                        {
+                            if (!useBetaDeserializer)
+                            {
+                                return new FlowEvent(
+                                e,
+                                b.BlockHeight,
+                                b.BlockId,
+                                b.BlockTimestamp.ToDateTimeOffset(),
+                                _jsonOptions);
+                            }
+                            else
+                            {
+                                return new FlowEvent(
+                                e,
+                                b.BlockHeight,
+                                b.BlockId,
+                                b.BlockTimestamp.ToDateTimeOffset());
+                            }
+                        }
+                ));
             }
 
             return eventsList;
