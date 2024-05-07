@@ -19,8 +19,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         [ClassInitialize]
         public static void ClassInit(TestContext ctx)
         {
-            _main = new FlowClientFactory("MainNet") { UseBetaDeserializer = true };
-            _test = new FlowClientFactory("TestNet") { UseBetaDeserializer = true };
+            _main = new FlowClientFactory("MainNet") { CandeceSerializer = CadenceSerializerVersion.Expando };
+            _test = new FlowClientFactory("TestNet") { CandeceSerializer = CadenceSerializerVersion.Expando };
         }
 
         [ClassCleanup]

@@ -56,34 +56,32 @@ namespace Graffle.FlowSdk.Services.Models
             BlockTimestamp = blockTimestamp;
         }
 
-        public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults, bool useBetaDeserializer = false)
+        public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults, CadenceSerializerVersion serializer = CadenceSerializerVersion.Legacy)
         {
             var eventsList = new List<FlowEvent>();
-            foreach (var b in eventsResults)
+            foreach (var res in eventsResults)
             {
                 eventsList.AddRange(
-                    b.Events.ToList()
-                        .Select(e =>
+                    res.Events
+                        .Select(ev =>
                         {
-                            if (!useBetaDeserializer)
+                            return serializer switch
                             {
-                                return new FlowEvent(
-                                e,
-                                b.BlockHeight,
-                                b.BlockId,
-                                b.BlockTimestamp.ToDateTimeOffset(),
-                                _jsonOptions);
-                            }
-                            else
-                            {
-                                return new FlowEvent(
-                                e,
-                                b.BlockHeight,
-                                b.BlockId,
-                                b.BlockTimestamp.ToDateTimeOffset());
-                            }
+                                CadenceSerializerVersion.Legacy =>
+                                    new FlowEvent(ev,
+                                                    res.BlockHeight,
+                                                    res.BlockId,
+                                                    res.BlockTimestamp.ToDateTimeOffset(),
+                                                    _jsonOptions),
+                                CadenceSerializerVersion.Expando =>
+                                    new FlowEvent(ev,
+                                                    res.BlockHeight,
+                                                    res.BlockId,
+                                                    res.BlockTimestamp.ToDateTimeOffset()),
+                                _ => throw new ArgumentException("Invalid Cadence Serializer", nameof(serializer))
+                            };
                         }
-                ));
+                ).ToList());
             }
 
             return eventsList;

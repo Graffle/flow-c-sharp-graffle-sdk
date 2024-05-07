@@ -18,7 +18,7 @@ namespace Graffle.FlowSdk.Services.Models
 
     public class FlowTransactionResult : IFlowTransactionResult
     {
-        public FlowTransactionResult(Flow.Access.TransactionResultResponse flowTransactionResponse, bool useBetaDeserializer = false)
+        public FlowTransactionResult(Flow.Access.TransactionResultResponse flowTransactionResponse, CadenceSerializerVersion cadenceSerializer = CadenceSerializerVersion.Legacy)
         {
             BlockId = flowTransactionResponse.BlockId.ToHash();
             ErrorMessage = flowTransactionResponse.ErrorMessage;
@@ -33,10 +33,12 @@ namespace Graffle.FlowSdk.Services.Models
 
             foreach (var item in flowTransactionResponse.Events)
             {
-                if (!useBetaDeserializer)
-                    Events.Add(new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId, options));
-                else
-                    Events.Add(new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId));
+                Events.Add(cadenceSerializer switch
+                {
+                    CadenceSerializerVersion.Legacy => new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId, options),
+                    CadenceSerializerVersion.Expando => new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId),
+                    _ => throw new ArgumentException("Invalid cadence serializer", nameof(cadenceSerializer))
+                });
             }
         }
 

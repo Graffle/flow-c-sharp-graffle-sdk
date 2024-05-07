@@ -17,6 +17,11 @@ namespace Graffle.FlowSdk.Services.Serialization
             return InterpretCadenceExpandoObject(parsed, preserveDictionaryKeyCasing);
         }
 
+        /// <summary>
+        /// Returns a GraffleCompositeType with simplified cadence data
+        /// </summary>
+        /// <param name="eventPayloadJson">Cadence event json payload</param>
+        /// <returns></returns>
         public static GraffleCompositeType GraffleCompositeFromEventPayload(string eventPayloadJson)
         {
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(eventPayloadJson, _expando);
@@ -108,7 +113,6 @@ namespace Graffle.FlowSdk.Services.Serialization
                             string keyStr = parsedKey.ToString();
 
                             //todo camel case for backwards compat?
-                            //also needs override maybe?
                             result.Add(preserveDictionaryKeyCasing ? keyStr : keyStr.ToCamelCase(), parsedValue);
                         }
                         return result;
@@ -147,7 +151,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> value)
                             throw new Exception($"Unexpected type recevied for Function \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
 
-                        return new Dictionary<string, dynamic>()
+                        return new Dictionary<string, dynamic>
                         {
                             { "functionType", CadenceTypeInterpreter.InterpretCadenceType(value["functionType"]) }
                         };
@@ -250,7 +254,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                 target = pathValueDict;
             }
 
-            return new Dictionary<string, dynamic>()
+            return new Dictionary<string, dynamic>
             {
                 { "domain", target["domain"] },
                 { "identifier", target["identifier"] }
