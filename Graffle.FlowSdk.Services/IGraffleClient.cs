@@ -11,7 +11,7 @@ namespace Graffle.FlowSdk
 {
     public interface IGraffleClient
     {
-        public CadenceSerializerVersion CadenceSerializer { get; }
+        CadenceSerializerVersion CadenceSerializer { get; }
 
         Spork CurrentSpork { get; }
 

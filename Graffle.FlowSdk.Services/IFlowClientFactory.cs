@@ -6,7 +6,7 @@ namespace Graffle.FlowSdk
 {
     public interface IFlowClientFactory : IDisposable
     {
-        public CadenceSerializerVersion CandeceSerializer { get; }
+        CadenceSerializerVersion CandeceSerializer { get; }
 
         /// <summary>
         /// This creates a client from the latest Spork
