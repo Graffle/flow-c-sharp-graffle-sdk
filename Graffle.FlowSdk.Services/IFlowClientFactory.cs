@@ -1,11 +1,13 @@
 using System;
+using Graffle.FlowSdk.Services;
 using Graffle.FlowSdk.Services.Nodes;
 
 namespace Graffle.FlowSdk
 {
     public interface IFlowClientFactory : IDisposable
     {
-        bool UseBetaDeserializer { get; }
+        CadenceSerializerVersion CandeceSerializer { get; }
+
         /// <summary>
         /// This creates a client from the latest Spork
         /// </summary>

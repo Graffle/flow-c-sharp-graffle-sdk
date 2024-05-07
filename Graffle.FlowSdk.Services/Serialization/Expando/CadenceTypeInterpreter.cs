@@ -7,7 +7,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
-    public class CadenceTypeInterpreter
+    public static class CadenceTypeInterpreter
     {
         private static readonly ExpandoObjectConverter _expando = new();
 
@@ -22,7 +22,8 @@ namespace Graffle.FlowSdk.Services.Serialization
         {
             if (cadenceType is string str)
             {
-                return cadenceType; //repeated type TODO test and comment!!!
+                //repeated type or old cadence type (pre secure cadence)
+                return cadenceType;
             }
 
             ArgumentNullException.ThrowIfNull(cadenceType, nameof(cadenceType));
@@ -177,7 +178,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "AccountKey":
                 case "Block":
                     {
-                        break;
+                        break; //result just contains "kind" : "Type"
                     }
                 default:
                     throw new Exception($"Unknown kind {kind}");
@@ -191,7 +192,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             if (value is not IList<object> list)
                 throw new Exception($"Unexpected type for GetParameter object, expecting List<object> received {value?.GetType()}");
 
-            var res = new Dictionary<string, object>();
+            var res = new Dictionary<string, dynamic>();
             foreach (var item in list)
             {
                 if (item is not IDictionary<string, object> p)
@@ -227,7 +228,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             if (value is not IDictionary<string, object> dict)
                 throw new Exception($"Unexpected type for GetField object, expecting IDictionary<string,object> received {value?.GetType()}");
 
-            return new Dictionary<string, object>
+            return new Dictionary<string, dynamic>
             {
                 { "id", dict["id"] },
                 { "type", InterpretCadenceType(dict["type"]) }

@@ -5,12 +5,14 @@ using Graffle.FlowSdk.Types;
 using Google.Protobuf;
 using Grpc.Core;
 using Graffle.FlowSdk.Services.Models;
+using Graffle.FlowSdk.Services;
 
 namespace Graffle.FlowSdk
 {
     public interface IGraffleClient
     {
-        bool UseBetaDeserializer { get; }
+        CadenceSerializerVersion CadenceSerializer { get; }
+
         Spork CurrentSpork { get; }
 
         Spork FirstSpork { get; }

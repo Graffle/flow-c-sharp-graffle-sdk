@@ -8,7 +8,7 @@ namespace Graffle.FlowSdk.Services.Models
 {
     public sealed class FlowTransactionResponseEvent
     {
-        public FlowTransactionResponseEvent(Flow.Entities.Event @event, ByteString blockId, JsonSerializerOptions options)
+        public FlowTransactionResponseEvent(Flow.Entities.Event @event, ByteString blockId, JsonSerializerOptions options) //todo obsolete
         {
             this.TransactionId = @event.TransactionId.ToHash();
             this.Payload = @event.Payload.ToString(Encoding.Default);

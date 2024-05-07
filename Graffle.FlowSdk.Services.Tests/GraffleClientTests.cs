@@ -14,17 +14,16 @@ namespace Graffle.FlowSdk.Services.Tests
     public class GraffleClientTests
     {
         public static IEnumerable<object[]> SPORKS() =>
-         new[]
-         {
-            new [] { Sporks.GetSporkByName("MainNet") },
-            new [] { Sporks.GetSporkByName("TestNet") },
-         };
+         [
+            [Sporks.GetSporkByName("MainNet")],
+            [Sporks.GetSporkByName("TestNet")],
+         ];
 
         [TestMethod]
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task PingAsync(Spork spork)
         {
-            var client = new GraffleClient(spork);
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
             Assert.IsTrue(await client.PingAsync());
         }
 
@@ -32,7 +31,7 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task GetLatestBlockAsync(Spork spork)
         {
-            var client = new GraffleClient(spork);
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
             var res = await client.GetLatestBlockAsync(true);
 
             Assert.IsNotNull(res);
@@ -46,7 +45,7 @@ namespace Graffle.FlowSdk.Services.Tests
             const string script = @"pub fun main(arg : String): String { return arg }";
             var bytes = Encoding.UTF8.GetBytes(script);
 
-            var client = new GraffleClient(spork);
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
             var arg = new StringType("foo");
             var latestBlock = await client.GetLatestBlockAsync(true);
 
@@ -68,7 +67,7 @@ namespace Graffle.FlowSdk.Services.Tests
             const string script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
             var bytes = Encoding.UTF8.GetBytes(script);
 
-            var client = new GraffleClient(spork);
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
             var str = new StringType("arg1");
             var ts = new Int64Type(123L);
             var uuid = new UInt64Type(654ul);
@@ -118,7 +117,7 @@ namespace Graffle.FlowSdk.Services.Tests
             const string script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
             var bytes = Encoding.UTF8.GetBytes(script);
 
-            var client = new GraffleClient(spork);
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
             var str = new StringType("arg1");
             var ts = new Int64Type(123L);
             var uuid = new UInt64Type(654ul);
@@ -164,7 +163,7 @@ namespace Graffle.FlowSdk.Services.Tests
         public async Task GetEventsForHeightRangeAsync_MainNet()
         {
             using var rpc = GrpcChannel.ForAddress($"http://{Sporks.MainNet().Node}");
-            var client = new GraffleClient(rpc, Sporks.MainNet());
+            var client = new GraffleClient(rpc, Sporks.MainNet()) { CadenceSerializer = CadenceSerializerVersion.Expando };
 
             var evs = await client.GetEventsForHeightRangeAsync("A.f919ee77447b7497.FlowFees.FeesDeducted", Sporks.MainNet().RootHeight, Sporks.MainNet().RootHeight + 249ul);
         }
@@ -173,10 +172,9 @@ namespace Graffle.FlowSdk.Services.Tests
         public async Task GetEventsForHeightRangeAsync_TestNet()
         {
             using var rpc = GrpcChannel.ForAddress($"http://{Sporks.TestNet().Node}");
-            var client = new GraffleClient(rpc, Sporks.TestNet());
+            var client = new GraffleClient(rpc, Sporks.TestNet()) { CadenceSerializer = CadenceSerializerVersion.Expando };
 
             var evs = await client.GetEventsForHeightRangeAsync("A.912d5440f7e3769e.FlowFees.FeesDeducted", Sporks.TestNet().RootHeight, Sporks.TestNet().RootHeight + 249ul);
-
         }
 
         private T Cast<T>(FlowValueType flowType) where T : FlowValueType

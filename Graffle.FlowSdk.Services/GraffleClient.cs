@@ -14,7 +14,7 @@ namespace Graffle.FlowSdk
 {
     public sealed class GraffleClient : IGraffleClient
     {
-        public bool UseBetaDeserializer { get; init; } = false;
+        public CadenceSerializerVersion CadenceSerializer { get; init; } = CadenceSerializerVersion.Legacy;
 
         public Spork CurrentSpork { get; private set; }
         public Spork FirstSpork
@@ -71,7 +71,7 @@ namespace Graffle.FlowSdk
 
         public async Task<List<FlowEvent>> GetEventsForHeightRangeAsync(string eventType, ulong startHeight, ulong endHeight, CallOptions options = new CallOptions())
         {
-            return FlowEvent.Create((await flowClient.GetEventsForHeightRangeAsync(eventType, startHeight, endHeight, options)).Results, UseBetaDeserializer);
+            return FlowEvent.Create((await flowClient.GetEventsForHeightRangeAsync(eventType, startHeight, endHeight, options)).Results, CadenceSerializer);
         }
 
         public async Task<Flow.Access.ExecuteScriptResponse> ExecuteScriptAtBlockHeightAsync(ulong blockHeight, byte[] cadenceScript, IEnumerable<FlowValueType> args, CallOptions options = new CallOptions())
@@ -111,7 +111,7 @@ namespace Graffle.FlowSdk
 
         public async Task<FlowTransactionResult> GetTransactionResult(ByteString transactionId)
         {
-            return new FlowTransactionResult(await flowClient.GetTransactionResult(transactionId), UseBetaDeserializer);
+            return new FlowTransactionResult(await flowClient.GetTransactionResult(transactionId), CadenceSerializer);
         }
 
         public async Task<FlowTransactionResponse> SendTransactionAsync(FlowTransaction flowTransaction, CallOptions options = new CallOptions())
