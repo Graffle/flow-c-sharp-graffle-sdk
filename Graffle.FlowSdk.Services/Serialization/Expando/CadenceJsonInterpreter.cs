@@ -6,7 +6,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
-    public class CadenceJsonInterpreter
+    public static class CadenceJsonInterpreter
     {
         private static readonly JsonConverter _expando = new ExpandoObjectConverter();
 
