@@ -23,6 +23,9 @@ namespace Graffle.FlowSdk.Services
 
         public Dictionary<string, dynamic> Data { get; set; }
 
+        [JsonIgnore]
+        public CadenceSerializerVersion SerializerVersion { get; init; } = CadenceSerializerVersion.Legacy;
+
         public override string AsJsonCadenceDataFormat()
         {
             throw new NotImplementedException();
