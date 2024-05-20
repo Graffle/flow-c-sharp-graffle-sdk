@@ -1,3 +1,4 @@
+using Graffle.FlowSdk.Services.Serialization;
 using Graffle.FlowSdk.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
@@ -40,8 +41,9 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
             var scriptResponse = await flowClient.ExecuteScriptAtBlockHeightAsync(latestBlock.Height, scriptBytes, new List<FlowValueType>() { array });
             var scriptResponseJson = Encoding.UTF8.GetString(scriptResponse.Value.ToByteArray());
 
-            var flowType = DictionaryType.FromJson(scriptResponseJson);
-            var metaData = flowType.ConvertToObject();
+            // var flowType = DictionaryType.FromJson(scriptResponseJson);
+            // var metaData = flowType.ConvertToObject();
+            var metaData = CadenceJsonInterpreter.ObjectFromCadenceJson(scriptResponseJson) as Dictionary<string, dynamic>;
 
             //verify data deserialized correctly
             //get one item from the dictionary
