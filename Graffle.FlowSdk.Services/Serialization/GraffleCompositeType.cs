@@ -1,10 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
 using Graffle.FlowSdk.Types;
-using Graffle.FlowSdk;
-using Graffle.FlowSdk.Services;
 using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Graffle.FlowSdk.Services
 {
@@ -24,6 +21,7 @@ namespace Graffle.FlowSdk.Services
         public Dictionary<string, dynamic> Data { get; set; }
 
         [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public CadenceSerializerVersion SerializerVersion { get; init; } = CadenceSerializerVersion.Legacy;
 
         public override string AsJsonCadenceDataFormat()
