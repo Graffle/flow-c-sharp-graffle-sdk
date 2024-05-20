@@ -1,9 +1,9 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
@@ -63,7 +63,15 @@ namespace Graffle.FlowSdk.Services.Serialization
                     }
                 case "Reference":
                     {
-                        result.Add("authorized", type["authorized"]); //should be bool
+                        if (type.TryGetValue("authorized", out var authorized)) //backwards compat
+                        {
+                            result.Add("authorized", authorized); //should be bool
+                        }
+                        else if (type.TryGetValue("authorization", out var authorization)) //cadence 1.0
+                        {
+                            result.Add("authorization", GetAuthorization(authorization));
+                        }
+
                         result.Add("type", InterpretCadenceType(type["type"]));
                         break;
                     }
@@ -126,6 +134,30 @@ namespace Graffle.FlowSdk.Services.Serialization
                         result.Add("return", InterpretCadenceType(type["return"]));
                         break;
                     }
+                case "InclusiveRange":
+                    {
+                        result.Add("element", InterpretCadenceType(type["element"]));
+                        break;
+                    }
+                case "Any":
+                case "AnyStruct":
+                case "AnyResource":
+                case "AnyStructAttachment":
+                case "AnyResourceAttachment":
+                case "Type":
+                case "Void":
+                case "Never":
+                case "Bool":
+                case "String":
+                case "Character":
+                case "Bytes":
+                case "Address":
+                case "Number":
+                case "SignedNumber":
+                case "Integer":
+                case "SignedInteger":
+                case "FixedPoint":
+                case "SignedFixedPoint":
                 case "Int":
                 case "Int8":
                 case "Int16":
@@ -146,23 +178,6 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "Word64":
                 case "Fix64":
                 case "UFix64":
-                case "Bool":
-                case "String":
-                case "Address":
-                case "Any":
-                case "AnyStruct":
-                case "AnyResource":
-                case "Type":
-                case "Void":
-                case "Never":
-                case "Character":
-                case "Bytes":
-                case "Number":
-                case "SignedNumber":
-                case "Integer":
-                case "SignedInteger":
-                case "FixedPoint":
-                case "SignedFixedPoint":
                 case "Path":
                 case "CapabilityPath":
                 case "StoragePath":
@@ -187,7 +202,37 @@ namespace Graffle.FlowSdk.Services.Serialization
             return result;
         }
 
-        public static object GetParameter(object value)
+        public static dynamic GetAuthorization(object value)
+        {
+            if (value is not IDictionary<string, object> authorization)
+                throw new Exception($"Unexpected type received for Authorization object expected IDictionary<string,object> received {value?.GetType()}");
+
+            var res = new Dictionary<string, dynamic>()
+            {
+                {"kind", authorization["kind"]}
+            };
+
+            if (authorization["entitlements"] is not IList<object> entitlements)
+                throw new Exception($"Unexpected type received for Authorization entitlements object expected IList<object> received {authorization["entitlements"]?.GetType()}");
+
+            var parsedEntitlements = new List<dynamic>();
+            foreach (var e in entitlements)
+            {
+                if (e is not IDictionary<string, object> entitlement)
+                    throw new Exception($"Unexpected type received for entitlement object expected IDictionary<string, object> received {e?.GetType()}");
+
+                parsedEntitlements.Add(new Dictionary<string, dynamic>()
+                {
+                    { "kind", entitlement["kind"]},
+                    { "typeID", entitlement["typeID"]}
+                });
+            }
+            res["entitlements"] = parsedEntitlements;
+
+            return res;
+        }
+
+        public static dynamic GetParameter(object value)
         {
             if (value is not IList<object> list)
                 throw new Exception($"Unexpected type for GetParameter object, expecting List<object> received {value?.GetType()}");
@@ -207,23 +252,23 @@ namespace Graffle.FlowSdk.Services.Serialization
             return res;
         }
 
-        public static List<object> GetInitializers(object value)
+        public static dynamic GetInitializers(object value)
         {
             if (value is not IList<object> list)
                 throw new Exception($"Unexpected type for GetInitializers object, expecting List<object> received {value?.GetType()}");
 
-            return list.Select(GetParameter).Cast<object>().ToList();
+            return list.Select(GetParameter).ToList();
         }
 
-        public static IList<object> GetFields(object value)
+        public static dynamic GetFields(object value)
         {
             if (value is not IList<object> list)
                 throw new Exception($"Unexpected type for GetFields object, expecting List<object> received {value?.GetType()}");
 
-            return list.Select(GetField).Cast<object>().ToList();
+            return list.Select(GetField).ToList();
         }
 
-        public static IDictionary<string, object> GetField(object value)
+        public static dynamic GetField(object value)
         {
             if (value is not IDictionary<string, object> dict)
                 throw new Exception($"Unexpected type for GetField object, expecting IDictionary<string,object> received {value?.GetType()}");

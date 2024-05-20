@@ -1,11 +1,11 @@
+using Graffle.FlowSdk.Services.Extensions;
+using Graffle.FlowSdk.Services.Serialization;
+using Graffle.FlowSdk.Types;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Graffle.FlowSdk.Services.Serialization;
 using System.Text.Json;
-using Graffle.FlowSdk.Types;
-using Graffle.FlowSdk.Services.Extensions;
 
 namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 {
@@ -221,6 +221,30 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             // var fvt = FlowValueType.CreateFromCadence(json);
             // var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
             // JsonEquals(res, obj);
+        }
+
+        [TestMethod]
+        public void CapabilityType_Cadence1_0()
+        {
+            var json = "{\"type\":\"Capability\",\"value\":{\"id\":\"1\",\"address\":\"0x1\",\"borrowType\":{\"kind\":\"Int\"}}}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("Expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("1", dict["id"]);
+            Assert.AreEqual("0x1", dict["address"]);
+
+            if (dict["borrowType"] is not IDictionary<string, object> borrowType)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.IsTrue(borrowType.ContainsKey("kind"));
+            Assert.AreEqual("Int", borrowType["kind"]);
         }
 
         [TestMethod]
@@ -701,7 +725,6 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             Assert.AreEqual(0U, res);
 
-
             var fvt = FlowValueType.CreateFromCadence(json);
             var obj = FlowValueTypeUtility.FlowTypeToPrimitive(fvt);
             JsonEquals(res, obj);
@@ -759,5 +782,44 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             JsonEquals(res, obj);
         }
 
+        [TestMethod]
+        public void InclusiveRange()
+        {
+            var json = "{\"type\":\"InclusiveRange\",\"value\":{\"start\":{\"type\":\"Int256\",\"value\":\"10\"},\"end\":{\"type\":\"Int8\",\"value\":\"20\"},\"step\":{\"type\":\"Int128\",\"value\":\"5\"}}}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            if (dict["start"] is not IDictionary<string, object> start)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("Int256", start["type"]);
+            Assert.AreEqual("10", start["value"]);
+
+            if (dict["end"] is not IDictionary<string, object> end)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("Int8", end["type"]);
+            Assert.AreEqual("20", end["value"]);
+
+            if (dict["step"] is not IDictionary<string, object> step)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("Int128", step["type"]);
+            Assert.AreEqual("5", step["value"]);
+        }
     }
 }

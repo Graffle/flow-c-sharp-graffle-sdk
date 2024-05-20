@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Threading.Tasks;
 using Graffle.FlowSdk.Services.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 {
@@ -196,6 +193,101 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             }
 
             Assert.AreEqual(1, fields.Count);
+        }
+
+        [TestMethod]
+        public void InclusiveRangeType()
+        {
+            var json = "{\"kind\":\"InclusiveRange\",\"element\":{\"kind\":\"Int\"}}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> dict)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("InclusiveRange", dict["kind"]);
+
+            if (dict["element"] is not IDictionary<string, object> element)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("Int", element["kind"]);
+        }
+
+        [TestMethod]
+        public void Reference_OldJson()
+        {
+            var json = "{\"kind\":\"Reference\",\"authorized\":true,\"type\":{\"kind\":\"String\"}}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> reference)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("Reference", reference["kind"]);
+            Assert.AreEqual(true, reference["authorized"]);
+
+            if (reference["type"] is not IDictionary<string, object> type)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("String", type["kind"]);
+        }
+
+        [TestMethod]
+        public void Reference_Cadence1_0()
+        {
+            var json = "{\"kind\":\"Reference\",\"authorization\":{\"kind\":\"EntitlementMapAuthorization\",\"entitlements\":[{\"kind\":\"EntitlementMap\",\"typeID\":\"foo\"}]},\"type\":{\"kind\":\"String\"}}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> reference)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("Reference", reference["kind"]);
+
+            if (reference["authorization"] is not IDictionary<string, object> authorization)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("EntitlementMapAuthorization", authorization["kind"]);
+
+            if (authorization["entitlements"] is not IList<object> entitlements)
+            {
+                Assert.Fail("expected list");
+                return;
+            }
+
+            Assert.AreEqual(1, entitlements.Count);
+
+            if (entitlements.First() is not IDictionary<string, object> entitlement)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("EntitlementMap", entitlement["kind"]);
+            Assert.AreEqual("foo", entitlement["typeID"]);
+
+            if (reference["type"] is not IDictionary<string, object> type)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("String", type["kind"]);
         }
     }
 }

@@ -1,8 +1,8 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
@@ -36,7 +36,8 @@ namespace Graffle.FlowSdk.Services.Serialization
             var res = new GraffleCompositeType(type)
             {
                 Id = id,
-                Data = []
+                Data = [],
+                SerializerVersion = CadenceSerializerVersion.Expando
             };
 
             if (value["fields"] is not IList<object> fields)
@@ -169,12 +170,20 @@ namespace Graffle.FlowSdk.Services.Serialization
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> value)
                             throw new Exception($"Unexpected type recevied for Capability \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
 
-                        return new Dictionary<string, dynamic>
+                        var res = new Dictionary<string, dynamic>();
+                        if (value.TryGetValue("path", out var path)) //old cadence
                         {
-                            { "path", ParsePathType(value["path"]) },
-                            { "address", value["address"] }, //str
-                            { "borrowType", CadenceTypeInterpreter.InterpretCadenceType(value["borrowType"]) }
-                        };
+                            res.Add("path", ParsePathType(path));
+                        }
+                        else if (value.TryGetValue("id", out var id)) //cadence 1.0
+                        {
+                            res.Add("id", id);
+                        }
+
+                        res.Add("address", value["address"]);
+                        res.Add("borrowType", CadenceTypeInterpreter.InterpretCadenceType(value["borrowType"]));
+
+                        return res;
                     }
                 case "Int8":
                 case "Int16":
@@ -230,6 +239,18 @@ namespace Graffle.FlowSdk.Services.Serialization
 
                         return cadenceObjectDictionary["value"];
                     }
+                case "InclusiveRange":
+                    {
+                        if (cadenceObjectDictionary["value"] is not IDictionary<string, object> range)
+                            throw new Exception($"Unexpected type recevied for InclusiveRange \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
+
+                        return new Dictionary<string, dynamic>()
+                        {
+                            { "start" , GetRangeValue(range["start"]) },
+                            { "end" , GetRangeValue(range["end"]) },
+                            { "step" , GetRangeValue(range["step"]) },
+                        };
+                    }
                 default: //primitive json, string bool number etc
                     {
                         return cadenceObjectDictionary["value"];
@@ -237,7 +258,21 @@ namespace Graffle.FlowSdk.Services.Serialization
             }
         }
 
-        private static object ParsePathType(object pathObject)
+        private static dynamic GetRangeValue(object rangeValue)
+        {
+            if (rangeValue is not IDictionary<string, object> rangeDict)
+            {
+                throw new Exception($"Unexpected type for range expected IDictionary<string,object> received {rangeValue?.GetType()}");
+            }
+
+            return new Dictionary<string, dynamic>()
+            {
+                { "type",  rangeDict["type"]},
+                { "value", rangeDict["value"]}
+            };
+        }
+
+        private static dynamic ParsePathType(object pathObject)
         {
             if (pathObject is string str)
                 return str; //backwards compatibility
