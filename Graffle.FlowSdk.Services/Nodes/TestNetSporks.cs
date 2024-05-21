@@ -2,10 +2,17 @@ namespace Graffle.FlowSdk.Services.Nodes
 {
     public static class TestNetSporks
     {
-        public static class TestNet //49
+        public static class TestNet //50
         {
             public const string Name = "TestNet";
             public const string NODE = "access.testnet.nodes.onflow.org:9000";
+            public const ulong ROOT_HEIGHT = 185185854;
+        }
+
+        public static class TestNet49
+        {
+            public const string Name = "TestNet49";
+            public const string NODE = "access-001.devnet49.nodes.onflow.org:9000";
             public const ulong ROOT_HEIGHT = 129578013;
         }
 

@@ -13,8 +13,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
     [TestClass]
     public class TransactionResponsesTests
     {
-        private static IFlowClientFactory _main;
-        private static IFlowClientFactory _test;
+        private static FlowClientFactory _main;
+        private static FlowClientFactory _test;
 
         [ClassInitialize]
         public static void ClassInit(TestContext ctx)
@@ -267,7 +267,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo
         public async Task Serialize_LargeTransaction_Succeeds()
         {
             var res = await GetTransaction(25568454, "64a8781b0c6873d98ec30d5ef6ee296dcdddf93a8c2ec2e4378a6cfaea6b2631", NodeType.MainNet);
@@ -601,11 +600,10 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        //    [Ignore] //todo refactor
-        public async Task TestNet39_AccountCreated()
+        public async Task AccountCreated()
         {
             //starting in testnet 39 the sequence of individual json members is not guaranteed
-            var res = await GetTransaction(177644105, "2201cc03967515ec9b335ba78da3853b107c2547a1bb49b309b24b7a8b90b6fd");
+            var res = await GetTransaction(51356003, "01c309b3ad103218dc5a3010cc9430ac1ce7ea47f9ea156095dd10485aab4317", NodeType.MainNet);
 
             var evs = res.Events;
             var accountCreated = evs[5];
@@ -614,49 +612,47 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.IsTrue(data.ContainsKey("address"));
 
             Assert.IsInstanceOfType<string>(data["address"]);
-            Assert.AreEqual("0x5cfdc888e006eb85", data["address"] as string);
+            Assert.AreEqual("0x18f951de04917a5b", data["address"] as string);
         }
 
         [TestMethod]
-        [Ignore] //todo refactor
-        public async Task TestNet39_FindMarketSale()
+        public async Task FindMarketSale()
         {
-            var res = await GetTransaction(90623401, "01140138555b59a8c83d4201d7ea42234476c6347724db60f0d614f813a66a6a");
+            var res = await GetTransaction(78123765, "2debae8c8ab902cf41c886681d470ea97e4e9a64e9f9842d2369b4fd7fab982e", NodeType.MainNet);
 
             var evs = res.Events;
-            var findMarketSale = evs[1].EventComposite.Data;
+            var findMarketSale = evs[0].EventComposite.Data;
 
             //verify some primitive data
-            Assert.AreEqual("onefootball", findMarketSale["tenant"].ToString());
-            Assert.AreEqual("112985363", findMarketSale["id"].ToString());
-            Assert.AreEqual("119660397", findMarketSale["saleID"].ToString());
-            Assert.AreEqual("0xc93b666cb28bf15a", findMarketSale["seller"]);
+            Assert.AreEqual("find", findMarketSale["tenant"].ToString());
+            Assert.AreEqual("182518930557703", findMarketSale["id"].ToString());
+            Assert.AreEqual("111050675032800", findMarketSale["saleID"].ToString());
+            Assert.AreEqual("0x8b988d0ce5d25a8c", findMarketSale["seller"]);
 
             //get some complex data from the event
             var nft = findMarketSale["nft"] as Dictionary<string, object>;
 
-            Assert.AreEqual("112985363", nft["id"].ToString());
-            Assert.AreEqual("Meet Juventus’ Secretary of Defense", nft["name"]);
+            Assert.AreEqual("182518930557703", nft["id"].ToString());
+            Assert.AreEqual("Holder", nft["name"]);
         }
 
         [TestMethod]
-        [Ignore] //todo refactor
-        public async Task TestNet39_NFTStoreFrontV2_ListingCompleted()
+        public async Task NFTStoreFrontV2_ListingCompleted()
         {
-            var res = await GetTransaction(90639372, "d9968ffbf85ac3c9b73052e113c476585348352521c923b0b01d8ed3044cb6f2");
+            var res = await GetTransaction(78686132, "a2cac27776ba306e7a817ba9b3310efb08554acb6619cb9c8cca3f12aef0a6f9", NodeType.MainNet);
 
             var evs = res.Events;
-            var listingCompleted = evs[13].EventComposite.Data;
+            var listingCompleted = evs[0].EventComposite.Data;
 
             //verify some primitive data
-            Assert.AreEqual("124595091", listingCompleted["listingResourceID"].ToString());
-            Assert.AreEqual("123164895", listingCompleted["storefrontResourceID"].ToString());
-            Assert.AreEqual("True", listingCompleted["purchased"].ToString());
+            Assert.AreEqual("156130651796375", listingCompleted["listingResourceID"].ToString());
+            Assert.AreEqual("994782813", listingCompleted["storefrontResourceID"].ToString());
+            Assert.AreEqual("False", listingCompleted["purchased"].ToString());
 
             //verify some complex data
             var nftType = listingCompleted["nftType"] as Dictionary<string, object>;
             Assert.AreEqual("Resource", nftType["kind"]);
-            Assert.AreEqual("A.2ba03636e5c3e411.Magnetiq.NFT", nftType["typeID"]);
+            Assert.AreEqual("A.d0bcefdf1e67ea85.HWGarageCard.NFT", nftType["typeID"]);
         }
 
         [TestMethod]
