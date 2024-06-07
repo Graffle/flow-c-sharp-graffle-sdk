@@ -12,7 +12,7 @@ namespace Graffle.FlowSdk.Services
     {
         public static string ToCamelCase(this string s)
         {
-            if (s.Count() == 1)
+            if (s.Length <= 1)
                 return s.ToLowerInvariant();
             if (char.IsLower(s[0]))
                 return s;
@@ -35,11 +35,12 @@ namespace Graffle.FlowSdk.Services
             return sb.ToString();
         }
 
-        public static ByteString HashToByteString(this string str){
+        public static ByteString HashToByteString(this string str)
+        {
             var upper = str.ToUpperInvariant();
             var splitStr = Enumerable
-                .Range(0, upper.Length/2)
-                .Select(i => upper.Substring(i*2, 2)).ToList();
+                .Range(0, upper.Length / 2)
+                .Select(i => upper.Substring(i * 2, 2)).ToList();
             var bytes = splitStr.Select(b => Convert.ToByte(b, 16)).ToArray();
             return ByteString.CopyFrom(bytes);
         }

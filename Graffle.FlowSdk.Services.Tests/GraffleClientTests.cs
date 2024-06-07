@@ -177,6 +177,15 @@ namespace Graffle.FlowSdk.Services.Tests
             var evs = await client.GetEventsForHeightRangeAsync("A.912d5440f7e3769e.FlowFees.FeesDeducted", Sporks.TestNet().RootHeight, Sporks.TestNet().RootHeight + 249ul);
         }
 
+        [TestMethod]
+        public async Task Intertrust()
+        {
+            using var rpc = GrpcChannel.ForAddress($"http://{Sporks.TestNet().Node}");
+            var client = new GraffleClient(rpc, Sporks.TestNet()) { CadenceSerializer = CadenceSerializerVersion.Expando };
+
+            var evs = await client.GetEventsForHeightRangeAsync("A.ab2d22248a619d77.TrmAssetMSV1_0.AssetMinted", 190544841, 190545090);
+        }
+
         private T Cast<T>(FlowValueType flowType) where T : FlowValueType
         {
             return (T)flowType;
