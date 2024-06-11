@@ -10,7 +10,13 @@ namespace Graffle.FlowSdk.Services.Serialization
     {
         private static readonly JsonConverter _expando = new ExpandoObjectConverter();
 
-        public static object ObjectFromCadenceJson(string json, bool preserveDictionaryKeyCasing = false)
+        /// <summary>
+        /// Returns an object containing the properties of the cadence json
+        /// </summary>
+        /// <param name="json">Cadence json string</param>
+        /// <param name="preserveDictionaryKeyCasing">True if string casing key values in dictionaries should be presereved (camel case), false otherwise</param>
+        /// <returns></returns>
+        public static dynamic ObjectFromCadenceJson(string json, bool preserveDictionaryKeyCasing = false)
         {
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
 
@@ -68,8 +74,10 @@ namespace Graffle.FlowSdk.Services.Serialization
             if (cadenceObject is not IDictionary<string, object> cadenceObjectDictionary) //aka ExpandoObject
                 throw new Exception($"Unexpected type recevied for InterpretCadenceExpandoObject expected IDictionary<string,object> received {cadenceObject?.GetType()}");
 
-            string type = cadenceObjectDictionary["type"].ToString();
-            switch (type)
+            if (!cadenceObjectDictionary.TryGetValue("type", out var type))
+                throw new Exception($"Cadence Type not found");
+
+            switch (type.ToString())
             {
                 case "Struct":
                 case "Resource":
