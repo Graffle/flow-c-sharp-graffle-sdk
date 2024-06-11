@@ -29,7 +29,7 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
                                         return data
                                     }";
 
-            using var flowClientFactory = new FlowClientFactory("MainNet");
+            using var flowClientFactory = new FlowClientFactory("MainNet") { CandeceSerializer = CadenceSerializerVersion.Expando };
             var flowClient = flowClientFactory.CreateFlowClient();
             var latestBlock = await flowClient.GetLatestBlockAsync();
             var scriptBytes = Encoding.UTF8.GetBytes(script);

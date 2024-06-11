@@ -1,10 +1,8 @@
+using Google.Protobuf;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using Google.Protobuf;
 
 namespace Graffle.FlowSdk.Services
 {
@@ -16,14 +14,13 @@ namespace Graffle.FlowSdk.Services
                 return s.ToLowerInvariant();
             if (char.IsLower(s[0]))
                 return s;
-            var result = char.ToLowerInvariant(s[0]) + s.Substring(1);
-            return result;
+
+            return string.Concat(char.ToLowerInvariant(s[0]), s[1..]);
         }
 
         internal static byte[] GetHash(this string inputString)
         {
-            using (HashAlgorithm algorithm = SHA256.Create())
-                return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+            return SHA256.HashData(Encoding.UTF8.GetBytes(inputString));
         }
 
         internal static string GetHashString(this string inputString)

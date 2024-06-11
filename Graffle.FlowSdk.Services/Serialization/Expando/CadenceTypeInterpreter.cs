@@ -11,7 +11,7 @@ namespace Graffle.FlowSdk.Services.Serialization
     {
         private static readonly ExpandoObjectConverter _expando = new();
 
-        public static object ObjectFromCadenceJson(string json)
+        public static dynamic ObjectFromCadenceJson(string json)
         {
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
 
@@ -20,7 +20,7 @@ namespace Graffle.FlowSdk.Services.Serialization
 
         public static dynamic InterpretCadenceType(object cadenceType)
         {
-            if (cadenceType is string str)
+            if (cadenceType is string)
             {
                 //repeated type or old cadence type (pre secure cadence)
                 return cadenceType;
