@@ -8,6 +8,8 @@ namespace Graffle.FlowSdk.Services.Tests.ExtensionTests
         [TestMethod]
         [DataRow("", "")]
         [DataRow("A", "a")]
+        [DataRow("Aa", "aa")]
+        [DataRow("AA", "aA")]
         [DataRow("HelloWorld", "helloWorld")]
         [DataRow("helloWorld", "helloWorld")]
         [DataRow("aaaaabaaa", "aaaaabaaa")]
