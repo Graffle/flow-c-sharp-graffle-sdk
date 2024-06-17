@@ -16,7 +16,7 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
                 ActualType = null
             };
 
-            var msg = ex.ToString();
+            var msg = ex.Message;
             Assert.IsNotNull(msg);
             Assert.IsTrue(msg.Length > 0);
         }
@@ -34,7 +34,7 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
                 ActualType = actual
             };
 
-            var msg = ex.ToString();
+            var msg = ex.Message;
             Assert.AreEqual(string.Format("{0}, Expected Type {1}, Actual Type {2}", exMsg, expected.ToString(), actual.ToString()), msg);
         }
     }
