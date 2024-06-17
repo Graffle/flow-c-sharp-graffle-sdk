@@ -3,12 +3,25 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 
 namespace Graffle.FlowSdk.Services.Serialization
 {
     public static class CadenceJsonInterpreter
     {
         private static readonly JsonConverter _expando = new ExpandoObjectConverter();
+
+        /// <summary>
+        /// IDictionary<string,object>
+        /// </summary>
+        /// <returns></returns>
+        private static readonly Type EXPANDO_TYPE = typeof(IDictionary<string, object>);
+
+        /// <summary>
+        /// IList<object>
+        /// </summary>
+        /// <returns></returns>
+        private static readonly Type ARRAY_TYPE = typeof(IList<object>);
 
         /// <summary>
         /// Returns an object containing the properties of the cadence json
@@ -30,34 +43,53 @@ namespace Graffle.FlowSdk.Services.Serialization
         /// <returns></returns>
         public static GraffleCompositeType GraffleCompositeFromEventPayload(string eventPayloadJson)
         {
-            var parsed = JsonConvert.DeserializeObject<ExpandoObject>(eventPayloadJson, _expando);
-
-            var dict = (IDictionary<string, object>)parsed;
-
-            if (dict["value"] is not IDictionary<string, object> value)
-                throw new Exception($"Unexpected type for event \"value\" field, expected IDictionary<string,object> received {dict["value"]?.GetType()}");
-
-            var type = dict["type"].ToString();
-            var id = value["id"].ToString();
-            var res = new GraffleCompositeType(type)
+            IDictionary<string, object> parsed;
+            try
             {
-                Id = id,
+                parsed = JsonConvert.DeserializeObject<ExpandoObject>(eventPayloadJson, _expando);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to parse event payload json", ex);
+            }
+
+            if (parsed["value"] is not IDictionary<string, object> value)
+            {
+                throw new CadenceJsonCastException("Unexpected type for event value field")
+                {
+                    ExpectedType = EXPANDO_TYPE,
+                    ActualType = parsed["value"]?.GetType()
+                };
+            }
+
+            var res = new GraffleCompositeType(parsed["type"].ToString())
+            {
+                Id = value["id"].ToString(),
                 Data = [],
                 SerializerVersion = CadenceSerializerVersion.Expando
             };
 
             if (value["fields"] is not IList<object> fields)
-                throw new Exception($"Unexpected type for event \"fields\" field, expected IList<object> received {value["fields"]?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Unexpected type for event fields array")
+                {
+                    ExpectedType = ARRAY_TYPE,
+                    ActualType = value["fields"]?.GetType()
+                };
+            }
 
             foreach (var field in fields)
             {
                 if (field is not IDictionary<string, object> fieldDictionary)
-                    throw new Exception($"Unexpected type for event field, expected IDictionary<string,object> received {field?.GetType()}");
+                {
+                    throw new CadenceJsonCastException("Unexpected type for individual event field")
+                    {
+                        ExpectedType = EXPANDO_TYPE,
+                        ActualType = field?.GetType()
+                    };
+                }
 
-                var name = fieldDictionary["name"].ToString().ToCamelCase();
-                var fieldValue = InterpretCadenceExpandoObject(fieldDictionary["value"]);
-
-                res.Data[name] = fieldValue;
+                res.Data[fieldDictionary["name"].ToString().ToCamelCase()] = InterpretCadenceExpandoObject(fieldDictionary["value"]);
             }
 
             return res;
@@ -72,10 +104,16 @@ namespace Graffle.FlowSdk.Services.Serialization
         private static dynamic InterpretCadenceExpandoObject(object cadenceObject, bool preserveDictionaryKeyCasing = false)
         {
             if (cadenceObject is not IDictionary<string, object> cadenceObjectDictionary) //aka ExpandoObject
-                throw new Exception($"Unexpected type recevied for InterpretCadenceExpandoObject expected IDictionary<string,object> received {cadenceObject?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Unexpected type recevied for InterpretCadenceExpandoObject")
+                {
+                    ExpectedType = EXPANDO_TYPE,
+                    ActualType = cadenceObject?.GetType()
+                };
+            }
 
             if (!cadenceObjectDictionary.TryGetValue("type", out var type))
-                throw new Exception($"Cadence Type not found");
+                throw new Exception("Cadence Type not found in expando dictionary");
 
             switch (type.ToString())
             {
@@ -86,21 +124,36 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "Enum":
                     {
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> value)
-                            throw new Exception($"Unexpected type recevied for Composite \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
+                        {
+                            throw new CadenceJsonCastException($"Unexpected type recevied for Composite value object")
+                            {
+                                ExpectedType = EXPANDO_TYPE,
+                                ActualType = cadenceObjectDictionary["value"]?.GetType()
+                            };
+                        }
 
                         if (value["fields"] is not IList<object> fields)
-                            throw new Exception($"Unexpected type recevied for Composite \"fields\" field expected IList<object> received {value["fields"]?.GetType()}");
+                        {
+                            throw new CadenceJsonCastException($"Unexpected type recevied for Composite fields array")
+                            {
+                                ExpectedType = ARRAY_TYPE,
+                                ActualType = value["fields"]?.GetType()
+                            };
+                        }
 
                         var result = new Dictionary<string, dynamic>();
-                        foreach (var f in fields)
+                        foreach (var field in fields)
                         {
-                            if (f is not IDictionary<string, object> fieldDictionary)
-                                throw new Exception($"Unexpected type recevied for composite field expected IDictionary<string,object> received {f?.GetType()}");
+                            if (field is not IDictionary<string, object> fieldDictionary)
+                            {
+                                throw new CadenceJsonCastException("Unexpected type recevied for composite field")
+                                {
+                                    ExpectedType = EXPANDO_TYPE,
+                                    ActualType = field?.GetType()
+                                };
+                            }
 
-                            var name = fieldDictionary["name"].ToString();
-                            var innerValue = InterpretCadenceExpandoObject(fieldDictionary["value"]);
-
-                            result.Add(name, innerValue);
+                            result.Add(fieldDictionary["name"].ToString(), InterpretCadenceExpandoObject(fieldDictionary["value"], preserveDictionaryKeyCasing));
                         }
 
                         return result;
@@ -108,57 +161,74 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "Dictionary":
                     {
                         if (cadenceObjectDictionary["value"] is not IList<object> value)
-                            throw new Exception($"Unexpected type recevied for Dictionary \"value\" field expected IList<object> received {cadenceObjectDictionary["value"]?.GetType()}");
+                        {
+                            throw new CadenceJsonCastException("Unexpected type recevied for Dictionary value field")
+                            {
+                                ExpectedType = ARRAY_TYPE,
+                                ActualType = cadenceObjectDictionary["value"]?.GetType()
+                            };
+                        }
 
                         Dictionary<string, dynamic> result = [];
                         foreach (var item in value)
                         {
                             if (item is not IDictionary<string, object> itemDictionary)
-                                throw new Exception($"Unexpected type recevied for dictionary entry expected IDictionary<string,object> received {item?.GetType()}");
+                            {
+                                throw new CadenceJsonCastException("Unexpected type recevied for dictionary key value object")
+                                {
+                                    ExpectedType = EXPANDO_TYPE,
+                                    ActualType = item?.GetType()
+                                };
+                            }
 
-                            var parsedKey = InterpretCadenceExpandoObject(itemDictionary["key"]);
-                            var parsedValue = InterpretCadenceExpandoObject(itemDictionary["value"]);
-
+                            var parsedKey = InterpretCadenceExpandoObject(itemDictionary["key"], preserveDictionaryKeyCasing);
                             string keyStr = parsedKey.ToString();
 
-                            //todo camel case for backwards compat?
-                            result.Add(preserveDictionaryKeyCasing ? keyStr : keyStr.ToCamelCase(), parsedValue);
+                            result.Add(preserveDictionaryKeyCasing ? keyStr : keyStr.ToCamelCase(), InterpretCadenceExpandoObject(itemDictionary["value"], preserveDictionaryKeyCasing));
                         }
                         return result;
                     }
                 case "Array":
                     {
                         if (cadenceObjectDictionary["value"] is not IList<object> value)
-                            throw new Exception($"Unexpected type recevied for Array \"value\" field expected IList<object> received {cadenceObjectDictionary["value"]?.GetType()}");
-
-                        List<dynamic> values = [];
-                        foreach (var arrItem in value)
                         {
-                            values.Add(InterpretCadenceExpandoObject(arrItem));
+                            throw new CadenceJsonCastException("Unexpected type recevied for Array value field ")
+                            {
+                                ExpectedType = ARRAY_TYPE,
+                                ActualType = cadenceObjectDictionary["value"]?.GetType()
+                            };
                         }
 
-                        return values;
+                        return value.Select(x => InterpretCadenceExpandoObject(x, preserveDictionaryKeyCasing)).ToList();
                     }
                 case "Optional":
                     {
                         var value = cadenceObjectDictionary["value"];
-
-                        if (value is null)
-                            return null;
-
-                        return InterpretCadenceExpandoObject(value);
+                        return value is null ? null : InterpretCadenceExpandoObject(value, preserveDictionaryKeyCasing);
                     }
                 case "Type":
                     {
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> value)
-                            throw new Exception($"Unexpected type recevied for Type \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
+                        {
+                            throw new CadenceJsonCastException("Unexpected type recevied for cadence Type \"value\" field")
+                            {
+                                ExpectedType = EXPANDO_TYPE,
+                                ActualType = cadenceObjectDictionary["value"]?.GetType()
+                            };
+                        }
 
                         return CadenceTypeInterpreter.InterpretCadenceType(value["staticType"]);
                     }
                 case "Function":
                     {
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> value)
-                            throw new Exception($"Unexpected type recevied for Function \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
+                        {
+                            throw new CadenceJsonCastException("Unexpected type recevied for Function \"value\" field")
+                            {
+                                ExpectedType = EXPANDO_TYPE,
+                                ActualType = cadenceObjectDictionary["value"]?.GetType()
+                            };
+                        }
 
                         return new Dictionary<string, dynamic>
                         {
@@ -176,7 +246,13 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "Capability":
                     {
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> value)
-                            throw new Exception($"Unexpected type recevied for Capability \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
+                        {
+                            throw new CadenceJsonCastException("Unexpected type recevied for Capability \"value\" field")
+                            {
+                                ExpectedType = EXPANDO_TYPE,
+                                ActualType = cadenceObjectDictionary["value"]?.GetType()
+                            };
+                        }
 
                         var res = new Dictionary<string, dynamic>();
                         if (value.TryGetValue("path", out var path)) //old cadence
@@ -250,7 +326,13 @@ namespace Graffle.FlowSdk.Services.Serialization
                 case "InclusiveRange":
                     {
                         if (cadenceObjectDictionary["value"] is not IDictionary<string, object> range)
-                            throw new Exception($"Unexpected type recevied for InclusiveRange \"value\" field expected IDictionary<string,object> received {cadenceObjectDictionary["value"]?.GetType()}");
+                        {
+                            throw new CadenceJsonCastException("Unexpected type recevied for InclusiveRange \"value\" field")
+                            {
+                                ExpectedType = EXPANDO_TYPE,
+                                ActualType = cadenceObjectDictionary["value"]?.GetType()
+                            };
+                        }
 
                         return new Dictionary<string, dynamic>()
                         {
@@ -270,7 +352,11 @@ namespace Graffle.FlowSdk.Services.Serialization
         {
             if (rangeValue is not IDictionary<string, object> rangeDict)
             {
-                throw new Exception($"Unexpected type for range expected IDictionary<string,object> received {rangeValue?.GetType()}");
+                throw new CadenceJsonCastException("Unexpected type for Range object")
+                {
+                    ExpectedType = EXPANDO_TYPE,
+                    ActualType = rangeValue?.GetType()
+                };
             }
 
             return new Dictionary<string, dynamic>()
@@ -286,13 +372,25 @@ namespace Graffle.FlowSdk.Services.Serialization
                 return str; //backwards compatibility
 
             if (pathObject is not IDictionary<string, object> path)
-                throw new Exception($"Unexpected type recevied for path expected IDictionary<string,object> received {pathObject?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Unexpected type recevied for Path object")
+                {
+                    ExpectedType = EXPANDO_TYPE,
+                    ActualType = pathObject?.GetType()
+                };
+            }
 
             IDictionary<string, object> target = path;
             if (path.TryGetValue("value", out var pathValue)) //check for value field
             {
                 if (pathValue is not IDictionary<string, object> pathValueDict)
-                    throw new Exception($"Unexpected type received for path value expected IDictionary<string,object> received {pathValue?.GetType()}");
+                {
+                    throw new CadenceJsonCastException("Unexpected type received for Path value")
+                    {
+                        ExpectedType = EXPANDO_TYPE,
+                        ActualType = pathValue?.GetType()
+                    };
+                }
 
                 target = pathValueDict;
             }

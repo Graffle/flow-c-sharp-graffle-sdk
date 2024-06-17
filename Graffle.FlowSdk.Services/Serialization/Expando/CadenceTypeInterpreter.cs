@@ -11,6 +11,18 @@ namespace Graffle.FlowSdk.Services.Serialization
     {
         private static readonly ExpandoObjectConverter _expando = new();
 
+        /// <summary>
+        /// IDictionary<string,object>
+        /// </summary>
+        /// <returns></returns>
+        private static readonly Type EXPANDO_TYPE = typeof(IDictionary<string, object>);
+
+        /// <summary>
+        /// IList<object>
+        /// </summary>
+        /// <returns></returns>
+        private static readonly Type ARRAY_TYPE = typeof(IList<object>);
+
         public static dynamic ObjectFromCadenceJson(string json)
         {
             var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
@@ -28,7 +40,13 @@ namespace Graffle.FlowSdk.Services.Serialization
 
             ArgumentNullException.ThrowIfNull(cadenceType, nameof(cadenceType));
             if (cadenceType is not IDictionary<string, object> type) //expecting ExpandoObject object here
-                throw new Exception($"Incoming object is not of type IDictionary<string,object> receieved {cadenceType?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Invalid type for Cadence type object")
+                {
+                    ExpectedType = EXPANDO_TYPE,
+                    ActualType = cadenceType?.GetType()
+                };
+            }
 
             var kind = type["kind"].ToString();
             Dictionary<string, dynamic> result = new() { { "kind", kind } };
@@ -85,7 +103,11 @@ namespace Graffle.FlowSdk.Services.Serialization
                         result.Add("typeID", type["typeID"]);
                         if (type["types"] is not List<object> types)
                         {
-                            throw new Exception($"Unexpected type for \"types\" field, expecting List<object> received {type["types"]?.GetType()}");
+                            throw new CadenceJsonCastException($"Unexpected type for Intersection \"types\" field")
+                            {
+                                ExpectedType = ARRAY_TYPE,
+                                ActualType = type["types"]?.GetType()
+                            };
                         }
 
                         result.Add("types", types.Select(InterpretCadenceType).ToList());
@@ -98,7 +120,11 @@ namespace Graffle.FlowSdk.Services.Serialization
 
                         if (type["restrictions"] is not List<object> restrictions)
                         {
-                            throw new Exception($"Unexpected type for \"restrictions\" field, expecting List<object> received {type["restrictions"]?.GetType()}");
+                            throw new CadenceJsonCastException("Unexpected type for Restriction \"restrictions\" field")
+                            {
+                                ExpectedType = ARRAY_TYPE,
+                                ActualType = type["restrictions"]?.GetType()
+                            };
                         }
 
                         result.Add("restrictions", restrictions.Select(InterpretCadenceType).ToList());
@@ -111,25 +137,31 @@ namespace Graffle.FlowSdk.Services.Serialization
                     }
                 case "ConstantSizedArray":
                     {
-                        result.Add("size", type["size"]);
                         result.Add("type", InterpretCadenceType(type["type"]));
+                        result.Add("size", type["size"]);
                         break;
                     }
                 case "Enum":
                     {
                         result.Add("type", InterpretCadenceType(type["type"]));
                         result.Add("typeID", type["typeID"]);
-                        result.Add("initializers", GetInitializers(type["initializers"]));
                         result.Add("fields", GetFields(type["fields"]));
+                        result.Add("initializers", GetInitializers(type["initializers"]));
                         break;
                     }
                 case "Function":
                     {
                         result.Add("typeID", type["typeID"]);
+
                         if (type["parameters"] is not IList<object> parameters)
                         {
-                            throw new Exception($"Unexpected type for \"parameters\" field, expecting List<object> received {type["parameters"]?.GetType()}");
+                            throw new CadenceJsonCastException($"Unexpected type for Function \"parameters\" field")
+                            {
+                                ExpectedType = ARRAY_TYPE,
+                                ActualType = type["parameters"]?.GetType()
+                            };
                         }
+
                         result.Add("parameters", parameters.Select(GetParameter).ToList());
                         result.Add("return", InterpretCadenceType(type["return"]));
                         break;
@@ -205,7 +237,13 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static dynamic GetAuthorization(object value)
         {
             if (value is not IDictionary<string, object> authorization)
-                throw new Exception($"Unexpected type received for Authorization object expected IDictionary<string,object> received {value?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Unexpected type received for Authorization object")
+                {
+                    ExpectedType = EXPANDO_TYPE,
+                    ActualType = value?.GetType()
+                };
+            }
 
             var res = new Dictionary<string, dynamic>()
             {
@@ -213,13 +251,25 @@ namespace Graffle.FlowSdk.Services.Serialization
             };
 
             if (authorization["entitlements"] is not IList<object> entitlements)
-                throw new Exception($"Unexpected type received for Authorization entitlements object expected IList<object> received {authorization["entitlements"]?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Unexpected type received for Authorization entitlements object")
+                {
+                    ExpectedType = ARRAY_TYPE,
+                    ActualType = authorization["entitlements"]?.GetType()
+                };
+            }
 
             var parsedEntitlements = new List<dynamic>();
-            foreach (var e in entitlements)
+            foreach (var ent in entitlements)
             {
-                if (e is not IDictionary<string, object> entitlement)
-                    throw new Exception($"Unexpected type received for entitlement object expected IDictionary<string, object> received {e?.GetType()}");
+                if (ent is not IDictionary<string, object> entitlement)
+                {
+                    throw new CadenceJsonCastException($"Unexpected type received for entitlement object")
+                    {
+                        ExpectedType = EXPANDO_TYPE,
+                        ActualType = ent?.GetType()
+                    };
+                }
 
                 parsedEntitlements.Add(new Dictionary<string, dynamic>()
                 {
@@ -235,14 +285,24 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static dynamic GetParameter(object value)
         {
             if (value is not IList<object> list)
-                throw new Exception($"Unexpected type for GetParameter object, expecting List<object> received {value?.GetType()}");
+            {
+                throw new CadenceJsonCastException($"Unexpected type for Parameter object")
+                {
+                    ExpectedType = ARRAY_TYPE,
+                    ActualType = value?.GetType()
+                };
+            }
 
             var res = new Dictionary<string, dynamic>();
             foreach (var item in list)
             {
                 if (item is not IDictionary<string, object> p)
                 {
-                    throw new Exception($"Unexpected type for inner parameter object, expecting IDictionary<string,object> received {item?.GetType()}");
+                    throw new CadenceJsonCastException("Unexpected type for inner Parameter object")
+                    {
+                        ExpectedType = EXPANDO_TYPE,
+                        ActualType = item?.GetType()
+                    };
                 }
 
                 res.Add("label", p["label"]);
@@ -255,7 +315,13 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static dynamic GetInitializers(object value)
         {
             if (value is not IList<object> list)
-                throw new Exception($"Unexpected type for GetInitializers object, expecting List<object> received {value?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Unexpected type for GetInitializers object")
+                {
+                    ExpectedType = ARRAY_TYPE,
+                    ActualType = value?.GetType()
+                };
+            }
 
             return list.Select(GetParameter).ToList();
         }
@@ -263,7 +329,13 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static dynamic GetFields(object value)
         {
             if (value is not IList<object> list)
-                throw new Exception($"Unexpected type for GetFields object, expecting List<object> received {value?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Unexpected type for GetFields object")
+                {
+                    ExpectedType = ARRAY_TYPE,
+                    ActualType = value?.GetType()
+                };
+            }
 
             return list.Select(GetField).ToList();
         }
@@ -271,7 +343,13 @@ namespace Graffle.FlowSdk.Services.Serialization
         public static dynamic GetField(object value)
         {
             if (value is not IDictionary<string, object> dict)
-                throw new Exception($"Unexpected type for GetField object, expecting IDictionary<string,object> received {value?.GetType()}");
+            {
+                throw new CadenceJsonCastException("Unexpected type for GetField object")
+                {
+                    ExpectedType = EXPANDO_TYPE,
+                    ActualType = value?.GetType()
+                };
+            }
 
             return new Dictionary<string, dynamic>
             {
