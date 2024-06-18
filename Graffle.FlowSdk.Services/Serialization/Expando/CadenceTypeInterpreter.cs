@@ -12,13 +12,13 @@ namespace Graffle.FlowSdk.Services.Serialization
         private static readonly ExpandoObjectConverter _expando = new();
 
         /// <summary>
-        /// IDictionary<string,object>
+        /// IDictionary<string,object>, ie json object
         /// </summary>
         /// <returns></returns>
-        private static readonly Type EXPANDO_TYPE = typeof(IDictionary<string, object>);
+        private static readonly Type OBJECT_TYPE = typeof(IDictionary<string, object>);
 
         /// <summary>
-        /// IList<object>
+        /// IList<object>, ie json array
         /// </summary>
         /// <returns></returns>
         private static readonly Type ARRAY_TYPE = typeof(IList<object>);
@@ -43,7 +43,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             {
                 throw new CadenceJsonCastException("Invalid type for Cadence type object")
                 {
-                    ExpectedType = EXPANDO_TYPE,
+                    ExpectedType = OBJECT_TYPE,
                     ActualType = cadenceType?.GetType()
                 };
             }
@@ -240,7 +240,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             {
                 throw new CadenceJsonCastException("Unexpected type received for Authorization object")
                 {
-                    ExpectedType = EXPANDO_TYPE,
+                    ExpectedType = OBJECT_TYPE,
                     ActualType = value?.GetType()
                 };
             }
@@ -266,7 +266,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                 {
                     throw new CadenceJsonCastException($"Unexpected type received for entitlement object")
                     {
-                        ExpectedType = EXPANDO_TYPE,
+                        ExpectedType = OBJECT_TYPE,
                         ActualType = ent?.GetType()
                     };
                 }
@@ -300,7 +300,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                 {
                     throw new CadenceJsonCastException("Unexpected type for inner Parameter object")
                     {
-                        ExpectedType = EXPANDO_TYPE,
+                        ExpectedType = OBJECT_TYPE,
                         ActualType = item?.GetType()
                     };
                 }
@@ -346,7 +346,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             {
                 throw new CadenceJsonCastException("Unexpected type for GetField object")
                 {
-                    ExpectedType = EXPANDO_TYPE,
+                    ExpectedType = OBJECT_TYPE,
                     ActualType = value?.GetType()
                 };
             }

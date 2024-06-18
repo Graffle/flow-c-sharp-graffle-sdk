@@ -22,7 +22,7 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
         }
 
         [TestMethod]
-        public void ToStringTest()
+        public void MessageTest()
         {
             var expected = typeof(IDictionary<string, object>);
             var actual = typeof(int);
