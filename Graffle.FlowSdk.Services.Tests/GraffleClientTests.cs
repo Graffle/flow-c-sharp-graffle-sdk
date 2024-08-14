@@ -42,7 +42,12 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task ExecuteScriptAtBlockHeightAsync(Spork spork)
         {
-            const string script = @"pub fun main(arg : String): String { return arg }";
+            string script = "";
+            if (!spork.IsTestNet)
+                script = @"pub fun main(arg : String): String { return arg }";
+            else
+                script = @"access(all) fun main(arg : String): String { return arg }";
+
             var bytes = Encoding.UTF8.GetBytes(script);
 
             var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
@@ -64,7 +69,12 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task ExecuteScriptAtBlockHeightAsync_ComplexResult(Spork spork)
         {
-            const string script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+            string script = "";
+            if (!spork.IsTestNet)
+                script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+            else
+                script = "access(all) fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+
             var bytes = Encoding.UTF8.GetBytes(script);
 
             var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
@@ -114,7 +124,12 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task ExecuteScriptLatestBlockAsync_ComplexResult(Spork spork)
         {
-            const string script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+            string script = "";
+            if (!spork.IsTestNet)
+                script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+            else
+                script = "access(all) fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+
             var bytes = Encoding.UTF8.GetBytes(script);
 
             var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
