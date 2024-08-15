@@ -35,16 +35,18 @@ namespace Graffle.FlowSdk.Services.Nodes
         public static Spork PreviewNet() => _previewNet;
 
         /// <summary>
-        /// Returns true if the spork occurs after Cadence 1.0 upgrade (ie crescendo)
+        /// Returns true if the spork occurs after Crescedo upgrade (ie cadence 1.0)
         /// </summary>
         /// <param name="spork"></param>
-        /// <returns>True if the network is runnning Cadence 1.0, false otherwise</returns>
+        /// <returns>True if the spork has a Root Height occuring on or after the Crescendo upgrade<, false otherwise/returns>
         public static bool IsCrescendo(Spork spork)
         {
+            ArgumentNullException.ThrowIfNull(spork, nameof(spork));
+
             return spork.IsTestNet switch
             {
-                true => spork.RootHeight >= TestNetSporks.TestNet.ROOT_HEIGHT,
-                false => false
+                true => spork.RootHeight >= TestNetSporks.TestNet.ROOT_HEIGHT, //todo TestNet51
+                false => false //todo MainNet crescendo upgrade
             };
         }
 
