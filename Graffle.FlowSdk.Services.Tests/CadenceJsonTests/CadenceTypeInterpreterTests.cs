@@ -243,6 +243,30 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
         }
 
         [TestMethod]
+        public void Reference_Cadence1_0_NullEntitlements()
+        {
+            var json = "{\"kind\":\"Reference\",\"authorization\":{\"kind\":\"Unauthorized\",\"entitlements\":null},\"type\":{\"kind\":\"String\"}}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            if (res is not IDictionary<string, object> reference)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("Reference", reference["kind"]);
+
+            if (reference["authorization"] is not IDictionary<string, object> authorization)
+            {
+                Assert.Fail("expected dictionary");
+                return;
+            }
+
+            Assert.AreEqual("Unauthorized", authorization["kind"]);
+            Assert.IsNull(authorization["entitlements"]);
+        }
+
+        [TestMethod]
         public void Reference_Cadence1_0()
         {
             var json = "{\"kind\":\"Reference\",\"authorization\":{\"kind\":\"EntitlementMapAuthorization\",\"entitlements\":[{\"kind\":\"EntitlementMap\",\"typeID\":\"foo\"}]},\"type\":{\"kind\":\"String\"}}";
