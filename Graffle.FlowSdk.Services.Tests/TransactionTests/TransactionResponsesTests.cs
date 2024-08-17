@@ -630,6 +630,15 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual(7, asString.Count);
         }
 
+        [TestMethod]
+        public async Task Null_AutorizationEntitlement()
+        {
+            var res = await GetTransaction(211565410, "caa04c72e0d6b0d76c1fc3134fdd4197df3363bf8e033aa00a61a072f2c0d07b");
+
+            var ev = res.Events.First(x => x.Type == "A.2d55b98eb200daef.NFTStorefrontV2.ListingCompleted");
+            var json = System.Text.Json.JsonSerializer.Serialize(ev.EventComposite.Data);
+        }
+
         private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
         {
             var flowClient = nodeType switch

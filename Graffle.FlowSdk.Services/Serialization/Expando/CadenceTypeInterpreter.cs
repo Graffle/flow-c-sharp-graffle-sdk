@@ -250,6 +250,12 @@ namespace Graffle.FlowSdk.Services.Serialization
                 {"kind", authorization["kind"]}
             };
 
+            if (authorization["entitlements"] is null)
+            {
+                res["entitlements"] = null;
+                return res;
+            }
+
             if (authorization["entitlements"] is not IList<object> entitlements)
             {
                 throw new CadenceJsonCastException("Unexpected type received for Authorization entitlements object")
