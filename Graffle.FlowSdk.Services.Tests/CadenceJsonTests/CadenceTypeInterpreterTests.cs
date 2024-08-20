@@ -313,5 +313,12 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
 
             Assert.AreEqual("String", type["kind"]);
         }
+
+        [TestMethod]
+        public void VariableSizedArray_ContainsNullEntitlement_AndIntersection()
+        {
+            var json = @"{""kind"":""VariableSizedArray"",""type"":{""kind"":""Struct"",""type"":"""",""typeID"":""A.631e88ae7f1d7c20.MetadataViews.Royalty"",""initializers"":[],""fields"":[{""id"":""receiver"",""type"":{""kind"":""Capability"",""type"":{""kind"":""Reference"",""authorization"":{""kind"":""Unauthorized"",""entitlements"":null},""type"":{""kind"":""Intersection"",""typeID"":""{A.9a0766d93b6608b7.FungibleToken.Receiver}"",""types"":[{""kind"":""ResourceInterface"",""type"":"""",""typeID"":""A.9a0766d93b6608b7.FungibleToken.Receiver"",""initializers"":[],""fields"":[{""id"":""uuid"",""type"":{""kind"":""UInt64""}}]}]}}}},{""id"":""cut"",""type"":{""kind"":""UFix64""}},{""id"":""description"",""type"":{""kind"":""String""}}]}}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+        }
     }
 }
