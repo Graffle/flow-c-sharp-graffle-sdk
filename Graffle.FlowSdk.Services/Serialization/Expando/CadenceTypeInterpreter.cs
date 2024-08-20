@@ -234,7 +234,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             return result;
         }
 
-        public static dynamic GetAuthorization(object value)
+        private static dynamic GetAuthorization(object value)
         {
             if (value is not IDictionary<string, object> authorization)
             {
@@ -288,7 +288,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             return res;
         }
 
-        public static dynamic GetParameter(object value)
+        private static dynamic GetParameter(object value)
         {
             if (value is not IList<object> list)
             {
@@ -318,7 +318,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             return res;
         }
 
-        public static dynamic GetInitializers(object value)
+        private static dynamic GetInitializers(object value)
         {
             if (value is not IList<object> list)
             {
@@ -332,7 +332,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             return list.Select(GetParameter).ToList();
         }
 
-        public static dynamic GetFields(object value)
+        private static dynamic GetFields(object value)
         {
             if (value is not IList<object> list)
             {
@@ -346,7 +346,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             return list.Select(GetField).ToList();
         }
 
-        public static dynamic GetField(object value)
+        private static dynamic GetField(object value)
         {
             if (value is not IDictionary<string, object> dict)
             {
