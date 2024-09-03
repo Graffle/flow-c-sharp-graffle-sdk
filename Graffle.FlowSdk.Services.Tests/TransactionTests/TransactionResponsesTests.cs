@@ -647,9 +647,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
                 NodeType.TestNet => _test.CreateFlowClient(blockHeight),
                 _ => throw new Exception()
             };
-
-            var transactionResult = await flowClient.GetTransactionResult(transactionId.HashToByteString());
-            return transactionResult;
+            return await flowClient.GetTransactionResult(transactionId.HashToByteString());
         }
     }
 }
