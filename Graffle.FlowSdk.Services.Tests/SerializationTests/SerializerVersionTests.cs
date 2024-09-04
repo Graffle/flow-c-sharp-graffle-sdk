@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace Graffle.FlowSdk.Services.Tests.SerializationTests;
 
 [TestClass]
+[Ignore]
 public class SerializerVersionTests
 {
     [TestMethod]
@@ -27,6 +28,7 @@ public class SerializerVersionTests
     }
 
     [TestMethod]
+    [Ignore]
     public async Task GetEvents_Expando()
     {
         using var channel = GrpcChannel.ForAddress($"http://{Sporks.MainNet().Node}", new GrpcChannelOptions()
@@ -42,6 +44,7 @@ public class SerializerVersionTests
     }
 
     [TestMethod]
+    [Ignore]
     public async Task GetTransaction_Legacy()
     {
         using var channel = GrpcChannel.ForAddress($"http://{Sporks.MainNet().Node}", new GrpcChannelOptions()
@@ -59,6 +62,7 @@ public class SerializerVersionTests
     }
 
     [TestMethod]
+    [Ignore]
     public async Task GetTransaction_Expando()
     {
         using var channel = GrpcChannel.ForAddress($"http://{Sporks.MainNet().Node}", new GrpcChannelOptions()
