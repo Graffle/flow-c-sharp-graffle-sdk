@@ -42,11 +42,7 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task ExecuteScriptAtBlockHeightAsync(Spork spork)
         {
-            string script = "";
-            if (!spork.IsTestNet)
-                script = @"pub fun main(arg : String): String { return arg }";
-            else
-                script = @"access(all) fun main(arg : String): String { return arg }";
+            string script = @"access(all) fun main(arg : String): String { return arg }";
 
             var bytes = Encoding.UTF8.GetBytes(script);
 
@@ -69,11 +65,7 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task ExecuteScriptAtBlockHeightAsync_ComplexResult(Spork spork)
         {
-            string script = "";
-            if (!spork.IsTestNet)
-                script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
-            else
-                script = "access(all) fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+            string script = "access(all) fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
 
             var bytes = Encoding.UTF8.GetBytes(script);
 
@@ -124,11 +116,7 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task ExecuteScriptLatestBlockAsync_ComplexResult(Spork spork)
         {
-            string script = "";
-            if (!spork.IsTestNet)
-                script = "pub fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
-            else
-                script = "access(all) fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
+            string script = "access(all) fun main(msg: String, ts: Int64, uuid: UInt64) : {String:AnyStruct} { return { \"msg\":msg, \"ts\":ts, \"uuid\":uuid }}";
 
             var bytes = Encoding.UTF8.GetBytes(script);
 

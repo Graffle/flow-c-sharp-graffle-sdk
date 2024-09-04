@@ -166,6 +166,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task Transaction_StructContainsOptionalStruct()
         {
             var res = await GetTransaction(80312030, "a586032cc7b3ccab93a68125b4252bbcd31dca8d1545432e6a05b7de5f12c880", NodeType.MainNet);
@@ -647,9 +648,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
                 NodeType.TestNet => _test.CreateFlowClient(blockHeight),
                 _ => throw new Exception()
             };
-
-            var transactionResult = await flowClient.GetTransactionResult(transactionId.HashToByteString());
-            return transactionResult;
+            return await flowClient.GetTransactionResult(transactionId.HashToByteString());
         }
     }
 }

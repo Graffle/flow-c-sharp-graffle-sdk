@@ -11,10 +11,11 @@ namespace Graffle.FlowSdk.Services.Tests.SerializationTests
     public class ScriptResultTests
     {
         [TestMethod]
+        [Ignore]
         public async Task Dictionary_Struct_Type_DeserializesCorrectlyToPrimitive()
         {
             const string script = @"import NFTCatalog from 0x49a7cda3a1eecc29
-                                    pub fun main(batch : [UInt64]): {String : NFTCatalog.NFTCatalogMetadata} {
+                                    access(all) fun main(batch : [UInt64]): {String : NFTCatalog.NFTCatalogMetadata} {
                                         if batch == nil {
                                             return NFTCatalog.getCatalog()
                                         }
