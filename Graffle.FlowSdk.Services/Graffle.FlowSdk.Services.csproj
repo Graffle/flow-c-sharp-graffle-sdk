@@ -6,6 +6,7 @@
     <PackageDescription>Sdk and additional services for interacting with the Flow blockchain.</PackageDescription>
     <RepositoryUrl>https://github.com/Graffle/flow-c-sharp-graffle-sdk</RepositoryUrl>
     <Company>Graffle Labs Inc.</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
