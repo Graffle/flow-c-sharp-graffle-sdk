@@ -20,8 +20,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         [ClassInitialize]
         public static void ClassInit(TestContext ctx)
         {
-            _main = new FlowClientFactory("MainNet") { CandeceSerializer = CadenceSerializerVersion.Expando };
-            _test = new FlowClientFactory("TestNet") { CandeceSerializer = CadenceSerializerVersion.Expando };
+            _main = new FlowClientFactory("MainNet") { CandeceSerializer = CadenceSerializerVersion.Crescendo };
+            _test = new FlowClientFactory("TestNet") { CandeceSerializer = CadenceSerializerVersion.Crescendo };
         }
 
         [ClassCleanup]
@@ -176,7 +176,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             //let's validate the grafflecomposite
             var graffleComposite = ev.EventComposite;
             var data = graffleComposite.Data;
-            Assert.AreEqual(CadenceSerializerVersion.Expando, graffleComposite.SerializerVersion);
+            Assert.AreEqual(CadenceSerializerVersion.Crescendo, graffleComposite.SerializerVersion);
             Assert.IsNotNull(data);
             Assert.AreEqual(4, data.Count);
 

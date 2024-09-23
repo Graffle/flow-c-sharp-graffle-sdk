@@ -72,7 +72,7 @@ namespace Graffle.FlowSdk.Services.Models
                                                     evResult.BlockId,
                                                     evResult.BlockTimestamp.ToDateTimeOffset(),
                                                     _jsonOptions),
-                                CadenceSerializerVersion.Expando =>
+                                CadenceSerializerVersion.Crescendo =>
                                     new FlowEvent(ev,
                                                     evResult.BlockHeight,
                                                     evResult.BlockId,

@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class FlowServiceExtensions
     {
-        public static IServiceCollection AddFlowClientFactory(this IServiceCollection services, CadenceSerializerVersion serializer = CadenceSerializerVersion.Expando)
+        public static IServiceCollection AddFlowClientFactory(this IServiceCollection services, CadenceSerializerVersion serializer = CadenceSerializerVersion.Crescendo)
         {
             Console.WriteLine("Set Up Flow Client Factory");
             var nodeName = System.Environment.GetEnvironmentVariable("FlowNode");

@@ -36,7 +36,7 @@ namespace Graffle.FlowSdk.Services.Models
                 Events.Add(cadenceSerializer switch
                 {
                     CadenceSerializerVersion.Legacy => new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId, options),
-                    CadenceSerializerVersion.Expando => new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId),
+                    CadenceSerializerVersion.Crescendo => new FlowTransactionResponseEvent(item, flowTransactionResponse.BlockId),
                     _ => throw new ArgumentException("Invalid cadence serializer", nameof(cadenceSerializer))
                 });
             }

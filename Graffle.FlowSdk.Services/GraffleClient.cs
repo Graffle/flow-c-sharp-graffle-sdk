@@ -14,7 +14,7 @@ namespace Graffle.FlowSdk
 {
     public sealed class GraffleClient : IGraffleClient
     {
-        public CadenceSerializerVersion CadenceSerializer { get; init; } = CadenceSerializerVersion.Legacy;
+        public CadenceSerializerVersion CadenceSerializer { get; init; } = CadenceSerializerVersion.Crescendo;
 
         public Spork CurrentSpork { get; private set; }
         public Spork FirstSpork

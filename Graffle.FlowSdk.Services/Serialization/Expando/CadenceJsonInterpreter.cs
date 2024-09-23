@@ -66,7 +66,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             {
                 Id = value["id"].ToString(),
                 Data = [],
-                SerializerVersion = CadenceSerializerVersion.Expando
+                SerializerVersion = CadenceSerializerVersion.Crescendo
             };
 
             if (value["fields"] is not IList<object> fields)

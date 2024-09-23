@@ -37,10 +37,10 @@ public class SerializerVersionTests
             MaxReceiveMessageSize = null,
         });
 
-        var client = new GraffleClient(channel, Sporks.MainNet()) { CadenceSerializer = CadenceSerializerVersion.Expando };
+        var client = new GraffleClient(channel, Sporks.MainNet()) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
         var evs = await client.GetEventsForHeightRangeAsync("A.d4a8f8d167745a51.Heartbeat.heartbeat", 78618043, 78618043);
         Assert.IsTrue(evs.Count > 0);
-        Assert.AreEqual(CadenceSerializerVersion.Expando, evs.First().EventComposite.SerializerVersion);
+        Assert.AreEqual(CadenceSerializerVersion.Crescendo, evs.First().EventComposite.SerializerVersion);
     }
 
     [TestMethod]
@@ -71,11 +71,11 @@ public class SerializerVersionTests
             MaxReceiveMessageSize = null,
         });
 
-        var client = new GraffleClient(channel, Sporks.MainNet()) { CadenceSerializer = CadenceSerializerVersion.Expando };
+        var client = new GraffleClient(channel, Sporks.MainNet()) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
         var txnId = "9b94faa1e37670931d1841beab237b5fa5b32f786b38e55187231d1fc40faf29".HashToByteString();
         var txn = await client.GetTransactionResult(txnId);
 
         Assert.IsNotNull(txn);
-        Assert.AreEqual(CadenceSerializerVersion.Expando, txn.Events.First().EventComposite.SerializerVersion);
+        Assert.AreEqual(CadenceSerializerVersion.Crescendo, txn.Events.First().EventComposite.SerializerVersion);
     }
 }
