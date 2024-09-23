@@ -9,37 +9,34 @@ namespace Graffle.FlowSdk
 {
     public sealed class FlowClientFactory : IFlowClientFactory
     {
-        public CadenceSerializerVersion CandeceSerializer { get; init; } = CadenceSerializerVersion.Legacy;
+        /// <summary>
+        /// If true CadenceSerializerVersion.Crescendo will be used for all sporks
+        /// Otherwise the CadenceSerializerVersion used will be based on the individual spork requested
+        /// </summary>
+        public bool UseCrescendoSerializerForAllSporks { get; init; } = true;
 
-        private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new ConcurrentDictionary<string, SemaphoreSlim>();
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new();
         private readonly MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                                                                         .SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
 
-        private readonly MemoryCache graffleClientCache = new MemoryCache(new MemoryCacheOptions());
+        private readonly MemoryCache graffleClientCache = new(new MemoryCacheOptions());
 
-        private readonly NodeType nodeType;
+        private readonly NodeType _nodeType;
 
         public FlowClientFactory(NodeType nodeType)
         {
-            this.nodeType = nodeType;
+            _nodeType = nodeType;
         }
 
         public FlowClientFactory(string nodeType)
         {
-            switch (nodeType.ToLower())
+            _nodeType = nodeType.ToLower() switch
             {
-                case "mainnet":
-                    this.nodeType = NodeType.MainNet;
-                    break;
-                case "testnet":
-                    this.nodeType = NodeType.TestNet;
-                    break;
-                case "emulator":
-                    this.nodeType = NodeType.Emulator;
-                    break;
-                default:
-                    throw new NotSupportedException($"Node Type: {nodeType} is not yet supported.");
-            }
+                "mainnet" => NodeType.MainNet,
+                "testnet" => NodeType.TestNet,
+                "emulator" => NodeType.Emulator,
+                _ => throw new NotSupportedException($"Node Type: {nodeType} is not yet supported."),
+            };
         }
 
         /// <summary>
@@ -48,21 +45,13 @@ namespace Graffle.FlowSdk
         /// <returns></returns>
         public IGraffleClient CreateFlowClient(bool cacheOverride = false)
         {
-            Spork spork = null;
-            switch (nodeType)
+            var spork = _nodeType switch
             {
-                case NodeType.MainNet:
-                    spork = Sporks.GetSporkByName(MainNetSporks.MainNet.Name);
-                    break;
-                case NodeType.TestNet:
-                    spork = Sporks.GetSporkByName(TestNetSporks.TestNet.Name);
-                    break;
-                case NodeType.Emulator:
-                    spork = Sporks.GetSporkByName(EmulatorSporks.Emulator.Name);
-                    break;
-                default:
-                    throw new NotSupportedException($"Node Type: {nodeType} is not yet supported.");
-            }
+                NodeType.MainNet => Sporks.GetSporkByName(MainNetSporks.MainNet.Name),
+                NodeType.TestNet => Sporks.GetSporkByName(TestNetSporks.TestNet.Name),
+                NodeType.Emulator => Sporks.GetSporkByName(EmulatorSporks.Emulator.Name),
+                _ => throw new NotSupportedException($"Node Type: {_nodeType} is not yet supported."),
+            };
             return GenerateFlowClientInternal(spork, cacheOverride);
         }
 
@@ -78,8 +67,7 @@ namespace Graffle.FlowSdk
 
         public IGraffleClient CreateFlowClientFromUri(string accessNodeUri, bool cacheOverride = false)
         {
-            if (string.IsNullOrEmpty(accessNodeUri))
-                throw new ArgumentException();
+            ArgumentException.ThrowIfNullOrEmpty(accessNodeUri);
 
             //kind of a hack here, create a temporary spork with the given uri
             //start and end height not needed
@@ -104,21 +92,13 @@ namespace Graffle.FlowSdk
         /// <returns></returns>
         public IGraffleClient CreateFlowClient(ulong blockHeight, bool cacheOverride = false)
         {
-            Spork spork = null;
-            switch (nodeType)
+            var spork = _nodeType switch
             {
-                case NodeType.MainNet:
-                    spork = Sporks.GetMainSporkByHeight(blockHeight);
-                    break;
-                case NodeType.TestNet:
-                    spork = Sporks.GetDevSporkByHeight(blockHeight);
-                    break;
-                case NodeType.Emulator:
-                    spork = Sporks.GetEmulatorSporkByHeight(blockHeight);
-                    break;
-                default:
-                    throw new NotSupportedException($"Node Type: {nodeType} is not yet supported.");
-            }
+                NodeType.MainNet => Sporks.GetMainSporkByHeight(blockHeight),
+                NodeType.TestNet => Sporks.GetDevSporkByHeight(blockHeight),
+                NodeType.Emulator => Sporks.GetEmulatorSporkByHeight(blockHeight),
+                _ => throw new NotSupportedException($"Node Type: {_nodeType} is not yet supported."),
+            };
             return GenerateFlowClientInternal(spork, cacheOverride);
         }
 
@@ -129,10 +109,8 @@ namespace Graffle.FlowSdk
         /// <returns></returns>
         private IGraffleClient GenerateFlowClientInternal(Spork spork, bool cacheOverride)
         {
-            IGraffleClient graffleClient;
-
             //check to see if a graffle client already exists for this spork in the cache
-            if (cacheOverride || !graffleClientCache.TryGetValue(spork.Name, out graffleClient))
+            if (cacheOverride || !graffleClientCache.TryGetValue(spork.Name, out IGraffleClient graffleClient))
             {
                 //don't have a client for this spork in the cache
                 //acquire lock so only one thread can insert into the cache
@@ -146,7 +124,10 @@ namespace Graffle.FlowSdk
                     if (cacheOverride || !graffleClientCache.TryGetValue(spork.Name, out graffleClient))
                     {
                         //still not here let's add it
-                        graffleClient = new GraffleClient(spork) { CadenceSerializer = this.CandeceSerializer };
+                        var serializer = UseCrescendoSerializerForAllSporks ? CadenceSerializerVersion.Crescendo
+                                            : Sporks.IsCrescendo(spork) ? CadenceSerializerVersion.Crescendo : CadenceSerializerVersion.Legacy;
+
+                        graffleClient = new GraffleClient(spork) { CadenceSerializer = serializer };
                         graffleClientCache.Set(spork.Name, graffleClient, cacheEntryOptions);
                     }
                 }

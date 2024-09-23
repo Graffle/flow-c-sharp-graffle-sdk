@@ -18,7 +18,7 @@ namespace Graffle.FlowSdk.Services.Models
 
     public class FlowTransactionResult : IFlowTransactionResult
     {
-        public FlowTransactionResult(Flow.Access.TransactionResultResponse flowTransactionResponse, CadenceSerializerVersion cadenceSerializer = CadenceSerializerVersion.Legacy)
+        public FlowTransactionResult(Flow.Access.TransactionResultResponse flowTransactionResponse, CadenceSerializerVersion cadenceSerializer)
         {
             BlockId = flowTransactionResponse.BlockId.ToHash();
             ErrorMessage = flowTransactionResponse.ErrorMessage;
