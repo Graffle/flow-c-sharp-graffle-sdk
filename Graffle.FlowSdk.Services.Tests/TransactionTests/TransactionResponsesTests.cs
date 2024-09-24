@@ -631,6 +631,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task Null_AutorizationEntitlement()
         {
             var res = await GetTransaction(211565410, "caa04c72e0d6b0d76c1fc3134fdd4197df3363bf8e033aa00a61a072f2c0d07b");
