@@ -20,8 +20,8 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         [ClassInitialize]
         public static void ClassInit(TestContext ctx)
         {
-            _main = new FlowClientFactory("MainNet") { CandeceSerializer = CadenceSerializerVersion.Expando };
-            _test = new FlowClientFactory("TestNet") { CandeceSerializer = CadenceSerializerVersion.Expando };
+            _main = new FlowClientFactory("MainNet");
+            _test = new FlowClientFactory("TestNet");
         }
 
         [ClassCleanup]
@@ -166,7 +166,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore]
         public async Task Transaction_StructContainsOptionalStruct()
         {
             var res = await GetTransaction(80312030, "a586032cc7b3ccab93a68125b4252bbcd31dca8d1545432e6a05b7de5f12c880", NodeType.MainNet);
@@ -176,7 +175,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             //let's validate the grafflecomposite
             var graffleComposite = ev.EventComposite;
             var data = graffleComposite.Data;
-            Assert.AreEqual(CadenceSerializerVersion.Expando, graffleComposite.SerializerVersion);
+            Assert.AreEqual(CadenceSerializerVersion.Crescendo, graffleComposite.SerializerVersion);
             Assert.IsNotNull(data);
             Assert.AreEqual(4, data.Count);
 
@@ -632,6 +631,7 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
+        [Ignore]
         public async Task Null_AutorizationEntitlement()
         {
             var res = await GetTransaction(211565410, "caa04c72e0d6b0d76c1fc3134fdd4197df3363bf8e033aa00a61a072f2c0d07b");

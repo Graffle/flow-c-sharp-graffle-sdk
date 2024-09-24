@@ -42,19 +42,22 @@ namespace Graffle.FlowSdk.Services.Nodes
         public static bool IsCrescendo(Spork spork)
         {
             ArgumentNullException.ThrowIfNull(spork, nameof(spork));
-
-            return spork.IsTestNet switch
-            {
-                true => spork.RootHeight >= TestNetSporks.TestNet.ROOT_HEIGHT, //todo TestNet51
-                false => spork.RootHeight >= MainNetSporks.MainNet.ROOT_HEIGHT //todo MainNet25
-            };
+            return IsCrescendo(spork.RootHeight, spork.IsTestNet);
         }
+
+        public static bool IsCrescendo(ulong blockHeight, bool testNet = false) =>
+            testNet switch
+            {
+                true => blockHeight >= TestNetSporks.TestNet51.ROOT_HEIGHT,
+                false => blockHeight >= MainNetSporks.MainNet.ROOT_HEIGHT //todo mainnet25
+            };
 
         public static Spork GetSporkByName(string sporkName) =>
             sporkName switch
             {
                 _ when sporkName == TestNetSporks.TestNet.Name => new Spork(TestNetSporks.TestNet.Name, TestNetSporks.TestNet.NODE, TestNetSporks.TestNet.ROOT_HEIGHT, null, true),
-                _ when sporkName == TestNetSporks.TestNet50.Name => new Spork(TestNetSporks.TestNet50.Name, TestNetSporks.TestNet50.NODE, TestNetSporks.TestNet50.ROOT_HEIGHT, TestNetSporks.TestNet.ROOT_HEIGHT - 1, true),
+                _ when sporkName == TestNetSporks.TestNet51.Name => new Spork(TestNetSporks.TestNet51.Name, TestNetSporks.TestNet51.NODE, TestNetSporks.TestNet51.ROOT_HEIGHT, TestNetSporks.TestNet.ROOT_HEIGHT - 1, true),
+                _ when sporkName == TestNetSporks.TestNet50.Name => new Spork(TestNetSporks.TestNet50.Name, TestNetSporks.TestNet50.NODE, TestNetSporks.TestNet50.ROOT_HEIGHT, TestNetSporks.TestNet51.ROOT_HEIGHT - 1, true),
                 _ when sporkName == TestNetSporks.TestNet49.Name => new Spork(TestNetSporks.TestNet49.Name, TestNetSporks.TestNet49.NODE, TestNetSporks.TestNet49.ROOT_HEIGHT, TestNetSporks.TestNet50.ROOT_HEIGHT - 1, true),
                 _ when sporkName == TestNetSporks.TestNet48.Name => new Spork(TestNetSporks.TestNet48.Name, TestNetSporks.TestNet48.NODE, TestNetSporks.TestNet48.ROOT_HEIGHT, TestNetSporks.TestNet49.ROOT_HEIGHT - 1, true),
                 _ when sporkName == TestNetSporks.TestNet47.Name => new Spork(TestNetSporks.TestNet47.Name, TestNetSporks.TestNet47.NODE, TestNetSporks.TestNet47.ROOT_HEIGHT, TestNetSporks.TestNet48.ROOT_HEIGHT - 1, true),
@@ -123,7 +126,8 @@ namespace Graffle.FlowSdk.Services.Nodes
              blockHeight switch
              {
                  _ when blockHeight >= TestNetSporks.TestNet.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet.Name, TestNetSporks.TestNet.NODE, TestNetSporks.TestNet.ROOT_HEIGHT, null, true),
-                 _ when blockHeight >= TestNetSporks.TestNet50.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet50.Name, TestNetSporks.TestNet50.NODE, TestNetSporks.TestNet50.ROOT_HEIGHT, TestNetSporks.TestNet.ROOT_HEIGHT - 1, true),
+                 _ when blockHeight >= TestNetSporks.TestNet51.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet51.Name, TestNetSporks.TestNet51.NODE, TestNetSporks.TestNet51.ROOT_HEIGHT, TestNetSporks.TestNet.ROOT_HEIGHT - 1, true),
+                 _ when blockHeight >= TestNetSporks.TestNet50.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet51.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet50.Name, TestNetSporks.TestNet50.NODE, TestNetSporks.TestNet50.ROOT_HEIGHT, TestNetSporks.TestNet51.ROOT_HEIGHT - 1, true),
                  _ when blockHeight >= TestNetSporks.TestNet49.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet50.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet49.Name, TestNetSporks.TestNet49.NODE, TestNetSporks.TestNet49.ROOT_HEIGHT, TestNetSporks.TestNet50.ROOT_HEIGHT - 1, true),
                  _ when blockHeight >= TestNetSporks.TestNet48.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet49.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet48.Name, TestNetSporks.TestNet48.NODE, TestNetSporks.TestNet48.ROOT_HEIGHT, TestNetSporks.TestNet49.ROOT_HEIGHT - 1, true),
                  _ when blockHeight >= TestNetSporks.TestNet47.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet48.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet47.Name, TestNetSporks.TestNet47.NODE, TestNetSporks.TestNet47.ROOT_HEIGHT, TestNetSporks.TestNet48.ROOT_HEIGHT - 1, true),

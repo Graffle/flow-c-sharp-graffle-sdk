@@ -23,7 +23,7 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task PingAsync(Spork spork)
         {
-            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
             Assert.IsTrue(await client.PingAsync());
         }
 
@@ -31,7 +31,7 @@ namespace Graffle.FlowSdk.Services.Tests
         [DynamicData(nameof(SPORKS), DynamicDataSourceType.Method)]
         public async Task GetLatestBlockAsync(Spork spork)
         {
-            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
             var res = await client.GetLatestBlockAsync(true);
 
             Assert.IsNotNull(res);
@@ -46,7 +46,7 @@ namespace Graffle.FlowSdk.Services.Tests
 
             var bytes = Encoding.UTF8.GetBytes(script);
 
-            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
             var arg = new StringType("foo");
             var latestBlock = await client.GetLatestBlockAsync(true);
 
@@ -69,7 +69,7 @@ namespace Graffle.FlowSdk.Services.Tests
 
             var bytes = Encoding.UTF8.GetBytes(script);
 
-            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
             var str = new StringType("arg1");
             var ts = new Int64Type(123L);
             var uuid = new UInt64Type(654ul);
@@ -120,7 +120,7 @@ namespace Graffle.FlowSdk.Services.Tests
 
             var bytes = Encoding.UTF8.GetBytes(script);
 
-            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Expando };
+            var client = new GraffleClient(spork) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
             var str = new StringType("arg1");
             var ts = new Int64Type(123L);
             var uuid = new UInt64Type(654ul);
@@ -166,7 +166,7 @@ namespace Graffle.FlowSdk.Services.Tests
         public async Task GetEventsForHeightRangeAsync_MainNet()
         {
             using var rpc = GrpcChannel.ForAddress($"http://{Sporks.MainNet().Node}");
-            var client = new GraffleClient(rpc, Sporks.MainNet()) { CadenceSerializer = CadenceSerializerVersion.Expando };
+            var client = new GraffleClient(rpc, Sporks.MainNet()) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
 
             var evs = await client.GetEventsForHeightRangeAsync("A.f919ee77447b7497.FlowFees.FeesDeducted", Sporks.MainNet().RootHeight, Sporks.MainNet().RootHeight + 249ul);
         }
@@ -175,7 +175,7 @@ namespace Graffle.FlowSdk.Services.Tests
         public async Task GetEventsForHeightRangeAsync_TestNet()
         {
             using var rpc = GrpcChannel.ForAddress($"http://{Sporks.TestNet().Node}");
-            var client = new GraffleClient(rpc, Sporks.TestNet()) { CadenceSerializer = CadenceSerializerVersion.Expando };
+            var client = new GraffleClient(rpc, Sporks.TestNet()) { CadenceSerializer = CadenceSerializerVersion.Crescendo };
 
             var evs = await client.GetEventsForHeightRangeAsync("A.912d5440f7e3769e.FlowFees.FeesDeducted", Sporks.TestNet().RootHeight, Sporks.TestNet().RootHeight + 249ul);
         }

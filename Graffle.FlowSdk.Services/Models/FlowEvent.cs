@@ -56,7 +56,7 @@ namespace Graffle.FlowSdk.Services.Models
             BlockTimestamp = blockTimestamp;
         }
 
-        public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults, CadenceSerializerVersion serializer = CadenceSerializerVersion.Legacy)
+        public static List<FlowEvent> Create(RepeatedField<Flow.Access.EventsResponse.Types.Result> eventsResults, CadenceSerializerVersion serializer)
         {
             var eventsList = new List<FlowEvent>();
             foreach (var evResult in eventsResults)
@@ -72,7 +72,7 @@ namespace Graffle.FlowSdk.Services.Models
                                                     evResult.BlockId,
                                                     evResult.BlockTimestamp.ToDateTimeOffset(),
                                                     _jsonOptions),
-                                CadenceSerializerVersion.Expando =>
+                                CadenceSerializerVersion.Crescendo =>
                                     new FlowEvent(ev,
                                                     evResult.BlockHeight,
                                                     evResult.BlockId,

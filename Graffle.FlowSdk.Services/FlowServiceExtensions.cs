@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class FlowServiceExtensions
     {
-        public static IServiceCollection AddFlowClientFactory(this IServiceCollection services, CadenceSerializerVersion serializer = CadenceSerializerVersion.Expando)
+        public static IServiceCollection AddFlowClientFactory(this IServiceCollection services, bool useCrescendoSerializerForAllSporks = true)
         {
             Console.WriteLine("Set Up Flow Client Factory");
             var nodeName = System.Environment.GetEnvironmentVariable("FlowNode");
@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             Console.WriteLine($"Spork Selected: {spork.Name}");
 
-            var flowClientFactory = new FlowClientFactory(nodeName) { CandeceSerializer = serializer };
+            var flowClientFactory = new FlowClientFactory(nodeName) { UseCrescendoSerializerForAllSporks = useCrescendoSerializerForAllSporks };
             services.AddSingleton(flowClientFactory); //todo remove this eventually?
             services.AddSingleton(typeof(IFlowClientFactory), flowClientFactory);
 

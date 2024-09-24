@@ -10,5 +10,5 @@ public enum CadenceSerializerVersion : int
     /// <summary>
     /// Updated cadence json deserialization, CadenceJsonInterpreter
     /// </summary>
-    Expando
+    Crescendo
 }

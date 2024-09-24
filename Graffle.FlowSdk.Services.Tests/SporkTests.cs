@@ -7,11 +7,15 @@ namespace Graffle.FlowSdk.Services.Tests
     public class SporkTests
     {
         [TestMethod]
-        public void IsCrescendo_TestNet49_ReturnsFalse()
+        public void IsCrescendo_AllOldSporks_ReturnsFalse()
         {
-            var spork = Sporks.GetSporkByName("TestNet49");
+            for (int i = 17; i <= 50; i++)
+            {
+                var sporkName = $"TestNet{i}";
+                var spork = Sporks.GetSporkByName(sporkName);
 
-            Assert.IsFalse(Sporks.IsCrescendo(spork));
+                Assert.IsFalse(Sporks.IsCrescendo(spork));
+            }
         }
 
         [TestMethod]
@@ -23,11 +27,31 @@ namespace Graffle.FlowSdk.Services.Tests
         }
 
         [TestMethod]
+        public void IsCrescendo_TestNet51_ReturnsTrue()
+        {
+            var spork = Sporks.GetSporkByName("TestNet51");
+
+            Assert.IsTrue(Sporks.IsCrescendo(spork));
+        }
+
+        [TestMethod]
         public void IsCrescendo_MainNet_ReturnsTrue()
         {
             var spork = Sporks.GetSporkByName("MainNet");
 
             Assert.IsTrue(Sporks.IsCrescendo(spork));
+        }
+
+        [TestMethod]
+        public void IsCrescendo_OldMainNetSporks_ReturnsFalse()
+        {
+            for (int i = 1; i <= 24; i++)
+            {
+                var sporkName = $"MainNet{i}";
+                var spork = Sporks.GetSporkByName(sporkName);
+
+                Assert.IsFalse(Sporks.IsCrescendo(spork));
+            }
         }
     }
 }
