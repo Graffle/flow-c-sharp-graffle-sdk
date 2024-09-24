@@ -6,7 +6,7 @@ namespace Graffle.FlowSdk.Services.Nodes
         {
             public const string Name = "TestNet";
             public const string NODE = "access.testnet.nodes.onflow.org:9000";
-            public const ulong ROOT_HEIGHT = 211176670; //TODO
+            public const ulong ROOT_HEIGHT = 218215349;
         }
 
         public static class TestNet51 //51, CRESCENDO NETWORK UPGRADE
