@@ -9,7 +9,7 @@ namespace Graffle.FlowSdk.Services.Serialization
 {
     public static class CadenceJsonInterpreter
     {
-        private static readonly JsonConverter _expando = new ExpandoObjectConverter();
+        private static readonly ExpandoObjectConverter _expando = new();
 
         /// <summary>
         /// IDictionary<string,object>, ie json object
@@ -41,7 +41,7 @@ namespace Graffle.FlowSdk.Services.Serialization
         /// </summary>
         /// <param name="eventPayloadJson">Cadence event json payload</param>
         /// <returns></returns>
-        public static GraffleCompositeType GraffleCompositeFromEventPayload(string eventPayloadJson)
+        internal static GraffleCompositeType GraffleCompositeFromEventPayload(string eventPayloadJson)
         {
             IDictionary<string, object> parsed;
             try

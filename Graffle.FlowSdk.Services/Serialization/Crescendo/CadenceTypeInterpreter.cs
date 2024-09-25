@@ -30,7 +30,7 @@ namespace Graffle.FlowSdk.Services.Serialization
             return InterpretCadenceType(parsed);
         }
 
-        public static dynamic InterpretCadenceType(object cadenceType)
+        internal static dynamic InterpretCadenceType(object cadenceType)
         {
             if (cadenceType is string)
             {

@@ -124,10 +124,10 @@ namespace Graffle.FlowSdk
                     if (cacheOverride || !graffleClientCache.TryGetValue(spork.Name, out graffleClient))
                     {
                         //still not here let's add it
-                        var serializer = UseCrescendoSerializerForAllSporks ? CadenceSerializerVersion.Crescendo
-                                            : Sporks.IsCrescendo(spork) ? CadenceSerializerVersion.Crescendo : CadenceSerializerVersion.Legacy;
+                        var serializerVersion = UseCrescendoSerializerForAllSporks || Sporks.IsCrescendo(spork) ?
+                            CadenceSerializerVersion.Crescendo : CadenceSerializerVersion.Legacy;
 
-                        graffleClient = new GraffleClient(spork) { CadenceSerializer = serializer };
+                        graffleClient = new GraffleClient(spork) { CadenceSerializer = serializerVersion };
                         graffleClientCache.Set(spork.Name, graffleClient, cacheEntryOptions);
                     }
                 }
