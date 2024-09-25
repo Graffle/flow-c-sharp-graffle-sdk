@@ -43,6 +43,14 @@ namespace Graffle.FlowSdk.Services.Tests
         }
 
         [TestMethod]
+        public void IsCrescendo_MainNet25_ReturnsTrue()
+        {
+            var spork = Sporks.GetSporkByName("MainNet25");
+
+            Assert.IsTrue(Sporks.IsCrescendo(spork));
+        }
+
+        [TestMethod]
         public void IsCrescendo_OldMainNetSporks_ReturnsFalse()
         {
             for (int i = 1; i <= 24; i++)
