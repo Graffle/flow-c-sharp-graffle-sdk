@@ -49,7 +49,7 @@ namespace Graffle.FlowSdk.Services.Nodes
             testNet switch
             {
                 true => blockHeight >= TestNetSporks.TestNet51.ROOT_HEIGHT,
-                false => blockHeight >= MainNetSporks.MainNet.ROOT_HEIGHT //todo mainnet25
+                false => blockHeight >= MainNetSporks.MainNet25.ROOT_HEIGHT
             };
 
         public static Spork GetSporkByName(string sporkName) =>
@@ -93,7 +93,8 @@ namespace Graffle.FlowSdk.Services.Nodes
                 _ when sporkName == TestNetSporks.TestNet17.Name => new Spork(TestNetSporks.TestNet17.Name, TestNetSporks.TestNet17.NODE, TestNetSporks.TestNet17.ROOT_HEIGHT, TestNetSporks.TestNet18.ROOT_HEIGHT - 1, true),
 
                 _ when sporkName == MainNetSporks.MainNet.Name => new Spork(MainNetSporks.MainNet.Name, MainNetSporks.MainNet.NODE, MainNetSporks.MainNet.ROOT_HEIGHT, null),
-                _ when sporkName == MainNetSporks.MainNet24.Name => new Spork(MainNetSporks.MainNet24.Name, MainNetSporks.MainNet24.NODE, MainNetSporks.MainNet24.ROOT_HEIGHT, MainNetSporks.MainNet.ROOT_HEIGHT - 1),
+                _ when sporkName == MainNetSporks.MainNet25.Name => new Spork(MainNetSporks.MainNet25.Name, MainNetSporks.MainNet25.NODE, MainNetSporks.MainNet25.ROOT_HEIGHT, MainNetSporks.MainNet.ROOT_HEIGHT - 1),
+                _ when sporkName == MainNetSporks.MainNet24.Name => new Spork(MainNetSporks.MainNet24.Name, MainNetSporks.MainNet24.NODE, MainNetSporks.MainNet24.ROOT_HEIGHT, MainNetSporks.MainNet25.ROOT_HEIGHT - 1),
                 _ when sporkName == MainNetSporks.MainNet23.Name => new Spork(MainNetSporks.MainNet23.Name, MainNetSporks.MainNet23.NODE, MainNetSporks.MainNet23.ROOT_HEIGHT, MainNetSporks.MainNet24.ROOT_HEIGHT - 1),
                 _ when sporkName == MainNetSporks.MainNet22.Name => new Spork(MainNetSporks.MainNet22.Name, MainNetSporks.MainNet22.NODE, MainNetSporks.MainNet22.ROOT_HEIGHT, MainNetSporks.MainNet23.ROOT_HEIGHT - 1),
                 _ when sporkName == MainNetSporks.MainNet21.Name => new Spork(MainNetSporks.MainNet21.Name, MainNetSporks.MainNet21.NODE, MainNetSporks.MainNet21.ROOT_HEIGHT, MainNetSporks.MainNet22.ROOT_HEIGHT - 1),
@@ -170,7 +171,8 @@ namespace Graffle.FlowSdk.Services.Nodes
             blockHeight switch
             {
                 _ when blockHeight >= MainNetSporks.MainNet.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet.Name, MainNetSporks.MainNet.NODE, MainNetSporks.MainNet.ROOT_HEIGHT, null),
-                _ when blockHeight >= MainNetSporks.MainNet24.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet24.Name, MainNetSporks.MainNet24.NODE, MainNetSporks.MainNet24.ROOT_HEIGHT, MainNetSporks.MainNet.ROOT_HEIGHT - 1),
+                _ when blockHeight >= MainNetSporks.MainNet25.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet25.Name, MainNetSporks.MainNet25.NODE, MainNetSporks.MainNet25.ROOT_HEIGHT, MainNetSporks.MainNet.ROOT_HEIGHT - 1),
+                _ when blockHeight >= MainNetSporks.MainNet24.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet25.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet24.Name, MainNetSporks.MainNet24.NODE, MainNetSporks.MainNet24.ROOT_HEIGHT, MainNetSporks.MainNet25.ROOT_HEIGHT - 1),
                 _ when blockHeight >= MainNetSporks.MainNet23.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet24.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet23.Name, MainNetSporks.MainNet23.NODE, MainNetSporks.MainNet23.ROOT_HEIGHT, MainNetSporks.MainNet24.ROOT_HEIGHT - 1),
                 _ when blockHeight >= MainNetSporks.MainNet22.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet23.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet22.Name, MainNetSporks.MainNet22.NODE, MainNetSporks.MainNet22.ROOT_HEIGHT, MainNetSporks.MainNet23.ROOT_HEIGHT - 1),
                 _ when blockHeight >= MainNetSporks.MainNet21.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet22.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet21.Name, MainNetSporks.MainNet21.NODE, MainNetSporks.MainNet21.ROOT_HEIGHT, MainNetSporks.MainNet22.ROOT_HEIGHT - 1),
