@@ -7,7 +7,7 @@ namespace Graffle.FlowSdk.Services.Tests
     public class SporkTests
     {
         [TestMethod]
-        public void IsCrescendo_AllOldSporks_ReturnsFalse()
+        public void IsCrescendo_OldTestNetSporks_ReturnsFalse()
         {
             for (int i = 17; i <= 50; i++)
             {
