@@ -41,7 +41,7 @@ namespace Graffle.FlowSdk.Services.Serialization
         /// </summary>
         /// <param name="eventPayloadJson">Cadence event json payload</param>
         /// <returns></returns>
-        public static GraffleCompositeType GraffleCompositeFromEventPayload(string eventPayloadJson)
+        internal static GraffleCompositeType GraffleCompositeFromEventPayload(string eventPayloadJson)
         {
             IDictionary<string, object> parsed;
             try
