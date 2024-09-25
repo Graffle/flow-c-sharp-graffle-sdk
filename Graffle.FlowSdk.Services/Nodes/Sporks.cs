@@ -28,11 +28,9 @@ namespace Graffle.FlowSdk.Services.Nodes
     {
         private static readonly Spork _main = GetSporkByName(MainNetSporks.MainNet.Name);
         private static readonly Spork _test = GetSporkByName(TestNetSporks.TestNet.Name);
-        private static readonly Spork _previewNet = new("PreviewNet", "access.previewnet.nodes.onflow.org:9000", 0, null, false, false, true);
 
         public static Spork MainNet() => _main;
         public static Spork TestNet() => _test;
-        public static Spork PreviewNet() => _previewNet;
 
         /// <summary>
         /// Returns true if the spork occurs after Crescedo upgrade (ie cadence 1.0)
