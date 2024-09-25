@@ -9,7 +9,7 @@ namespace Graffle.FlowSdk.Services.Serialization
 {
     public static class CadenceJsonInterpreter
     {
-        private static readonly JsonConverter _expando = new ExpandoObjectConverter();
+        private static readonly ExpandoObjectConverter _expando = new();
 
         /// <summary>
         /// IDictionary<string,object>, ie json object
