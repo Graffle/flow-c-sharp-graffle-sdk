@@ -1,12 +1,12 @@
-using System;
-using Graffle.FlowSdk;
-using Graffle.FlowSdk.Services;
 using Graffle.FlowSdk.Services.Nodes;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Graffle.FlowSdk.Services
 {
     public static class FlowServiceExtensions
     {
+        [Obsolete("Manually inject FlowClientFactory")]
         public static IServiceCollection AddFlowClientFactory(this IServiceCollection services, bool useCrescendoSerializerForAllSporks = true)
         {
             Console.WriteLine("Set Up Flow Client Factory");
