@@ -821,5 +821,13 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
             Assert.AreEqual("Int128", step["type"]);
             Assert.AreEqual("5", step["value"]);
         }
+
+        [TestMethod]
+        public void Void()
+        {
+            var json = "{\"type\":\"Void\"}";
+            var res = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+            Assert.AreEqual("Void", res);
+        }
     }
 }

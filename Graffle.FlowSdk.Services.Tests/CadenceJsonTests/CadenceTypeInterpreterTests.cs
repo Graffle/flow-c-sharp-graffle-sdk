@@ -319,6 +319,51 @@ namespace Graffle.FlowSdk.Services.Tests.CadenceJsonTests
         {
             var json = @"{""kind"":""VariableSizedArray"",""type"":{""kind"":""Struct"",""type"":"""",""typeID"":""A.631e88ae7f1d7c20.MetadataViews.Royalty"",""initializers"":[],""fields"":[{""id"":""receiver"",""type"":{""kind"":""Capability"",""type"":{""kind"":""Reference"",""authorization"":{""kind"":""Unauthorized"",""entitlements"":null},""type"":{""kind"":""Intersection"",""typeID"":""{A.9a0766d93b6608b7.FungibleToken.Receiver}"",""types"":[{""kind"":""ResourceInterface"",""type"":"""",""typeID"":""A.9a0766d93b6608b7.FungibleToken.Receiver"",""initializers"":[],""fields"":[{""id"":""uuid"",""type"":{""kind"":""UInt64""}}]}]}}}},{""id"":""cut"",""type"":{""kind"":""UFix64""}},{""id"":""description"",""type"":{""kind"":""String""}}]}}";
             var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            var dict = res as IDictionary<string, object>;
+            Assert.IsNotNull(dict);
+
+            Assert.AreEqual("VariableSizedArray", dict["kind"]);
+
+            var type = dict["type"] as IDictionary<string, object>;
+            Assert.IsNotNull(type);
+
+            Assert.AreEqual("Struct", type["kind"]);
+
+            var fields = type["fields"] as IList<object>;
+            Assert.IsNotNull(fields);
+
+            var capabilityField = fields[0] as IDictionary<string, object>;
+            Assert.IsNotNull(capabilityField);
+            Assert.AreEqual("receiver", capabilityField["id"]);
+
+            var capabilityType = capabilityField["type"] as IDictionary<string, object>;
+            Assert.IsNotNull(capabilityType);
+            Assert.AreEqual("Capability", capabilityType["kind"]);
+
+            var innerType = capabilityType["type"] as IDictionary<string, object>;
+            Assert.IsNotNull(innerType);
+            Assert.AreEqual("Reference", innerType["kind"]);
+
+            var auth = innerType["authorization"] as IDictionary<string, object>;
+            Assert.IsNotNull(auth);
+            Assert.AreEqual("Unauthorized", auth["kind"]);
+            Assert.IsNull(auth["entitlements"]);
+        }
+
+        [TestMethod]
+        public void OptionalType()
+        {
+            var json = @"{""kind"":""Optional"",""type"":{""kind"":""String""}}";
+            var res = CadenceTypeInterpreter.ObjectFromCadenceJson(json);
+
+            var dict = res as IDictionary<string, object>;
+            Assert.IsNotNull(dict);
+            Assert.AreEqual("Optional", dict["kind"]);
+
+            var type = dict["type"] as IDictionary<string, object>;
+            Assert.IsNotNull(type);
+            Assert.AreEqual("String", type["kind"]);
         }
     }
 }

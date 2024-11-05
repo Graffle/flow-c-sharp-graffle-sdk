@@ -39,18 +39,23 @@ namespace Graffle.FlowSdk.Services.Serialization
             }
 
             ArgumentNullException.ThrowIfNull(cadenceType, nameof(cadenceType));
-            if (cadenceType is not IDictionary<string, object> type) //expecting ExpandoObject object here
+            if (cadenceType is not IDictionary<string, object> type) //expecting JSON object here
             {
-                throw new CadenceJsonCastException("Invalid type for Cadence type object")
+                throw new CadenceJsonCastException("Invalid type for Cadence Type object")
                 {
                     ExpectedType = OBJECT_TYPE,
                     ActualType = cadenceType?.GetType()
                 };
             }
 
-            var kind = type["kind"].ToString();
-            Dictionary<string, dynamic> result = new() { { "kind", kind } };
-            switch (kind)
+            if (!type.TryGetValue("kind", out var kindObject) || kindObject is null)
+            {
+                throw new InvalidOperationException("cadence type kind not found");
+            }
+
+            var kindString = kindObject.ToString();
+            Dictionary<string, dynamic> result = new() { { "kind", kindString } };
+            switch (kindString)
             {
                 //composite types
                 case "Resource":
@@ -228,7 +233,7 @@ namespace Graffle.FlowSdk.Services.Serialization
                         break; //result just contains "kind" : "Type"
                     }
                 default:
-                    throw new Exception($"Unknown kind {kind}");
+                    throw new Exception($"Unknown kind {kindString}");
             }
 
             return result;

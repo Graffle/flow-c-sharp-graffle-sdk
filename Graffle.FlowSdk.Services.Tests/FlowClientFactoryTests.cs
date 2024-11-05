@@ -64,5 +64,19 @@ namespace Graffle.FlowSdk.Services.Tests
 
             Assert.AreNotSame(fc1, fc2);
         }
+
+        [TestMethod]
+        [DataRow("TestNet")]
+        [DataRow("MainNet")]
+        public void CreateFlowClient_ChoosesCorrectSpork(string sporkName)
+        {
+            var spork = Sporks.GetSporkByName(sporkName);
+
+            var fcf = new FlowClientFactory(sporkName);
+            var fc = fcf.CreateFlowClient();
+
+            Assert.AreEqual(spork.Name, fc.CurrentSpork.Name);
+            Assert.AreEqual(spork.Node, fc.CurrentSpork.Node);
+        }
     }
 }
