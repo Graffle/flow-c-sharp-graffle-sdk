@@ -47,8 +47,8 @@ namespace Graffle.FlowSdk
         {
             var spork = _nodeType switch
             {
-                NodeType.MainNet => Sporks.GetSporkByName(MainNetSporks.MainNet.Name),
-                NodeType.TestNet => Sporks.GetSporkByName(TestNetSporks.TestNet.Name),
+                NodeType.MainNet => Sporks.MainNet(),
+                NodeType.TestNet => Sporks.TestNet(),
                 NodeType.Emulator => Sporks.GetSporkByName(EmulatorSporks.Emulator.Name),
                 _ => throw new NotSupportedException($"Node Type: {_nodeType} is not yet supported."),
             };
