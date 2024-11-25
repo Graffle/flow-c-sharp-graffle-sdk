@@ -1,8 +1,17 @@
 # flow-c-sharp-graffle-sdk
 
+# Deserialize Cadence Json
+```
+var json = @"{""type"":""Address"",""value"":""0x66d6f450e25a4e22""}";
+
+//returns IDictionary<string,object> for json objects, IList<object> for json array, or primitive type for json value
+//object == "0x66d6f450e25a4e22"
+var object = CadenceJsonInterpreter.ObjectFromCadenceJson(json);
+```
+
 # Create client:
 ```
-    var flowClientFactory = new FlowClientFactory(nodeName);
+    var flowClientFactory = new FlowClientFactory("MainNet" /*"TestNet"*/);
     var flowClient = flowClientFactory.CreateFlowClient();
 ```
 
