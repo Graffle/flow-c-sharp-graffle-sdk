@@ -2,26 +2,15 @@ using System;
 
 namespace Graffle.FlowSdk.Services.Nodes
 {
-    public sealed class Spork
+    public sealed class Spork(string name, string node, ulong rootHeight, ulong? maxHeight, bool isTestNet = false, bool isEmulator = false, bool isPreviewNet = false)
     {
-        public Spork(string name, string node, ulong rootHeight, ulong? maxHeight, bool isTestNet = false, bool isEmulator = false, bool isPreviewNet = false)
-        {
-            Name = name;
-            Node = node;
-            RootHeight = rootHeight;
-            MaxHeight = maxHeight;
-            IsTestNet = isTestNet;
-            IsEmulator = isEmulator;
-            IsPreviewNet = isPreviewNet;
-        }
-
-        public string Name { get; }
-        public string Node { get; }
-        public ulong RootHeight { get; }
-        public ulong? MaxHeight { get; }
-        public bool IsTestNet { get; }
-        public bool IsEmulator { get; }
-        public bool IsPreviewNet { get; }
+        public string Name { get; } = name;
+        public string Node { get; } = node;
+        public ulong RootHeight { get; } = rootHeight;
+        public ulong? MaxHeight { get; } = maxHeight;
+        public bool IsTestNet { get; } = isTestNet;
+        public bool IsEmulator { get; } = isEmulator;
+        public bool IsPreviewNet { get; } = isPreviewNet;
     }
 
     public static class Sporks
