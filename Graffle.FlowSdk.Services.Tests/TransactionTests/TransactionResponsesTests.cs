@@ -345,12 +345,12 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual("A.d0bcefdf1e67ea85.HWGarageCard.NFT", nftType["typeID"]);
         }
 
-        private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
+        private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType)
         {
             var flowClient = nodeType switch
             {
                 NodeType.MainNet => _main.CreateFlowClient(blockHeight),
-                NodeType.TestNet => _test.CreateFlowClient(blockHeight),
+                NodeType.TestNet => _test.CreateFlowClient(blockHeight), //Flow does not retain old testnet data, refrain from writing tests against testnet transactions
                 _ => throw new Exception()
             };
             return await flowClient.GetTransactionResult(transactionId.HashToByteString());
