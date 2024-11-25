@@ -32,117 +32,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo refactor
-        public async Task TransactionWithArray()
-        {
-            var transactionResult = await GetTransaction(60145148, "35a060e0a370220ad0c949852afcd88da8a965e2bc829b332f512f7618ecedfc");
-
-            var events = transactionResult.Events;
-
-            //get the json we want to verify from the event payload
-            var eventWithArray = events.FirstOrDefault(ev => ev.Type == "A.056a9cc93a020fad.DimeStorefrontV2.SaleOfferAdded");
-            var payload = eventWithArray.Payload;
-            var parsedJson = JsonDocument.Parse(payload);
-            var valueRoot = parsedJson.RootElement.GetProperty("value");
-            var fieldsRoot = valueRoot.GetProperty("fields");
-            var myField = fieldsRoot.EnumerateArray().Skip(1).FirstOrDefault();
-            var array = myField.GetProperty("value");
-            var json = array.GetRawText();
-
-            //use our sdk to parse the json and extract information for verification
-            var parsedType = FlowValueType.CreateFromCadence(json);
-            Assert.IsNotNull(parsedType);
-            Assert.IsInstanceOfType(parsedType, typeof(ArrayType));
-            var arrayType = parsedType as ArrayType;
-
-            var data = arrayType.Data;
-            Assert.AreEqual(1, data.Count);
-
-            var item = data[0];
-            Assert.IsNotNull(item);
-            Assert.IsInstanceOfType(item, typeof(AddressType));
-            var addressType = item as AddressType;
-
-            Assert.AreEqual(addressType.Data, "0x26a608ed644c844f");
-        }
-
-        [TestMethod]
-        [Ignore] //todo refactor
-        public async Task Transaction_Dictionary_Contains_Structs()
-        {
-            var transactionResult = await GetTransaction(60147017, "2d724581f3758d9515951c585ee7795e5e22755f81d4268688a601c87ec8fbd7");
-
-            var events = transactionResult.Events;
-
-            //get the json we want to verify from the event payload
-            var eventWithArray = events.FirstOrDefault(ev => ev.Type == "A.2a37a78609bba037.TheFabricantS1ItemNFT.ItemDataCreated");
-            var payload = eventWithArray.Payload;
-            var parsedJson = JsonDocument.Parse(payload);
-            var valueRoot = parsedJson.RootElement.GetProperty("value");
-            var fieldsRoot = valueRoot.GetProperty("fields");
-            var myField = fieldsRoot.EnumerateArray().Skip(2).FirstOrDefault();
-            var dictionary = myField.GetProperty("value");
-            var json = dictionary.GetRawText();
-
-            //use our sdk to parse the json and extract information for verification
-            var parsedType = FlowValueType.CreateFromCadence(json);
-            Assert.IsNotNull(parsedType);
-            Assert.IsInstanceOfType(parsedType, typeof(DictionaryType));
-
-            var dictionaryType = parsedType as DictionaryType;
-            var data = dictionaryType.Data;
-
-            Assert.AreEqual(8, data.Keys.Count);
-
-            //let's pull out a single struct and validate it
-            var itemToTest = data.Where(kvp =>
-            {
-                var key = kvp.Key;
-                if (key is StringType s && s.Data == "itemImage4")
-                    return true;
-
-                return false;
-            }).FirstOrDefault();
-
-            Assert.IsNotNull(itemToTest);
-            Assert.IsNotNull(itemToTest.Value);
-            Assert.IsInstanceOfType(itemToTest.Value, typeof(CompositeType));
-
-            var structToTest = itemToTest.Value as CompositeType;
-            Assert.AreEqual("A.2a37a78609bba037.TheFabricantS1ItemNFT.Metadata", structToTest.Id);
-            Assert.AreEqual(2, structToTest.Fields.Count);
-
-            //verify each item
-            var first = structToTest.Fields[0];
-            Assert.AreEqual("metadataValue", first.Name);
-            var firstValue = first.Value;
-            Assert.IsNotNull(firstValue);
-            Assert.IsInstanceOfType(firstValue, typeof(StringType));
-            var tmp = firstValue as StringType;
-            Assert.AreEqual("", tmp.Data);
-
-            var second = structToTest.Fields[1];
-            Assert.AreEqual("mutable", second.Name);
-            var secondValue = second.Value;
-            Assert.IsNotNull(secondValue);
-            Assert.IsInstanceOfType(secondValue, typeof(BoolType));
-            var tmp2 = secondValue as BoolType;
-            Assert.AreEqual(true, tmp2.Data);
-
-            //let's do some verification on the grafflecomposite
-            var graffleComposite = eventWithArray.EventComposite;
-
-            //pull out the dictionary full of structs
-            var dict = graffleComposite.Data["metadatas"];
-            Assert.AreEqual(8, dict.Count);
-
-            //lets check out a single struct in here
-            var fields = dict["itemVideo"];
-            Assert.IsInstanceOfType(fields, typeof(Dictionary<string, object>));
-            Assert.AreEqual(2, fields.Count);
-        }
-
-        [TestMethod]
         public void Transaction_Dictionary_With_UInt64Key()
         {
             var json = @"{
@@ -222,134 +111,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             var events = res.Events;
 
             Assert.AreEqual(29625, events.Count());
-        }
-
-        [TestMethod]
-        [Ignore] //todo
-        public async Task Serialize_ArrayWithStructs_Succeeds()
-        {
-            var res = await GetTransaction(67676278, "94c061a2075679cf8df22bab85f2979739921a0c64939ce7ae1036629b55eaff");
-            var events = res.Events;
-            var ev = events[2];
-
-            var composite = ev.EventComposite;
-
-            Assert.IsNotNull(composite);
-
-            //this object is very complex and contains many nested complex types
-            //lets recurse through the data and touch some stuff to make sure it's all there
-            var data = composite.Data;
-            Assert.AreEqual(4, data.Keys.Count());
-
-            if (!data.TryGetValue("saleData", out dynamic saleData))
-            {
-                Assert.Fail("saleData not found in dictionary");
-            }
-
-            //saleData is a struct
-            Assert.IsInstanceOfType(saleData, typeof(Dictionary<string, object>));
-            var saleDataDict = saleData as Dictionary<string, object>;
-
-            //maindetail is also a struct
-            var mainDetail = saleDataDict["mainDetail"];
-            Assert.IsInstanceOfType(mainDetail, typeof(Dictionary<string, object>));
-            var mainDetailDict = mainDetail as Dictionary<string, object>;
-
-            //component details is an array
-            var componentDetails = mainDetailDict["componentDetails"];
-            Assert.IsInstanceOfType(componentDetails, typeof(List<object>));
-            var componentDetailsList = componentDetails as List<object>;
-
-            Assert.AreEqual(11, componentDetailsList.Count);
-
-            //this array contains structs
-            //lets just verify one
-            var item = componentDetailsList[0];
-            Assert.IsInstanceOfType(item, typeof(Dictionary<string, object>));
-
-            var itemDict = item as Dictionary<string, object>;
-            Assert.AreEqual(9, itemDict.Count());
-
-            //verify fields for this struct
-            if (!itemDict.TryGetValue("id", out object id))
-            {
-                Assert.Fail("id not found in dictionary");
-            }
-
-            Assert.AreEqual((UInt64)107520, id);
-
-            if (!itemDict.TryGetValue("name", out object name))
-            {
-                Assert.Fail("name not found");
-            }
-
-            Assert.AreEqual("Victorian Dream", name);
-
-            if (!itemDict.TryGetValue("series", out object series))
-            {
-                Assert.Fail("series not found");
-            }
-
-            Assert.AreEqual("Disordered-FengFeng", series);
-        }
-
-        [TestMethod]
-        [Ignore] //todo refactor
-        public async Task Serialize_SecureCadenceNewStructJson_Succeeds()
-        {
-            var res = await GetTransaction(96377682, "f1a275a477d150bc89b88ee1c3a2af957013c795be669cae8cdb56e32c6176c2");
-            var events = res.Events;
-            var nftStoreFront = events[0];
-
-            var composite = nftStoreFront.EventComposite;
-
-            //get the type field
-            var nftType = composite.Data["nftType"];
-            Assert.IsInstanceOfType(nftType, typeof(Dictionary<string, object>));
-            var dict = nftType as Dictionary<string, object>;
-
-            //verify properties
-            Assert.IsTrue(dict.ContainsKey("kind"));
-            Assert.AreEqual("Resource", dict["kind"]);
-
-            Assert.IsTrue(dict.ContainsKey("type"));
-            Assert.AreEqual(string.Empty, dict["type"]);
-
-            Assert.IsTrue(dict.ContainsKey("typeID"));
-            Assert.AreEqual("A.4dfd62c88d1b6462.AllDay.NFT", dict["typeID"]);
-
-            Assert.IsTrue(dict.ContainsKey("initializers"));
-            var initializers = dict["initializers"];
-
-            Assert.IsInstanceOfType(initializers, typeof(List<object>));
-            var initList = initializers as List<object>;
-            Assert.IsTrue(initList.Count == 0);
-
-            Assert.IsTrue(dict.ContainsKey("fields"));
-            var fields = dict["fields"];
-            Assert.IsInstanceOfType(fields, typeof(List<object>));
-
-            var fieldList = fields as List<object>;
-
-            Assert.AreEqual(5, fieldList.Count());
-
-            //pull out an item
-
-            var item = fieldList[2] as Dictionary<string, object>;
-            Assert.IsNotNull(item);
-
-            Assert.IsTrue(item.ContainsKey("id"));
-            Assert.AreEqual("editionID", item["id"]);
-
-            Assert.IsTrue(item.ContainsKey("type"));
-
-            var itemType = item["type"];
-            Assert.IsInstanceOfType(itemType, typeof(Dictionary<string, object>));
-
-            var itemTypeDict = itemType as Dictionary<string, object>;
-            Assert.IsTrue(itemTypeDict.ContainsKey("kind"));
-
-            Assert.AreEqual(itemTypeDict["kind"], "UInt64");
         }
 
         [TestMethod]
@@ -477,26 +238,6 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
         }
 
         [TestMethod]
-        [Ignore] //todo refactor
-        public async Task OptionalStruct_ContainsOptionalTypes()
-        {
-            var res = await GetTransaction(96364363, "07dd1909a0bc732cc9092010588571fab617b7a7c573058741e1f0391c74551c");
-
-            var ev = res.Events[0];
-
-            var composite = ev.EventComposite;
-
-            var nft = composite.Data["nft"] as Dictionary<string, object>;
-            Assert.IsNotNull(nft);
-
-            var collectionName = nft["collectionName"];
-            var collectionDescription = nft["collectionDescription"];
-
-            Assert.AreEqual("Wearables", collectionName);
-            Assert.AreEqual("Doodles 2 lets anyone create a uniquely personalized and endlessly customizable character in a one-of-a-kind style. Wearables and other collectibles can easily be bought, traded, or sold. Doodles 2 will also incorporate collaborative releases with top brands in fashion, music, sports, gaming, and more.\n\nDoodles 2 Private Beta, which will offer first access to the Doodles character creator tools, will launch later in 2022. Doodles 2 Private Beta will only be available to Beta Pass holders.", collectionDescription);
-        }
-
-        [TestMethod]
         public async Task String_With_NewLines()
         {
             var res = await GetTransaction(38393502, "8b80c75b1ebf03ef937988970964a9f981615863ada7c0a96f5b25069401f6d4", NodeType.MainNet);
@@ -604,48 +345,12 @@ namespace Graffle.FlowSdk.Services.Tests.TransactionsTests
             Assert.AreEqual("A.d0bcefdf1e67ea85.HWGarageCard.NFT", nftType["typeID"]);
         }
 
-        [TestMethod]
-        [Ignore] //todo refactor
-        public async Task OptionalArray()
-        {
-            var res = await GetTransaction(96370355, "87fd126ccd565384f1b738d52a4334161e99e05e8aa016070050fd575403b59c");
-
-            var evs = res.Events;
-
-            var assetUpdated = evs[0].EventComposite.Data;
-
-            Assert.IsTrue(assetUpdated.ContainsKey("orh"));
-            var orh = assetUpdated["orh"] as List<object>;
-            Assert.IsNotNull(orh);
-
-            var asString = orh.Select(x => x.ToString()).ToHashSet();
-            Assert.IsTrue(asString.Contains("Gino"));
-            Assert.IsTrue(asString.Contains("Mario"));
-            Assert.IsTrue(asString.Contains("Soul"));
-            Assert.IsTrue(asString.Contains("Tom"));
-            Assert.IsTrue(asString.Contains("Sue"));
-            Assert.IsTrue(asString.Contains("Kim"));
-            Assert.IsTrue(asString.Contains("Toto"));
-
-            Assert.AreEqual(7, asString.Count);
-        }
-
-        [TestMethod]
-        [Ignore]
-        public async Task Null_AutorizationEntitlement()
-        {
-            var res = await GetTransaction(211565410, "caa04c72e0d6b0d76c1fc3134fdd4197df3363bf8e033aa00a61a072f2c0d07b");
-
-            var ev = res.Events.First(x => x.Type == "A.2d55b98eb200daef.NFTStorefrontV2.ListingCompleted");
-            var json = System.Text.Json.JsonSerializer.Serialize(ev.EventComposite.Data);
-        }
-
-        private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType = NodeType.TestNet)
+        private async Task<FlowTransactionResult> GetTransaction(ulong blockHeight, string transactionId, NodeType nodeType)
         {
             var flowClient = nodeType switch
             {
                 NodeType.MainNet => _main.CreateFlowClient(blockHeight),
-                NodeType.TestNet => _test.CreateFlowClient(blockHeight),
+                NodeType.TestNet => _test.CreateFlowClient(blockHeight), //Flow does not retain old testnet data, refrain from writing tests against testnet transactions
                 _ => throw new Exception()
             };
             return await flowClient.GetTransactionResult(transactionId.HashToByteString());
