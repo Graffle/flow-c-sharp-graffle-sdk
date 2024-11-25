@@ -1,4 +1,4 @@
-# Flow Client dependency injection
+# gRPC Client Dependency Injection
 
 Inject gRPC for latest spork
 
