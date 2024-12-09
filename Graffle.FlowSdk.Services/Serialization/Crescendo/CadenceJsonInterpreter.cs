@@ -31,7 +31,17 @@ namespace Graffle.FlowSdk.Services.Serialization
         /// <returns></returns>
         public static dynamic ObjectFromCadenceJson(string json, bool preserveDictionaryKeyCasing = false)
         {
-            var parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
+            ArgumentException.ThrowIfNullOrWhiteSpace(json, nameof(json));
+
+            ExpandoObject parsed;
+            try
+            {
+                parsed = JsonConvert.DeserializeObject<ExpandoObject>(json, _expando);
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("invalid json", nameof(json), ex);
+            }
 
             return InterpretCadenceExpandoObject(parsed, preserveDictionaryKeyCasing);
         }
