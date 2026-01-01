@@ -43,7 +43,8 @@ namespace Graffle.FlowSdk.Services.Nodes
             sporkName switch
             {
                 _ when sporkName == TestNetSporks.TestNet.Name => new Spork(TestNetSporks.TestNet.Name, TestNetSporks.TestNet.NODE, TestNetSporks.TestNet.ROOT_HEIGHT, null, true),
-                _ when sporkName == TestNetSporks.TestNet51.Name => new Spork(TestNetSporks.TestNet51.Name, TestNetSporks.TestNet51.NODE, TestNetSporks.TestNet51.ROOT_HEIGHT, TestNetSporks.TestNet.ROOT_HEIGHT - 1, true),
+                _ when sporkName == TestNetSporks.TestNet52.Name => new Spork(TestNetSporks.TestNet52.Name, TestNetSporks.TestNet52.NODE, TestNetSporks.TestNet52.ROOT_HEIGHT, TestNetSporks.TestNet.ROOT_HEIGHT - 1, true),
+                _ when sporkName == TestNetSporks.TestNet51.Name => new Spork(TestNetSporks.TestNet51.Name, TestNetSporks.TestNet51.NODE, TestNetSporks.TestNet51.ROOT_HEIGHT, TestNetSporks.TestNet52.ROOT_HEIGHT - 1, true),
                 _ when sporkName == TestNetSporks.TestNet50.Name => new Spork(TestNetSporks.TestNet50.Name, TestNetSporks.TestNet50.NODE, TestNetSporks.TestNet50.ROOT_HEIGHT, TestNetSporks.TestNet51.ROOT_HEIGHT - 1, true),
                 _ when sporkName == TestNetSporks.TestNet49.Name => new Spork(TestNetSporks.TestNet49.Name, TestNetSporks.TestNet49.NODE, TestNetSporks.TestNet49.ROOT_HEIGHT, TestNetSporks.TestNet50.ROOT_HEIGHT - 1, true),
                 _ when sporkName == TestNetSporks.TestNet48.Name => new Spork(TestNetSporks.TestNet48.Name, TestNetSporks.TestNet48.NODE, TestNetSporks.TestNet48.ROOT_HEIGHT, TestNetSporks.TestNet49.ROOT_HEIGHT - 1, true),
@@ -80,7 +81,9 @@ namespace Graffle.FlowSdk.Services.Nodes
                 _ when sporkName == TestNetSporks.TestNet17.Name => new Spork(TestNetSporks.TestNet17.Name, TestNetSporks.TestNet17.NODE, TestNetSporks.TestNet17.ROOT_HEIGHT, TestNetSporks.TestNet18.ROOT_HEIGHT - 1, true),
 
                 _ when sporkName == MainNetSporks.MainNet.Name => new Spork(MainNetSporks.MainNet.Name, MainNetSporks.MainNet.NODE, MainNetSporks.MainNet.ROOT_HEIGHT, null),
-                _ when sporkName == MainNetSporks.MainNet25.Name => new Spork(MainNetSporks.MainNet25.Name, MainNetSporks.MainNet25.NODE, MainNetSporks.MainNet25.ROOT_HEIGHT, MainNetSporks.MainNet.ROOT_HEIGHT - 1),
+                _ when sporkName == MainNetSporks.MainNet27.Name => new Spork(MainNetSporks.MainNet27.Name, MainNetSporks.MainNet27.NODE, MainNetSporks.MainNet27.ROOT_HEIGHT, MainNetSporks.MainNet.ROOT_HEIGHT - 1),
+                _ when sporkName == MainNetSporks.MainNet26.Name => new Spork(MainNetSporks.MainNet26.Name, MainNetSporks.MainNet26.NODE, MainNetSporks.MainNet26.ROOT_HEIGHT, MainNetSporks.MainNet27.ROOT_HEIGHT - 1),
+                _ when sporkName == MainNetSporks.MainNet25.Name => new Spork(MainNetSporks.MainNet25.Name, MainNetSporks.MainNet25.NODE, MainNetSporks.MainNet25.ROOT_HEIGHT, MainNetSporks.MainNet26.ROOT_HEIGHT - 1),
                 _ when sporkName == MainNetSporks.MainNet24.Name => new Spork(MainNetSporks.MainNet24.Name, MainNetSporks.MainNet24.NODE, MainNetSporks.MainNet24.ROOT_HEIGHT, MainNetSporks.MainNet25.ROOT_HEIGHT - 1),
                 _ when sporkName == MainNetSporks.MainNet23.Name => new Spork(MainNetSporks.MainNet23.Name, MainNetSporks.MainNet23.NODE, MainNetSporks.MainNet23.ROOT_HEIGHT, MainNetSporks.MainNet24.ROOT_HEIGHT - 1),
                 _ when sporkName == MainNetSporks.MainNet22.Name => new Spork(MainNetSporks.MainNet22.Name, MainNetSporks.MainNet22.NODE, MainNetSporks.MainNet22.ROOT_HEIGHT, MainNetSporks.MainNet23.ROOT_HEIGHT - 1),
@@ -114,7 +117,8 @@ namespace Graffle.FlowSdk.Services.Nodes
              blockHeight switch
              {
                  _ when blockHeight >= TestNetSporks.TestNet.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet.Name, TestNetSporks.TestNet.NODE, TestNetSporks.TestNet.ROOT_HEIGHT, null, true),
-                 _ when blockHeight >= TestNetSporks.TestNet51.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet51.Name, TestNetSporks.TestNet51.NODE, TestNetSporks.TestNet51.ROOT_HEIGHT, TestNetSporks.TestNet.ROOT_HEIGHT - 1, true),
+                 _ when blockHeight >= TestNetSporks.TestNet52.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet52.Name, TestNetSporks.TestNet52.NODE, TestNetSporks.TestNet52.ROOT_HEIGHT, TestNetSporks.TestNet.ROOT_HEIGHT - 1, true),
+                 _ when blockHeight >= TestNetSporks.TestNet51.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet52.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet51.Name, TestNetSporks.TestNet51.NODE, TestNetSporks.TestNet51.ROOT_HEIGHT, TestNetSporks.TestNet52.ROOT_HEIGHT - 1, true),
                  _ when blockHeight >= TestNetSporks.TestNet50.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet51.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet50.Name, TestNetSporks.TestNet50.NODE, TestNetSporks.TestNet50.ROOT_HEIGHT, TestNetSporks.TestNet51.ROOT_HEIGHT - 1, true),
                  _ when blockHeight >= TestNetSporks.TestNet49.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet50.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet49.Name, TestNetSporks.TestNet49.NODE, TestNetSporks.TestNet49.ROOT_HEIGHT, TestNetSporks.TestNet50.ROOT_HEIGHT - 1, true),
                  _ when blockHeight >= TestNetSporks.TestNet48.ROOT_HEIGHT && blockHeight < TestNetSporks.TestNet49.ROOT_HEIGHT => new Spork(TestNetSporks.TestNet48.Name, TestNetSporks.TestNet48.NODE, TestNetSporks.TestNet48.ROOT_HEIGHT, TestNetSporks.TestNet49.ROOT_HEIGHT - 1, true),
@@ -158,7 +162,9 @@ namespace Graffle.FlowSdk.Services.Nodes
             blockHeight switch
             {
                 _ when blockHeight >= MainNetSporks.MainNet.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet.Name, MainNetSporks.MainNet.NODE, MainNetSporks.MainNet.ROOT_HEIGHT, null),
-                _ when blockHeight >= MainNetSporks.MainNet25.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet25.Name, MainNetSporks.MainNet25.NODE, MainNetSporks.MainNet25.ROOT_HEIGHT, MainNetSporks.MainNet.ROOT_HEIGHT - 1),
+                _ when blockHeight >= MainNetSporks.MainNet27.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet27.Name, MainNetSporks.MainNet27.NODE, MainNetSporks.MainNet27.ROOT_HEIGHT, MainNetSporks.MainNet.ROOT_HEIGHT - 1),
+                _ when blockHeight >= MainNetSporks.MainNet26.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet27.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet26.Name, MainNetSporks.MainNet26.NODE, MainNetSporks.MainNet26.ROOT_HEIGHT, MainNetSporks.MainNet27.ROOT_HEIGHT - 1),
+                _ when blockHeight >= MainNetSporks.MainNet25.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet26.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet25.Name, MainNetSporks.MainNet25.NODE, MainNetSporks.MainNet25.ROOT_HEIGHT, MainNetSporks.MainNet26.ROOT_HEIGHT - 1),
                 _ when blockHeight >= MainNetSporks.MainNet24.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet25.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet24.Name, MainNetSporks.MainNet24.NODE, MainNetSporks.MainNet24.ROOT_HEIGHT, MainNetSporks.MainNet25.ROOT_HEIGHT - 1),
                 _ when blockHeight >= MainNetSporks.MainNet23.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet24.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet23.Name, MainNetSporks.MainNet23.NODE, MainNetSporks.MainNet23.ROOT_HEIGHT, MainNetSporks.MainNet24.ROOT_HEIGHT - 1),
                 _ when blockHeight >= MainNetSporks.MainNet22.ROOT_HEIGHT && blockHeight < MainNetSporks.MainNet23.ROOT_HEIGHT => new Spork(MainNetSporks.MainNet22.Name, MainNetSporks.MainNet22.NODE, MainNetSporks.MainNet22.ROOT_HEIGHT, MainNetSporks.MainNet23.ROOT_HEIGHT - 1),
